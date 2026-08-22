@@ -1,12 +1,27 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
+import subprocess
+import tempfile
 from typing import Any
 
 import geopandas as gpd
 from shapely.ops import unary_union
 
 WORKING_CRS = "EPSG:32633"
+OSM_FEATURE_FILTERS = (
+    "w/highway",
+    "w/waterway",
+    "w/railway",
+    "w/leisure=park",
+    "wr/natural=water",
+    "r/boundary=administrative",
+    "n/place",
+    "n/amenity",
+    "n/tourism",
+    "n/historic",
+)
 
 
 def _as_geodataframe(data: gpd.GeoDataFrame | str | Path) -> gpd.GeoDataFrame:
@@ -32,6 +47,78 @@ def _ensure_working_crs(
     return frame
 
 
+def extract_osm_features(
+    source_pbf: str | Path,
+    output_path: str | Path,
+    *,
+    osmium_path: str = "osmium",
+) -> Path:
+    """Extract Task 4 feature classes from a cached OSM PBF without network access."""
+    source_path = Path(source_pbf)
+    if not source_path.exists():
+        raise FileNotFoundError(f"Cached OSM PBF not found: {source_path}")
+    executable = shutil.which(osmium_path)
+    if executable is None:
+        raise RuntimeError(
+            "Osmium is required for map extraction. Install the `osmium-tool` binary and ensure it is on your PATH."
+        )
+
+    target_path = Path(output_path)
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=target_path.parent) as temporary_dir:
+        filtered_pbf = Path(temporary_dir) / "leipzig-features.osm.pbf"
+        subprocess.run(
+            [
+                executable,
+                "tags-filter",
+                "--overwrite",
+                "-o",
+                str(filtered_pbf),
+                str(source_path),
+                *OSM_FEATURE_FILTERS,
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                executable,
+                "export",
+                "--overwrite",
+                "-o",
+                str(target_path),
+                str(filtered_pbf),
+            ],
+            check=True,
+        )
+    return target_path
+
+
+def derive_municipal_map_from_sources(
+    boundary_path: str | Path,
+    source_pbf: str | Path,
+    output_path: str | Path,
+    *,
+    working_crs: str = WORKING_CRS,
+    osmium_path: str = "osmium",
+) -> dict[str, Any]:
+    """Derive the offline Municipal Map from the two cached Task 3 sources."""
+    target_path = Path(output_path)
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=target_path.parent) as temporary_dir:
+        extracted_features = Path(temporary_dir) / "osm-features.geojson"
+        extract_osm_features(
+            source_pbf,
+            extracted_features,
+            osmium_path=osmium_path,
+        )
+        return derive_municipal_map(
+            boundary_path,
+            extracted_features,
+            output_path=target_path,
+            working_crs=working_crs,
+        )
+
+
 def derive_municipal_map(
     boundary: gpd.GeoDataFrame | str | Path,
     features: gpd.GeoDataFrame | str | Path,
@@ -49,42 +136,34 @@ def derive_municipal_map(
 
     if boundary_gdf.empty:
         raise ValueError("Municipal boundary is empty; cannot derive a municipal map.")
-    if feature_gdf.empty:
-        empty = gpd.GeoDataFrame(geometry=[], crs=boundary_gdf.crs)
-        if output_path is not None:
-            target = Path(output_path)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            empty.to_file(target, driver="GeoJSON")
-        return {
-            "feature_count": 0,
-            "crs": boundary_gdf.crs.to_string() if boundary_gdf.crs else working_crs,
-            "output_path": Path(output_path) if output_path is not None else None,
-        }
 
     boundary_gdf = _ensure_working_crs(boundary_gdf, target_crs=working_crs)
     feature_gdf = _ensure_working_crs(feature_gdf, target_crs=working_crs)
 
     boundary_geom = unary_union(boundary_gdf.geometry.dropna())
-    if boundary_geom.is_empty:
+    if boundary_geom.is_empty or boundary_geom.geom_type not in {
+        "Polygon",
+        "MultiPolygon",
+    }:
         raise ValueError("Municipal boundary contains no valid polygonal geometry.")
 
-    cleaned = (
-        feature_gdf[["geometry"]].copy()
-        if "geometry" in feature_gdf.columns
-        else feature_gdf.copy()
-    )
+    cleaned = feature_gdf.copy()
     cleaned = cleaned[cleaned.geometry.notna()].copy()
     if cleaned.empty:
+        target_path = (
+            Path(output_path)
+            if output_path is not None
+            else Path(".cache") / "municipal-map.geojson"
+        )
         if output_path is not None:
-            target = Path(output_path)
-            target.parent.mkdir(parents=True, exist_ok=True)
+            target_path.parent.mkdir(parents=True, exist_ok=True)
             gpd.GeoDataFrame(geometry=[], crs=working_crs).to_file(
-                target, driver="GeoJSON"
+                target_path, driver="GeoJSON"
             )
         return {
             "feature_count": 0,
             "crs": working_crs,
-            "output_path": Path(output_path) if output_path is not None else None,
+            "output_path": target_path,
         }
 
     clipped_geometry = cleaned.geometry.intersection(boundary_geom)
@@ -105,7 +184,7 @@ def derive_municipal_map(
         }
 
     retained = retained.set_crs(working_crs, allow_override=True)
-    outside = retained.geometry.apply(lambda geom: not geom.within(boundary_geom))
+    outside = retained.geometry.apply(lambda geom: not boundary_geom.covers(geom))
     if outside.any():
         raise ValueError(
             "Derived municipal map retains features outside the municipal boundary."
