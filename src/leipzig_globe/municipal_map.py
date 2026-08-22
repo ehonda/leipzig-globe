@@ -18,9 +18,13 @@ def _as_geodataframe(data: gpd.GeoDataFrame | str | Path) -> gpd.GeoDataFrame:
     return gpd.read_file(path)
 
 
-def _ensure_working_crs(frame: gpd.GeoDataFrame, *, target_crs: str = WORKING_CRS) -> gpd.GeoDataFrame:
+def _ensure_working_crs(
+    frame: gpd.GeoDataFrame, *, target_crs: str = WORKING_CRS
+) -> gpd.GeoDataFrame:
     if frame.crs is None:
-        raise ValueError("GeoDataFrame is missing a CRS and cannot be normalized for Leipzig.")
+        raise ValueError(
+            "GeoDataFrame is missing a CRS and cannot be normalized for Leipzig."
+        )
     if frame.crs.is_geographic:
         return frame.to_crs(target_crs)
     if frame.crs.to_string() != target_crs:
@@ -64,13 +68,19 @@ def derive_municipal_map(
     if boundary_geom.is_empty:
         raise ValueError("Municipal boundary contains no valid polygonal geometry.")
 
-    cleaned = feature_gdf[["geometry"]].copy() if "geometry" in feature_gdf.columns else feature_gdf.copy()
+    cleaned = (
+        feature_gdf[["geometry"]].copy()
+        if "geometry" in feature_gdf.columns
+        else feature_gdf.copy()
+    )
     cleaned = cleaned[cleaned.geometry.notna()].copy()
     if cleaned.empty:
         if output_path is not None:
             target = Path(output_path)
             target.parent.mkdir(parents=True, exist_ok=True)
-            gpd.GeoDataFrame(geometry=[], crs=working_crs).to_file(target, driver="GeoJSON")
+            gpd.GeoDataFrame(geometry=[], crs=working_crs).to_file(
+                target, driver="GeoJSON"
+            )
         return {
             "feature_count": 0,
             "crs": working_crs,
@@ -85,7 +95,9 @@ def derive_municipal_map(
         if output_path is not None:
             target = Path(output_path)
             target.parent.mkdir(parents=True, exist_ok=True)
-            gpd.GeoDataFrame(geometry=[], crs=working_crs).to_file(target, driver="GeoJSON")
+            gpd.GeoDataFrame(geometry=[], crs=working_crs).to_file(
+                target, driver="GeoJSON"
+            )
         return {
             "feature_count": 0,
             "crs": working_crs,
@@ -95,9 +107,15 @@ def derive_municipal_map(
     retained = retained.set_crs(working_crs, allow_override=True)
     outside = retained.geometry.apply(lambda geom: not geom.within(boundary_geom))
     if outside.any():
-        raise ValueError("Derived municipal map retains features outside the municipal boundary.")
+        raise ValueError(
+            "Derived municipal map retains features outside the municipal boundary."
+        )
 
-    target_path = Path(output_path) if output_path is not None else Path(".cache") / "municipal-map.geojson"
+    target_path = (
+        Path(output_path)
+        if output_path is not None
+        else Path(".cache") / "municipal-map.geojson"
+    )
     target_path.parent.mkdir(parents=True, exist_ok=True)
     retained.to_file(target_path, driver="GeoJSON")
 
