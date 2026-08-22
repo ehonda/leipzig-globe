@@ -23,10 +23,18 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,
         "seam_offset_deg": 0,
+        "gore_seam_margin_mm": 10,
         "world_layout_scale_x": 1.0,
         "world_layout_scale_y": 1.0,
         "gore_order": "clockwise",
         "label_density": "medium",
+        "curated_landmarks": [
+            "Leipzig",
+            "Mitte",
+            "Connewitz",
+            "Schönefeld",
+            "Plagwitz",
+        ],
         "source_cache_dir": ".cache",
     },
     "paths": {
@@ -123,12 +131,27 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
     layout["pole_safety_zone_mm"] = _validate_non_negative_number(
         "layout.pole_safety_zone_mm", layout.get("pole_safety_zone_mm")
     )
+    layout["gore_seam_margin_mm"] = _validate_non_negative_number(
+        "layout.gore_seam_margin_mm",
+        layout.get("gore_seam_margin_mm", DEFAULT_CONFIG["layout"]["gore_seam_margin_mm"]),
+    )
     layout["world_layout_scale_x"] = _validate_positive_number(
         "layout.world_layout_scale_x", layout.get("world_layout_scale_x")
     )
     layout["world_layout_scale_y"] = _validate_positive_number(
         "layout.world_layout_scale_y", layout.get("world_layout_scale_y")
     )
+
+    curated_landmarks = layout.get("curated_landmarks", DEFAULT_CONFIG["layout"]["curated_landmarks"])
+    if curated_landmarks is None:
+        curated_landmarks = []
+    if not isinstance(curated_landmarks, list) or not all(
+        isinstance(item, str) and item.strip() for item in curated_landmarks
+    ):
+        raise ValueError(
+            "Invalid layout settings: curated_landmarks must be a list of non-empty strings."
+        )
+    layout["curated_landmarks"] = [str(item).strip() for item in curated_landmarks]
 
     seam_offset = _validate_seam_offset(
         "globe.seam_offset_deg",

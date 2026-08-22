@@ -12,10 +12,17 @@ layout:
   print_margin_mm: 10
   pole_safety_zone_mm: 20
   seam_offset_deg: 0
+  gore_seam_margin_mm: 10
   world_layout_scale_x: 1.0
   world_layout_scale_y: 1.0
   gore_order: clockwise
   label_density: medium
+  curated_landmarks:
+    - Leipzig
+    - Mitte
+    - Connewitz
+    - Schönefeld
+    - Plagwitz
   source_cache_dir: .cache
 paths:
   output_dir: output

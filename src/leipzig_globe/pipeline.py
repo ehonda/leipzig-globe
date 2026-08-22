@@ -64,6 +64,18 @@ def gore_outline_points(
     ]
 
 
+def _gore_seam_positions(cfg: dict[str, Any], width: int) -> list[float]:
+    gore_count = cfg["globe"]["gore_count"]
+    seam_offset_deg = float(
+        cfg["globe"].get("seam_offset_deg", cfg["layout"].get("seam_offset_deg", 0))
+    )
+    step = width / gore_count
+    return [
+        (seam_offset_deg / 360.0 * width + (index * step)) % width
+        for index in range(gore_count)
+    ]
+
+
 def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[str, Any]:
     cfg = validate_config(config)
     width, height = texture_dimensions(cfg)
@@ -72,6 +84,11 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         24,
         int((cfg["layout"]["pole_safety_zone_mm"] / 25.4) * cfg["globe"]["ppi"]),
     )
+    seam_margin = max(
+        12,
+        int((cfg["layout"]["gore_seam_margin_mm"] / 25.4) * cfg["globe"]["ppi"]),
+    )
+    seam_positions = _gore_seam_positions(cfg, width)
     density = LABEL_DENSITY_SETTINGS.get(
         str(cfg["layout"].get("label_density", "medium")).lower(),
         LABEL_DENSITY_SETTINGS["medium"],
@@ -128,6 +145,15 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         {"label": "Leipzig Nord", "x": 0.46, "y": 0.08},
         {"label": "Leipzig Süd", "x": 0.46, "y": 0.92},
     ]
+    curated_landmarks = [
+        str(name).strip()
+        for name in cfg["layout"].get("curated_landmarks", [])
+        if str(name).strip()
+    ]
+    if curated_landmarks:
+        for name in curated_landmarks:
+            if not any(entry["label"] == name for entry in labels):
+                labels.append({"label": name, "x": 0.5, "y": 0.5})
 
     visible_labels: list[dict[str, Any]] = []
     omitted_labels: list[dict[str, str]] = []
@@ -167,6 +193,19 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
             x_px + label_width / 2,
             y_px + label_height / 2,
         )
+
+        center_x = (bbox[0] + bbox[2]) / 2
+        if any(
+            min(
+                abs(center_x - seam_x),
+                abs(center_x - seam_x + width),
+                abs(center_x - seam_x - width),
+            )
+            <= seam_margin
+            for seam_x in seam_positions
+        ):
+            omitted_labels.append({"label": entry["label"], "reason": "gore_seam"})
+            continue
 
         if any(
             not (

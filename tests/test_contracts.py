@@ -218,3 +218,38 @@ def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):
     assert "reason" in result["omitted_labels"][0]
     payload = json.loads(report_path.read_text(encoding="utf-8"))
     assert payload["omitted_labels"] == result["omitted_labels"]
+
+
+def test_render_clean_map_omits_labels_near_gore_seams(tmp_path):
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "seam_offset_deg": 90,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "seam_offset_deg": 90,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "medium",
+            "gore_seam_margin_mm": 10,
+            "curated_landmarks": ["Mitte", "Connewitz", "Schönefeld"],
+        },
+        "paths": {"map_file": "leipzig-map.png"},
+    }
+
+    output_path = tmp_path / "leipzig-map.png"
+    result = render_clean_map(config, output_path)
+
+    assert output_path.exists()
+    assert any(entry["reason"] == "gore_seam" for entry in result["omitted_labels"])
+    assert isinstance(result["rendered_labels"], list)
+    assert result["omitted_labels"]
