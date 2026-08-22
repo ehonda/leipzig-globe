@@ -156,8 +156,19 @@ def persist_source_manifest(cache_dir: str | Path, manifest: SourceManifest) -> 
     cache_root = Path(cache_dir)
     cache_root.mkdir(parents=True, exist_ok=True)
     manifest_path = cache_root / "source-manifest.json"
+
+    existing = load_source_manifests(cache_root)
+    existing[manifest.file_name] = manifest
+    entries = [entry.as_dict() for entry in existing.values()]
+
+    payload: dict[str, Any] | list[dict[str, Any]]
+    if len(entries) == 1:
+        payload = entries[0]
+    else:
+        payload = {"sources": entries}
+
     manifest_path.write_text(
-        json.dumps(manifest.as_dict(), indent=2, sort_keys=True),
+        json.dumps(payload, indent=2, sort_keys=True),
         encoding="utf-8",
     )
     return manifest_path

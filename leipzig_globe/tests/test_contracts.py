@@ -10,7 +10,13 @@ from leipzig_globe.config import (
     load_config,
     validate_config,
 )
-from leipzig_globe.fetcher import SourceManifest, fetch_data_cache, verify_manifest
+from leipzig_globe.fetcher import (
+    SourceManifest,
+    compute_sha256,
+    fetch_data_cache,
+    load_source_manifests,
+    verify_manifest,
+)
 
 
 def test_default_config_sets_expected_mvp_values():
@@ -131,3 +137,35 @@ def test_fetch_data_cache_rejects_checksum_mismatch(tmp_path):
 
     with pytest.raises(ValueError, match="checksum mismatch"):
         fetch_data_cache(cache_dir, manifest)
+
+
+def test_fetch_data_cache_retains_all_manifests_for_multiple_sources(tmp_path):
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    first_path = cache_dir / "source-a.bin"
+    second_path = cache_dir / "source-b.bin"
+    first_path.write_bytes(b"alpha-data")
+    second_path.write_bytes(b"beta-data")
+
+    first_manifest = SourceManifest(
+        source_name="source-a",
+        url="https://example.com/source-a.bin",
+        file_name="source-a.bin",
+        sha256=compute_sha256(first_path),
+        metadata={"license": "example", "source_version": "2024-01-01"},
+    )
+    second_manifest = SourceManifest(
+        source_name="source-b",
+        url="https://example.com/source-b.bin",
+        file_name="source-b.bin",
+        sha256=compute_sha256(second_path),
+        metadata={"license": "example", "source_version": "2024-01-02"},
+    )
+
+    fetch_data_cache(cache_dir, first_manifest)
+    fetch_data_cache(cache_dir, second_manifest)
+
+    manifests = load_source_manifests(cache_dir)
+    assert set(manifests) == {"source-a.bin", "source-b.bin"}
+    assert manifests["source-a.bin"].sha256 == compute_sha256(first_path)
+    assert manifests["source-b.bin"].sha256 == compute_sha256(second_path)
