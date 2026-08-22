@@ -2,7 +2,7 @@
 
 ## Status
 
-- [x] 1. Bootstrap the `uv` Python project
+- [x] 1. Bootstrap the `uv` Python project (reviewed and corrected)
 - [ ] 2. Define configuration and artifact contracts
 - [ ] 3. Implement deterministic source acquisition
 - [ ] 4. Derive the Municipal Map
