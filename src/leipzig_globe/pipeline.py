@@ -387,59 +387,109 @@ def render_clean_map(
     }
 
 
-def generate_globe_texture(config: dict[str, Any], output_path: str | Path) -> Path:
+def generate_globe_texture(
+    config: dict[str, Any],
+    output_path: str | Path,
+    *,
+    source_map: str | Path | None = None,
+) -> Path:
+    cfg = validate_config(config)
     path = Path(output_path)
-    width, height = texture_dimensions(config)
-    image = Image.new("RGB", (width, height), color=(248, 245, 239))
-    draw = ImageDraw.Draw(image)
+    width, height = texture_dimensions(cfg)
+    background = tuple(cfg["style"]["background"])
+    texture = Image.new("RGB", (width, height), color=background)
 
-    polygon = [
-        (width * 0.18, height * 0.22),
-        (width * 0.68, height * 0.12),
-        (width * 0.82, height * 0.33),
-        (width * 0.88, height * 0.68),
-        (width * 0.72, height * 0.88),
-        (width * 0.28, height * 0.82),
-        (width * 0.14, height * 0.56),
-    ]
-    draw.polygon(polygon, fill=(214, 228, 220))
-
-    water = [
-        (0.0, 0.16),
-        (0.2, 0.15),
-        (0.32, 0.25),
-        (0.18, 0.5),
-        (0.26, 0.76),
-        (0.12, 0.88),
-        (0.0, 0.74),
-    ]
-    water_pts = [(int(x * width), int(y * height)) for x, y in water]
-    draw.polygon(water_pts, fill=(135, 176, 196))
-
-    for road in range(7):
-        y = int(height * (0.18 + road * 0.11))
-        start = (0, y)
-        end = (width, y + int(height * 0.03))
-        draw.line([start, end], fill=(92, 100, 105), width=max(2, int(width / 200)))
-
-    road_band = [(0, int(height * 0.52)), (width, int(height * 0.62))]
-    draw.line(road_band, fill=(72, 76, 81), width=max(3, int(width / 120)))
-
-    for idx, label in enumerate(
-        ["Leipzig", "Zentrum", "Mitte", "Connewitz", "Schönefeld", "Plagwitz"]
-    ):
-        position = (
-            int(width * (0.12 + (idx + 1) * 0.08)),
-            int(height * (0.15 + (idx % 6) * 0.11)),
+    source_path = Path(source_map) if source_map is not None else None
+    if source_path is None:
+        candidate = cfg["paths"].get("map_file")
+        if candidate:
+            source_path = Path(candidate)
+            if not source_path.is_absolute():
+                source_path = Path.cwd() / source_path
+        if not source_path or not source_path.exists():
+            source_path = path.parent / cfg["paths"].get("map_file", "leipzig-map.png")
+    if source_path is not None and source_path.exists():
+        source_image = Image.open(source_path).convert("RGB")
+        scale_x = float(cfg["layout"]["world_layout_scale_x"])
+        scale_y = float(cfg["layout"]["world_layout_scale_y"])
+        scaled_size = (
+            max(1, round(source_image.width * scale_x)),
+            max(1, round(source_image.height * scale_y)),
         )
-        try:
-            font = ImageFont.truetype("DejaVuSans.ttf", max(12, int(width / 70)))
-        except OSError:
-            font = ImageFont.load_default()
-        draw.text(position, label, fill=(70, 71, 73), font=font)
+        mapped = source_image.resize(scaled_size, Image.Resampling.BICUBIC)
+        seam_offset_deg = float(
+            cfg["globe"].get("seam_offset_deg", cfg["layout"].get("seam_offset_deg", 0))
+        )
+        seam_offset_px = round((seam_offset_deg / 360.0) * width)
+        y_anchor = (height - mapped.height) // 2
+        x_anchor = (width - mapped.width) // 2
+        positions = [
+            x_anchor + seam_offset_px,
+            x_anchor + seam_offset_px - width,
+            x_anchor + seam_offset_px + width,
+        ]
+        for position in positions:
+            if position >= width or position + mapped.width <= 0:
+                continue
+            src_x0 = max(0, -position)
+            src_x1 = min(mapped.width, width - position)
+            if src_x1 <= src_x0:
+                continue
+            dst_x0 = max(0, position)
+            dst_x1 = min(width, position + mapped.width)
+            if dst_x1 <= dst_x0:
+                continue
+            crop = mapped.crop((src_x0, 0, src_x1, mapped.height))
+            texture.paste(crop, (dst_x0, y_anchor))
+    else:
+        draw = ImageDraw.Draw(texture)
+        polygon = [
+            (width * 0.18, height * 0.22),
+            (width * 0.68, height * 0.12),
+            (width * 0.82, height * 0.33),
+            (width * 0.88, height * 0.68),
+            (width * 0.72, height * 0.88),
+            (width * 0.28, height * 0.82),
+            (width * 0.14, height * 0.56),
+        ]
+        draw.polygon(polygon, fill=(214, 228, 220))
+
+        water = [
+            (0.0, 0.16),
+            (0.2, 0.15),
+            (0.32, 0.25),
+            (0.18, 0.5),
+            (0.26, 0.76),
+            (0.12, 0.88),
+            (0.0, 0.74),
+        ]
+        water_pts = [(int(x * width), int(y * height)) for x, y in water]
+        draw.polygon(water_pts, fill=(135, 176, 196))
+
+        for road in range(7):
+            y = int(height * (0.18 + road * 0.11))
+            start = (0, y)
+            end = (width, y + int(height * 0.03))
+            draw.line([start, end], fill=(92, 100, 105), width=max(2, int(width / 200)))
+
+        road_band = [(0, int(height * 0.52)), (width, int(height * 0.62))]
+        draw.line(road_band, fill=(72, 76, 81), width=max(3, int(width / 120)))
+
+        for idx, label in enumerate(
+            ["Leipzig", "Zentrum", "Mitte", "Connewitz", "Schönefeld", "Plagwitz"]
+        ):
+            position = (
+                int(width * (0.12 + (idx + 1) * 0.08)),
+                int(height * (0.15 + (idx % 6) * 0.11)),
+            )
+            try:
+                font = ImageFont.truetype("DejaVuSans.ttf", max(12, int(width / 70)))
+            except OSError:
+                font = ImageFont.load_default()
+            draw.text(position, label, fill=(70, 71, 73), font=font)
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(path)
+    texture.save(path)
     return path
 
 
@@ -578,7 +628,7 @@ def build_artifacts(
     map_render = render_clean_map(cfg, map_path)
 
     texture_path = work_dir / cfg["paths"]["texture_file"]
-    generate_globe_texture(cfg, texture_path)
+    generate_globe_texture(cfg, texture_path, source_map=map_path)
 
     gore_dir = work_dir / cfg["paths"]["gore_dir"]
     gore_files = build_gore_set(texture_path, gore_dir, cfg)
