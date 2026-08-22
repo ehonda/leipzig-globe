@@ -93,8 +93,12 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         str(cfg["layout"].get("label_density", "medium")).lower(),
         LABEL_DENSITY_SETTINGS["medium"],
     )
+    palette = {
+        key: tuple(value)
+        for key, value in cfg["style"].items()
+    }
 
-    image = Image.new("RGB", (width, height), color=(247, 244, 238))
+    image = Image.new("RGB", (width, height), color=palette["background"])
     draw = ImageDraw.Draw(image)
 
     land_polygon = [
@@ -106,7 +110,7 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         (width * 0.26, height * 0.84),
         (width * 0.12, height * 0.56),
     ]
-    draw.polygon(land_polygon, fill=(214, 227, 220))
+    draw.polygon(land_polygon, fill=palette["land"])
 
     water = [
         (0.0, 0.18),
@@ -119,20 +123,20 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
     ]
     draw.polygon(
         [(int(x * width), int(y * height)) for x, y in water],
-        fill=(132, 178, 198),
+        fill=palette["water"],
     )
 
     for road_index in range(6):
         y = int(height * (0.18 + road_index * 0.11))
         draw.line(
             [(0, y), (width, y + int(height * 0.03))],
-            fill=(92, 100, 105),
+            fill=palette["major_road"],
             width=max(2, int(width / 200)),
         )
 
     draw.line(
         [(0, int(height * 0.53)), (width, int(height * 0.63))],
-        fill=(72, 76, 81),
+        fill=palette["secondary_road"],
         width=max(3, int(width / 120)),
     )
 
@@ -224,7 +228,7 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         draw.text(
             (x_px, y_px),
             entry["label"],
-            fill=(70, 71, 73),
+            fill=palette["label"],
             font=font,
             anchor="mm",
         )

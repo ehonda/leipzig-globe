@@ -7,6 +7,15 @@ globe:
   seam_offset_deg: 0
   ppi: 200
   paper_size: A4
+style:
+  background: [247, 244, 238]
+  land: [214, 227, 220]
+  water: [132, 178, 198]
+  park: [186, 210, 188]
+  major_road: [92, 100, 105]
+  secondary_road: [72, 76, 81]
+  rail: [140, 145, 150]
+  label: [70, 71, 73]
 layout:
   tile_overlap_mm: 10
   print_margin_mm: 10

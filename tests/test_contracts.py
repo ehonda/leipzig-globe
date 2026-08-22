@@ -5,6 +5,8 @@ import json
 
 import pytest
 
+from PIL import Image
+
 from leipzig_globe.config import (
     default_config_path,
     load_config,
@@ -177,6 +179,50 @@ def test_fetch_data_cache_retains_all_manifests_for_multiple_sources(tmp_path):
     assert set(manifests) == {"source-a.bin", "source-b.bin"}
     assert manifests["source-a.bin"].sha256 == compute_sha256(first_path)
     assert manifests["source-b.bin"].sha256 == compute_sha256(second_path)
+
+
+def test_render_clean_map_uses_configured_style_palette(tmp_path):
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "style": {
+            "background": [10, 20, 30],
+            "land": [40, 50, 60],
+            "water": [70, 80, 90],
+            "park": [100, 110, 120],
+            "major_road": [130, 140, 150],
+            "secondary_road": [160, 170, 180],
+            "rail": [190, 200, 210],
+            "label": [220, 230, 240],
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "medium",
+            "gore_seam_margin_mm": 10,
+        },
+        "paths": {"map_file": "leipzig-map.png"},
+    }
+
+    cfg = validate_config(config)
+    assert cfg["style"]["background"] == [10, 20, 30]
+
+    output_path = tmp_path / "styled-map.png"
+    render_clean_map(config, output_path)
+
+    image = Image.open(output_path).convert("RGB")
+    assert image.getpixel((0, 0)) == (10, 20, 30)
+    assert image.getpixel((int(image.width * 0.42), int(image.height * 0.45))) == (40, 50, 60)
 
 
 def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):

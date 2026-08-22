@@ -18,6 +18,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "ppi": 200,
         "paper_size": "A4",
     },
+    "style": {
+        "background": [247, 244, 238],
+        "land": [214, 227, 220],
+        "water": [132, 178, 198],
+        "park": [186, 210, 188],
+        "major_road": [92, 100, 105],
+        "secondary_road": [72, 76, 81],
+        "rail": [140, 145, 150],
+        "label": [70, 71, 73],
+    },
     "layout": {
         "tile_overlap_mm": 10,
         "print_margin_mm": 10,
@@ -84,6 +94,32 @@ def _validate_seam_offset(name: str, value: Any) -> float:
     return number
 
 
+def _validate_rgb_triplet(name: str, value: Any) -> list[int]:
+    if isinstance(value, str):
+        candidate = value.strip()
+        if not candidate.startswith("#") or len(candidate) != 7:
+            raise ValueError(
+                f"Invalid {name}: expected an RGB triplet like [r, g, b] or '#RRGGBB'."
+            )
+        try:
+            return [int(candidate[i : i + 2], 16) for i in (1, 3, 5)]
+        except ValueError as exc:  # pragma: no cover - defensive branch
+            raise ValueError(f"Invalid {name}: unable to parse hexadecimal color.") from exc
+
+    if not isinstance(value, (list, tuple)) or len(value) != 3:
+        raise ValueError(f"Invalid {name}: expected a 3-item RGB triplet.")
+
+    rgb = []
+    for index, component in enumerate(value):
+        if not isinstance(component, (int, float)) or isinstance(component, bool):
+            raise TypeError(f"Invalid {name}[{index}]: expected a numeric channel.")
+        channel = int(round(float(component)))
+        if not 0 <= channel <= 255:
+            raise ValueError(f"Invalid {name}[{index}]: channel must be between 0 and 255.")
+        rgb.append(channel)
+    return rgb
+
+
 def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
     merged = _deep_merge(DEFAULT_CONFIG, config or {})
     city = str(merged.get("city", "")).strip()
@@ -96,7 +132,15 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
     merged["city"] = "Leipzig"
 
     globe = merged.get("globe", {})
+    style = merged.get("style", {})
     layout = merged.get("layout", {})
+
+    for key in DEFAULT_CONFIG["style"]:
+        default_value = DEFAULT_CONFIG["style"][key]
+        style[key] = _validate_rgb_triplet(
+            f"style.{key}", style.get(key, default_value)
+        )
+    merged["style"] = style
 
     globe["diameter_mm"] = _validate_positive_number(
         "globe.diameter_mm", globe.get("diameter_mm")
