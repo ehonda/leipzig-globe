@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 
 import geopandas as gpd
 import pytest
@@ -21,7 +22,11 @@ from leipzig_globe.fetcher import (
     load_source_manifests,
     verify_manifest,
 )
-from leipzig_globe.pipeline import generate_globe_texture, render_clean_map
+from leipzig_globe.pipeline import (
+    build_artifacts,
+    generate_globe_texture,
+    render_clean_map,
+)
 
 
 def test_default_config_sets_expected_mvp_values():
@@ -387,6 +392,168 @@ def test_generate_globe_texture_uses_rendered_map_and_rotates_for_seam_offset(
     assert offset_texture.tobytes() != texture.tobytes()
     assert offset_texture.getpixel((1500, 550)) == (28, 60, 90)
     assert texture.getpixel((1500, 550)) != (28, 60, 90)
+
+
+def test_build_artifacts_requires_cached_sources_before_rendering(tmp_path):
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "seam_offset_deg": 0,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "style": {
+            "background": [255, 255, 255],
+            "land": [200, 210, 200],
+            "water": [40, 80, 120],
+            "park": [150, 200, 160],
+            "major_road": [90, 90, 90],
+            "secondary_road": [150, 150, 150],
+            "rail": [120, 130, 140],
+            "label": [20, 20, 20],
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "seam_offset_deg": 0,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "medium",
+            "gore_seam_margin_mm": 10,
+            "source_cache_dir": str(tmp_path / ".cache"),
+        },
+        "paths": {
+            "map_file": "leipzig-map.png",
+            "texture_file": "leipzig-texture.png",
+            "gore_dir": "gores",
+            "pdf_file": "leipzig-globe-print.pdf",
+            "preview_dir": "preview",
+            "report_file": "build-report.json",
+        },
+    }
+
+    with pytest.raises(FileNotFoundError, match="sachsen-latest.osm.pbf|leipzig-municipal-boundary.geojson"):
+        build_artifacts(config, tmp_path / "output")
+
+
+def test_build_artifacts_records_offline_source_provenance(tmp_path, monkeypatch):
+    cache_dir = tmp_path / ".cache"
+    cache_dir.mkdir()
+    osm_file = cache_dir / "sachsen-latest.osm.pbf"
+    boundary_file = cache_dir / "leipzig-municipal-boundary.geojson"
+    osm_file.write_bytes(b"fixture-osm")
+    gpd.GeoDataFrame(
+        geometry=[Polygon([(0, 0), (1000, 0), (1000, 1000), (0, 1000)])],
+        crs="EPSG:32633",
+    ).to_file(boundary_file, driver="GeoJSON")
+
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "seam_offset_deg": 0,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "style": {
+            "background": [255, 255, 255],
+            "land": [200, 210, 200],
+            "water": [40, 80, 120],
+            "park": [150, 200, 160],
+            "major_road": [90, 90, 90],
+            "secondary_road": [150, 150, 150],
+            "rail": [120, 130, 140],
+            "label": [20, 20, 20],
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "seam_offset_deg": 0,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "medium",
+            "gore_seam_margin_mm": 10,
+            "source_cache_dir": str(cache_dir),
+        },
+        "paths": {
+            "map_file": "leipzig-map.png",
+            "texture_file": "leipzig-texture.png",
+            "gore_dir": "gores",
+            "pdf_file": "leipzig-globe-print.pdf",
+            "preview_dir": "preview",
+            "report_file": "build-report.json",
+        },
+    }
+
+    def fake_derive(boundary_path, source_pbf, output_path, **kwargs):
+        gpd.GeoDataFrame(
+            {"kind": ["road"]},
+            geometry=[LineString([(100, 100), (900, 900)])],
+            crs="EPSG:32633",
+        ).to_file(output_path, driver="GeoJSON")
+        return {
+            "feature_count": 1,
+            "crs": "EPSG:32633",
+            "output_path": Path(output_path),
+        }
+
+    monkeypatch.setattr(
+        "leipzig_globe.pipeline.derive_municipal_map_from_sources",
+        fake_derive,
+    )
+
+    def fake_render(config, output_path, municipal_map=None):
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        image = Image.new("RGB", (200, 100), color=(255, 255, 255))
+        image.save(output_file)
+        return {
+            "image_path": output_file,
+            "omitted_labels": [{"label": "Leipzig", "reason": "pole_safety_zone"}],
+            "rendered_labels": ["Leipzig"],
+            "width_px": image.width,
+            "height_px": image.height,
+        }
+
+    monkeypatch.setattr("leipzig_globe.pipeline.render_clean_map", fake_render)
+
+    def fake_texture(config, output_path, *, source_map=None):
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        Image.new("RGB", (200, 100), color=(0, 0, 0)).save(output_file)
+        return output_file
+
+    monkeypatch.setattr("leipzig_globe.pipeline.generate_globe_texture", fake_texture)
+    monkeypatch.setattr(
+        "leipzig_globe.pipeline.build_gore_set",
+        lambda texture_path, gore_dir, config: [gore_dir / "gore-01.svg"],
+    )
+    monkeypatch.setattr(
+        "leipzig_globe.pipeline.build_pdf",
+        lambda gore_files, output_path: Path(output_path),
+    )
+    monkeypatch.setattr(
+        "leipzig_globe.pipeline.generate_preview_set",
+        lambda texture_path, output_dir: [Path(output_dir) / "front.png"],
+    )
+
+    output_dir = tmp_path / "output"
+    result = build_artifacts(config, output_dir)
+
+    assert Path(result["municipal_map"]).exists()
+    report = json.loads((output_dir / "build-report.json").read_text(encoding="utf-8"))
+    assert report["source_provenance"]["osm_pbf"] == str(osm_file)
+    assert report["source_provenance"]["municipal_boundary"] == str(boundary_file)
+    assert report["artifacts"]["municipal_map"] == str(result["municipal_map"])
 
 
 def test_render_clean_map_omits_labels_near_gore_seams(tmp_path):

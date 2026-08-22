@@ -17,6 +17,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 from leipzig_globe.config import DEFAULT_CONFIG, validate_config
+from leipzig_globe.municipal_map import derive_municipal_map_from_sources
 
 A4_WIDTH_MM = 210
 A4_HEIGHT_MM = 297
@@ -602,11 +603,13 @@ def write_build_report(
     artifact_paths: dict[str, Any],
     *,
     omitted_labels: list[dict[str, str]] | None = None,
+    source_provenance: dict[str, str] | None = None,
 ) -> Path:
     report_path = Path(output_dir) / "build-report.json"
     payload = {
         "city": config.get("city", "Leipzig"),
         "config": config,
+        "source_provenance": source_provenance or {},
         "artifacts": artifact_paths,
         "omitted_labels": omitted_labels or [],
         "generated_at_utc": __import__("datetime")
@@ -617,6 +620,24 @@ def write_build_report(
     return report_path
 
 
+def _cached_source_paths(config: dict[str, Any]) -> dict[str, Path]:
+    cfg = validate_config(config)
+    cache_dir = Path(cfg["layout"].get("source_cache_dir", ".cache"))
+    if not cache_dir.is_absolute():
+        cache_dir = Path.cwd() / cache_dir
+
+    source_paths = {
+        "osm_pbf": cache_dir / "sachsen-latest.osm.pbf",
+        "municipal_boundary": cache_dir / "leipzig-municipal-boundary.geojson",
+    }
+    missing = [str(path) for path in source_paths.values() if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing required cached sources: " + ", ".join(missing)
+        )
+    return source_paths
+
+
 def build_artifacts(
     config: dict[str, Any] | None = None, output_dir: str | Path = "output"
 ) -> dict[str, Any]:
@@ -624,8 +645,17 @@ def build_artifacts(
     work_dir = Path(output_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
 
+    cached_sources = _cached_source_paths(cfg)
+    municipal_map_path = work_dir / "municipal-map.geojson"
+    municipal_map_result = derive_municipal_map_from_sources(
+        cached_sources["municipal_boundary"],
+        cached_sources["osm_pbf"],
+        municipal_map_path,
+    )
+    municipal_map_path = Path(municipal_map_result.get("output_path", municipal_map_path))
+
     map_path = work_dir / cfg["paths"].get("map_file", "leipzig-map.png")
-    map_render = render_clean_map(cfg, map_path)
+    map_render = render_clean_map(cfg, map_path, municipal_map=municipal_map_path)
 
     texture_path = work_dir / cfg["paths"]["texture_file"]
     generate_globe_texture(cfg, texture_path, source_map=map_path)
@@ -639,10 +669,17 @@ def build_artifacts(
     preview_dir = work_dir / cfg["paths"]["preview_dir"]
     preview_files = generate_preview_set(texture_path, preview_dir)
 
+    source_provenance = {
+        "osm_pbf": str(cached_sources["osm_pbf"]),
+        "municipal_boundary": str(cached_sources["municipal_boundary"]),
+        "municipal_map": str(municipal_map_path),
+    }
+
     report_path = write_build_report(
         cfg,
         work_dir,
         {
+            "municipal_map": str(municipal_map_path),
             "map": str(map_path),
             "texture": str(texture_path),
             "gore_dir": str(gore_dir),
@@ -652,9 +689,11 @@ def build_artifacts(
             "report": str(work_dir / cfg["paths"]["report_file"]),
         },
         omitted_labels=map_render["omitted_labels"],
+        source_provenance=source_provenance,
     )
 
     return {
+        "municipal_map": municipal_map_path,
         "map": map_path,
         "texture": texture_path,
         "gores": gore_files,
@@ -671,6 +710,7 @@ def validate_output_directory(output_dir: str | Path) -> dict[str, Any]:
         raise FileNotFoundError(f"Output directory not found: {output_root}")
 
     required = [
+        output_root / "municipal-map.geojson",
         output_root / "leipzig-map.png",
         output_root / "leipzig-texture.png",
         output_root / "leipzig-globe-print.pdf",

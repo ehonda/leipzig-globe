@@ -4,7 +4,7 @@
 
 - [x] BG-001: Clean map renderer uses placeholder geometry
 - [x] BG-002: Globe texture is independently drawn, not transformed from the map
-- [ ] BG-003: Offline data stages are disconnected from `build`
+- [x] BG-003: Offline data stages are disconnected from `build`
 
 ## Notes
 
