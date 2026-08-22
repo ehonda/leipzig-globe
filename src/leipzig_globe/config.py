@@ -26,10 +26,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "world_layout_scale_x": 1.0,
         "world_layout_scale_y": 1.0,
         "gore_order": "clockwise",
+        "label_density": "medium",
         "source_cache_dir": ".cache",
     },
     "paths": {
         "output_dir": "output",
+        "map_file": "leipzig-map.png",
         "texture_file": "leipzig-texture.png",
         "gore_dir": "gores",
         "pdf_file": "leipzig-globe-print.pdf",
@@ -149,6 +151,13 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
             "Invalid layout settings: gore_order must be 'clockwise' or 'counterclockwise'."
         )
     layout["gore_order"] = gore_order
+
+    label_density = str(layout.get("label_density", "medium")).lower()
+    if label_density not in {"low", "medium", "high"}:
+        raise ValueError(
+            "Invalid layout settings: label_density must be 'low', 'medium', or 'high'."
+        )
+    layout["label_density"] = label_density
 
     return merged
 

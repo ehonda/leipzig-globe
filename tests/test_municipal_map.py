@@ -60,9 +60,7 @@ def test_derive_municipal_map_requires_a_polygonal_boundary():
     boundary_gdf = gpd.GeoDataFrame(
         geometry=[LineString([(0, 0), (1000, 1000)])], crs="EPSG:32633"
     )
-    features = gpd.GeoDataFrame(
-        geometry=[Point(10, 10)], crs="EPSG:32633"
-    )
+    features = gpd.GeoDataFrame(geometry=[Point(10, 10)], crs="EPSG:32633")
 
     with pytest.raises(ValueError, match="polygonal"):
         derive_municipal_map(boundary_gdf, features)

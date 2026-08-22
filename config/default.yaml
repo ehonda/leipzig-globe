@@ -15,9 +15,11 @@ layout:
   world_layout_scale_x: 1.0
   world_layout_scale_y: 1.0
   gore_order: clockwise
+  label_density: medium
   source_cache_dir: .cache
 paths:
   output_dir: output
+  map_file: leipzig-map.png
   texture_file: leipzig-texture.png
   gore_dir: gores
   pdf_file: leipzig-globe-print.pdf

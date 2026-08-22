@@ -6,7 +6,7 @@
 - [x] 2. Define configuration and artifact contracts
 - [x] 3. Implement deterministic source acquisition
 - [x] 4. Derive the Municipal Map
-- [ ] 5. Render the clean Leipzig map
+- [x] 5. Render the clean Leipzig map
 - [ ] 6. Create the 2:1 Globe Texture
 - [ ] 7. Generate SVG Gores
 - [ ] 8. Assemble the tiled A4 print PDF

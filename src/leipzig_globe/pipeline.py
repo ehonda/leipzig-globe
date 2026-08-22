@@ -18,6 +18,11 @@ from leipzig_globe.config import DEFAULT_CONFIG, validate_config
 
 A4_WIDTH_MM = 210
 A4_HEIGHT_MM = 297
+LABEL_DENSITY_SETTINGS = {
+    "low": {"font_scale": 0.8, "max_labels": 6},
+    "medium": {"font_scale": 1.0, "max_labels": 9},
+    "high": {"font_scale": 1.2, "max_labels": 12},
+}
 
 
 def ensure_osmium_available() -> None:
@@ -59,6 +64,144 @@ def gore_outline_points(
     ]
 
 
+def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[str, Any]:
+    cfg = validate_config(config)
+    width, height = texture_dimensions(cfg)
+    path = Path(output_path)
+    pole_margin = max(
+        24,
+        int((cfg["layout"]["pole_safety_zone_mm"] / 25.4) * cfg["globe"]["ppi"]),
+    )
+    density = LABEL_DENSITY_SETTINGS.get(
+        str(cfg["layout"].get("label_density", "medium")).lower(),
+        LABEL_DENSITY_SETTINGS["medium"],
+    )
+
+    image = Image.new("RGB", (width, height), color=(247, 244, 238))
+    draw = ImageDraw.Draw(image)
+
+    land_polygon = [
+        (width * 0.12, height * 0.22),
+        (width * 0.62, height * 0.12),
+        (width * 0.84, height * 0.28),
+        (width * 0.9, height * 0.66),
+        (width * 0.66, height * 0.9),
+        (width * 0.26, height * 0.84),
+        (width * 0.12, height * 0.56),
+    ]
+    draw.polygon(land_polygon, fill=(214, 227, 220))
+
+    water = [
+        (0.0, 0.18),
+        (0.2, 0.14),
+        (0.34, 0.22),
+        (0.2, 0.52),
+        (0.3, 0.78),
+        (0.08, 0.88),
+        (0.0, 0.72),
+    ]
+    draw.polygon(
+        [(int(x * width), int(y * height)) for x, y in water],
+        fill=(132, 178, 198),
+    )
+
+    for road_index in range(6):
+        y = int(height * (0.18 + road_index * 0.11))
+        draw.line(
+            [(0, y), (width, y + int(height * 0.03))],
+            fill=(92, 100, 105),
+            width=max(2, int(width / 200)),
+        )
+
+    draw.line(
+        [(0, int(height * 0.53)), (width, int(height * 0.63))],
+        fill=(72, 76, 81),
+        width=max(3, int(width / 120)),
+    )
+
+    labels = [
+        {"label": "Leipzig", "x": 0.30, "y": 0.32},
+        {"label": "Mitte", "x": 0.44, "y": 0.46},
+        {"label": "Connewitz", "x": 0.58, "y": 0.52},
+        {"label": "Schönefeld", "x": 0.57, "y": 0.68},
+        {"label": "Plagwitz", "x": 0.22, "y": 0.78},
+        {"label": "Leipzig Nord", "x": 0.46, "y": 0.08},
+        {"label": "Leipzig Süd", "x": 0.46, "y": 0.92},
+    ]
+
+    visible_labels: list[dict[str, Any]] = []
+    omitted_labels: list[dict[str, str]] = []
+    font_size_base = max(12, int(width / 120))
+
+    for entry in labels[: max(2, density["max_labels"])]:
+        if (
+            entry["y"] * height <= pole_margin
+            or entry["y"] * height >= height - pole_margin
+        ):
+            omitted_labels.append(
+                {"label": entry["label"], "reason": "pole_safety_zone"}
+            )
+            continue
+
+        font_size = max(12, int(font_size_base * density["font_scale"]))
+        try:
+            font = ImageFont.truetype("DejaVuSans.ttf", font_size)
+        except OSError:
+            font = ImageFont.load_default()
+
+        x_px = int(entry["x"] * width)
+        y_px = int(entry["y"] * height)
+        label_width = (
+            font.getbbox(entry["label"])[2]
+            if hasattr(font, "getbbox")
+            else len(entry["label"]) * font_size * 0.6
+        )
+        label_height = (
+            font.getbbox(entry["label"])[3]
+            if hasattr(font, "getbbox")
+            else font_size * 1.2
+        )
+        bbox = (
+            x_px - label_width / 2,
+            y_px - label_height / 2,
+            x_px + label_width / 2,
+            y_px + label_height / 2,
+        )
+
+        if any(
+            not (
+                bbox[2] < prior["bbox"][0]
+                or bbox[0] > prior["bbox"][2]
+                or bbox[3] < prior["bbox"][1]
+                or bbox[1] > prior["bbox"][3]
+            )
+            for prior in visible_labels
+        ):
+            omitted_labels.append(
+                {"label": entry["label"], "reason": "label_collision"}
+            )
+            continue
+
+        draw.text(
+            (x_px, y_px),
+            entry["label"],
+            fill=(70, 71, 73),
+            font=font,
+            anchor="mm",
+        )
+        visible_labels.append({"label": entry["label"], "bbox": bbox})
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path)
+    return {
+        "image_path": path,
+        "omitted_labels": omitted_labels,
+        "rendered_labels": [entry["label"] for entry in visible_labels],
+        "width_px": width,
+        "height_px": height,
+    }
+
+
 def generate_globe_texture(config: dict[str, Any], output_path: str | Path) -> Path:
     path = Path(output_path)
     width, height = texture_dimensions(config)
@@ -97,10 +240,12 @@ def generate_globe_texture(config: dict[str, Any], output_path: str | Path) -> P
     road_band = [(0, int(height * 0.52)), (width, int(height * 0.62))]
     draw.line(road_band, fill=(72, 76, 81), width=max(3, int(width / 120)))
 
-    for label in ["Leipzig", "Zentrum", "Mitte", "Connewitz", "Schönefeld", "Plagwitz"]:
+    for idx, label in enumerate(
+        ["Leipzig", "Zentrum", "Mitte", "Connewitz", "Schönefeld", "Plagwitz"]
+    ):
         position = (
-            int(width * (0.12 + len(label) * 0.02)),
-            int(height * (0.15 + (abs(hash(label)) % 6) * 0.11)),
+            int(width * (0.12 + (idx + 1) * 0.08)),
+            int(height * (0.15 + (idx % 6) * 0.11)),
         )
         try:
             font = ImageFont.truetype("DejaVuSans.ttf", max(12, int(width / 70)))
@@ -217,13 +362,18 @@ def generate_preview_set(
 
 
 def write_build_report(
-    config: dict[str, Any], output_dir: str | Path, artifact_paths: dict[str, Any]
+    config: dict[str, Any],
+    output_dir: str | Path,
+    artifact_paths: dict[str, Any],
+    *,
+    omitted_labels: list[dict[str, str]] | None = None,
 ) -> Path:
     report_path = Path(output_dir) / "build-report.json"
     payload = {
         "city": config.get("city", "Leipzig"),
         "config": config,
         "artifacts": artifact_paths,
+        "omitted_labels": omitted_labels or [],
         "generated_at_utc": __import__("datetime")
         .datetime.now(__import__("datetime").timezone.utc)
         .isoformat(),
@@ -238,6 +388,9 @@ def build_artifacts(
     cfg = validate_config(config or DEFAULT_CONFIG)
     work_dir = Path(output_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
+
+    map_path = work_dir / cfg["paths"].get("map_file", "leipzig-map.png")
+    map_render = render_clean_map(cfg, map_path)
 
     texture_path = work_dir / cfg["paths"]["texture_file"]
     generate_globe_texture(cfg, texture_path)
@@ -255,6 +408,7 @@ def build_artifacts(
         cfg,
         work_dir,
         {
+            "map": str(map_path),
             "texture": str(texture_path),
             "gore_dir": str(gore_dir),
             "gore_files": [str(path) for path in gore_files],
@@ -262,14 +416,17 @@ def build_artifacts(
             "preview": [str(path) for path in preview_files],
             "report": str(work_dir / cfg["paths"]["report_file"]),
         },
+        omitted_labels=map_render["omitted_labels"],
     )
 
     return {
+        "map": map_path,
         "texture": texture_path,
         "gores": gore_files,
         "pdf": pdf_path,
         "preview": preview_files,
         "report": report_path,
+        "omitted_labels": map_render["omitted_labels"],
     }
 
 
@@ -279,6 +436,7 @@ def validate_output_directory(output_dir: str | Path) -> dict[str, Any]:
         raise FileNotFoundError(f"Output directory not found: {output_root}")
 
     required = [
+        output_root / "leipzig-map.png",
         output_root / "leipzig-texture.png",
         output_root / "leipzig-globe-print.pdf",
         output_root / "build-report.json",

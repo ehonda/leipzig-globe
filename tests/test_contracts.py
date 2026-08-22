@@ -18,6 +18,7 @@ from leipzig_globe.fetcher import (
     load_source_manifests,
     verify_manifest,
 )
+from leipzig_globe.pipeline import render_clean_map
 
 
 def test_default_config_sets_expected_mvp_values():
@@ -176,3 +177,44 @@ def test_fetch_data_cache_retains_all_manifests_for_multiple_sources(tmp_path):
     assert set(manifests) == {"source-a.bin", "source-b.bin"}
     assert manifests["source-a.bin"].sha256 == compute_sha256(first_path)
     assert manifests["source-b.bin"].sha256 == compute_sha256(second_path)
+
+
+def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "medium",
+        },
+        "paths": {"map_file": "leipzig-map.png"},
+    }
+
+    output_path = tmp_path / "leipzig-map.png"
+    result = render_clean_map(config, output_path)
+    report_path = tmp_path / "build-report.json"
+    report_payload = {
+        "config": config,
+        "omitted_labels": result["omitted_labels"],
+    }
+    report_path.write_text(json.dumps(report_payload), encoding="utf-8")
+
+    assert output_path.exists()
+    assert result["image_path"] == output_path
+    assert isinstance(result["omitted_labels"], list)
+    assert result["omitted_labels"]
+    assert "label" in result["omitted_labels"][0]
+    assert "reason" in result["omitted_labels"][0]
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["omitted_labels"] == result["omitted_labels"]
