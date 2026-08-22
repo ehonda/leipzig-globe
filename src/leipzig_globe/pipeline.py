@@ -80,14 +80,25 @@ def _gore_seam_positions(cfg: dict[str, Any], width: int) -> list[float]:
 
 
 def _municipal_feature_kind(row: Any) -> str:
-    value = row.get("kind") if hasattr(row, "get") else None
-    if value is None:
-        value = row.get("type") if hasattr(row, "get") else None
-    if value is None:
-        value = row.get("feature_type") if hasattr(row, "get") else None
-    if value is None:
+    if not hasattr(row, "get"):
         return "land"
-    text = str(value).lower()
+    text = " ".join(
+        str(row.get(key, "")).lower()
+        for key in (
+            "kind",
+            "type",
+            "feature_type",
+            "waterway",
+            "natural",
+            "leisure",
+            "railway",
+            "highway",
+            "boundary",
+        )
+        if row.get(key) is not None
+    )
+    if not text:
+        return "land"
     if any(token in text for token in ("water", "river", "lake", "canal")):
         return "water"
     if any(token in text for token in ("park", "green", "wood")):
@@ -147,10 +158,13 @@ def _project_geometry(
     max_y += pad_y
     x_span = max(max_x - min_x, 1e-9)
     y_span = max(max_y - min_y, 1e-9)
+    pixels_per_unit = min(width / x_span, height / y_span)
+    x_offset = (width - x_span * pixels_per_unit) / 2
+    y_offset = (height - y_span * pixels_per_unit) / 2
     return transform(
         lambda x, y, z=None: (
-            (x - min_x) * width / x_span,
-            height - ((y - min_y) * height / y_span),
+            x_offset + (x - min_x) * pixels_per_unit,
+            height - y_offset - (y - min_y) * pixels_per_unit,
         ),
         geometry,
     )
@@ -241,47 +255,11 @@ def render_clean_map(
     image = Image.new("RGB", (width, height), color=palette["background"])
     draw = ImageDraw.Draw(image)
 
-    if municipal_map is not None:
-        _render_municipal_map_layers(image, municipal_map, cfg, width, height)
-    else:
-        land_polygon = [
-            (width * 0.12, height * 0.22),
-            (width * 0.62, height * 0.12),
-            (width * 0.84, height * 0.28),
-            (width * 0.9, height * 0.66),
-            (width * 0.66, height * 0.9),
-            (width * 0.26, height * 0.84),
-            (width * 0.12, height * 0.56),
-        ]
-        draw.polygon(land_polygon, fill=palette["land"])
-
-        water = [
-            (0.0, 0.18),
-            (0.2, 0.14),
-            (0.34, 0.22),
-            (0.2, 0.52),
-            (0.3, 0.78),
-            (0.08, 0.88),
-            (0.0, 0.72),
-        ]
-        draw.polygon(
-            [(int(x * width), int(y * height)) for x, y in water],
-            fill=palette["water"],
+    if municipal_map is None:
+        raise ValueError(
+            "Municipal map data is required; derive it from the cached sources before rendering."
         )
-
-        for road_index in range(6):
-            y = int(height * (0.18 + road_index * 0.11))
-            draw.line(
-                [(0, y), (width, y + int(height * 0.03))],
-                fill=palette["major_road"],
-                width=max(2, int(width / 200)),
-            )
-
-        draw.line(
-            [(0, int(height * 0.53)), (width, int(height * 0.63))],
-            fill=palette["secondary_road"],
-            width=max(3, int(width / 120)),
-        )
+    _render_municipal_map_layers(image, municipal_map, cfg, width, height)
 
     labels = [
         {"label": "Leipzig", "x": 0.30, "y": 0.32},

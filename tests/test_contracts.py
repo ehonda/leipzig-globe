@@ -223,8 +223,13 @@ def test_render_clean_map_uses_configured_style_palette(tmp_path):
     cfg = validate_config(config)
     assert cfg["style"]["background"] == [10, 20, 30]
 
+    municipal_map = gpd.GeoDataFrame(
+        {"kind": ["land"]},
+        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])],
+        crs="EPSG:32633",
+    )
     output_path = tmp_path / "styled-map.png"
-    render_clean_map(config, output_path)
+    render_clean_map(config, output_path, municipal_map=municipal_map)
 
     image = Image.open(output_path).convert("RGB")
     assert image.getpixel((0, 0)) == (10, 20, 30)
@@ -282,8 +287,55 @@ def test_render_clean_map_uses_supplied_municipal_geometry(tmp_path):
 
     image = Image.open(output_path).convert("RGB")
     assert image.getpixel((image.width // 2, image.height // 2)) == (90, 90, 90)
-    assert image.getpixel((image.width // 4, image.height // 4)) == (40, 80, 120)
+    assert image.getpixel((image.width // 2 - image.height // 4, image.height // 4)) == (
+        40,
+        80,
+        120,
+    )
     assert result["image_path"] == output_path
+
+
+def test_render_clean_map_preserves_municipal_geometry_aspect_ratio(tmp_path):
+    municipal_map = gpd.GeoDataFrame(
+        {"kind": ["water"]},
+        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])],
+        crs="EPSG:32633",
+    )
+    output_path = tmp_path / "aspect-ratio-map.png"
+
+    render_clean_map({}, output_path, municipal_map=municipal_map)
+
+    image = Image.open(output_path).convert("RGB")
+    water = (132, 178, 198)
+    xs: list[int] = []
+    ys: list[int] = []
+    for y in range(image.height):
+        for x in range(image.width):
+            if image.getpixel((x, y)) == water:
+                xs.append(x)
+                ys.append(y)
+
+    assert xs and ys
+    assert max(xs) - min(xs) == pytest.approx(max(ys) - min(ys), abs=2)
+
+
+def test_render_clean_map_classifies_raw_osm_highway_tags(tmp_path):
+    municipal_map = gpd.GeoDataFrame(
+        {"highway": ["residential"]},
+        geometry=[LineString([(0, 50), (100, 50)])],
+        crs="EPSG:32633",
+    )
+    output_path = tmp_path / "raw-osm-tags.png"
+
+    render_clean_map({}, output_path, municipal_map=municipal_map)
+
+    image = Image.open(output_path).convert("RGB")
+    assert image.getpixel((image.width // 2, image.height // 2)) == (72, 76, 81)
+
+
+def test_render_clean_map_requires_municipal_geometry(tmp_path):
+    with pytest.raises(ValueError, match="Municipal map data is required"):
+        render_clean_map({}, tmp_path / "synthetic-map.png")
 
 
 def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):
@@ -308,8 +360,13 @@ def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):
         "paths": {"map_file": "leipzig-map.png"},
     }
 
+    municipal_map = gpd.GeoDataFrame(
+        {"kind": ["land"]},
+        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])],
+        crs="EPSG:32633",
+    )
     output_path = tmp_path / "leipzig-map.png"
-    result = render_clean_map(config, output_path)
+    result = render_clean_map(config, output_path, municipal_map=municipal_map)
     report_path = tmp_path / "build-report.json"
     report_payload = {
         "config": config,
@@ -582,8 +639,13 @@ def test_render_clean_map_omits_labels_near_gore_seams(tmp_path):
         "paths": {"map_file": "leipzig-map.png"},
     }
 
+    municipal_map = gpd.GeoDataFrame(
+        {"kind": ["land"]},
+        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])],
+        crs="EPSG:32633",
+    )
     output_path = tmp_path / "leipzig-map.png"
-    result = render_clean_map(config, output_path)
+    result = render_clean_map(config, output_path, municipal_map=municipal_map)
 
     assert output_path.exists()
     assert any(entry["reason"] == "gore_seam" for entry in result["omitted_labels"])
