@@ -24,6 +24,31 @@ def test_bootstrap_contract_is_configured():
     assert pytest_config.get("testpaths") == ["tests"]
 
 
+def test_bootstrap_declares_runtime_dependencies_for_build_pipeline():
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    dependency_names = {
+        dep.split("==")[0].split(">=")[0].split("<=")[0].split("~= ")[0].lower()
+        for dep in data["project"].get("dependencies", [])
+    }
+    required_runtime = {
+        "cairosvg",
+        "geopandas",
+        "matplotlib",
+        "numpy",
+        "pillow",
+        "pyyaml",
+        "reportlab",
+        "requests",
+        "rich",
+        "shapely",
+        "typer",
+    }
+
+    missing = sorted(required_runtime - dependency_names)
+    assert not missing, f"Runtime dependency contract missing: {missing}"
+
+
 def test_system_dependency_check_reports_missing_tool(monkeypatch):
     monkeypatch.setattr(leipzig_globe.shutil, "which", lambda name: None)
 

@@ -6,7 +6,19 @@ authors = [
     { name = "Dennis Renz", email = "dennis@r-renz.de" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "cairosvg>=2.9.0",
+    "geopandas>=1.1.4",
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.2",
+    "pillow>=12.3.0",
+    "pyyaml>=6.0.3",
+    "reportlab>=5.0.1",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+    "shapely>=2.1.2",
+    "typer>=0.27.1",
+]
 
 [project.scripts]
 leipzig-globe = "leipzig_globe:main"
@@ -21,17 +33,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "black>=26.5.1",
-    "cairosvg>=2.9.0",
-    "geopandas>=1.1.4",
-    "matplotlib>=3.11.1",
-    "numpy>=2.5.2",
-    "pillow>=12.3.0",
     "pytest>=9.1.1",
-    "pyyaml>=6.0.3",
-    "reportlab>=5.0.1",
-    "requests>=2.34.2",
-    "rich>=15.0.0",
     "ruff>=0.16.4",
-    "shapely>=2.1.2",
-    "typer>=0.27.1",
 ]
