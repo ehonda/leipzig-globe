@@ -13,7 +13,7 @@ DEFAULT_OSM_PBF_URL = (
     "https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf"
 )
 DEFAULT_LEIPZIG_BOUNDARY_URL = (
-    "https://opendata.leipzig.de/datasets/Leipzig::stadtgrenze.geojson"
+    "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.1_Dez1_Allgemeine_Verwaltung/12_Statistik_und_Wahlen/Geodaten/Stadtbezirke_Leipzig_UTM33N.json"
 )
 
 

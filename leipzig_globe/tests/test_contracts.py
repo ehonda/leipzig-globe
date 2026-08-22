@@ -11,6 +11,7 @@ from leipzig_globe.config import (
     validate_config,
 )
 from leipzig_globe.fetcher import (
+    DEFAULT_LEIPZIG_BOUNDARY_URL,
     SourceManifest,
     compute_sha256,
     fetch_data_cache,
@@ -58,6 +59,12 @@ def test_invalid_configuration_raises_actionable_error():
         match="Leipzig|diameter_mm|gore_count|assembly_overlap_mm|tile_overlap_mm|print_margin_mm|pole_safety_zone_mm|world_layout_scale_x|world_layout_scale_y|seam_offset_deg|ppi",
     ):
         validate_config(bad_config)
+
+
+def test_default_boundary_source_points_to_current_official_city_dataset():
+    assert DEFAULT_LEIPZIG_BOUNDARY_URL.startswith("https://static.leipzig.de/")
+    assert "Stadtbezirke_Leipzig_UTM33N" in DEFAULT_LEIPZIG_BOUNDARY_URL
+    assert DEFAULT_LEIPZIG_BOUNDARY_URL.endswith(".json")
 
 
 def test_source_manifest_checksum_verification(tmp_path):
