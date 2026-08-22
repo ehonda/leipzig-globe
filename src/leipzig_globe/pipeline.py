@@ -7,7 +7,9 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
+import geopandas as gpd
 import matplotlib
+from shapely.ops import transform
 
 matplotlib.use("Agg")
 from PIL import Image, ImageDraw, ImageFont
@@ -76,7 +78,147 @@ def _gore_seam_positions(cfg: dict[str, Any], width: int) -> list[float]:
     ]
 
 
-def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[str, Any]:
+def _municipal_feature_kind(row: Any) -> str:
+    value = row.get("kind") if hasattr(row, "get") else None
+    if value is None:
+        value = row.get("type") if hasattr(row, "get") else None
+    if value is None:
+        value = row.get("feature_type") if hasattr(row, "get") else None
+    if value is None:
+        return "land"
+    text = str(value).lower()
+    if any(token in text for token in ("water", "river", "lake", "canal")):
+        return "water"
+    if any(token in text for token in ("park", "green", "wood")):
+        return "park"
+    if any(token in text for token in ("rail", "tram")):
+        return "rail"
+    if any(
+        token in text
+        for token in ("motorway", "trunk", "primary", "major", "road", "highway")
+    ):
+        return "major_road"
+    if any(
+        token in text for token in ("secondary", "street", "service", "residential")
+    ):
+        return "secondary_road"
+    if any(token in text for token in ("boundary", "district", "administrative")):
+        return "land"
+    return "land"
+
+
+def _draw_geometry(
+    draw: ImageDraw.ImageDraw,
+    geometry: Any,
+    fill: tuple[int, int, int],
+    outline: tuple[int, int, int] | None = None,
+    stroke_width: int = 1,
+) -> None:
+    if geometry is None or geometry.is_empty:
+        return
+    if geometry.geom_type == "Polygon":
+        coords = [(round(x), round(y)) for x, y in geometry.exterior.coords]
+        draw.polygon(coords, fill=fill, outline=outline or fill)
+        return
+    if geometry.geom_type == "MultiPolygon":
+        for part in geometry.geoms:
+            _draw_geometry(draw, part, fill, outline, stroke_width)
+        return
+    if geometry.geom_type == "LineString":
+        coords = [(round(x), round(y)) for x, y in geometry.coords]
+        draw.line(coords, fill=outline or fill, width=max(1, stroke_width))
+        return
+    if geometry.geom_type == "MultiLineString":
+        for part in geometry.geoms:
+            _draw_geometry(draw, part, fill, outline, stroke_width)
+        return
+
+
+def _project_geometry(
+    geometry: Any, width: int, height: int, bounds: tuple[float, float, float, float]
+) -> Any:
+    min_x, min_y, max_x, max_y = bounds
+    pad_x = max((max_x - min_x) * 0.05, 1.0)
+    pad_y = max((max_y - min_y) * 0.05, 1.0)
+    min_x -= pad_x
+    max_x += pad_x
+    min_y -= pad_y
+    max_y += pad_y
+    x_span = max(max_x - min_x, 1e-9)
+    y_span = max(max_y - min_y, 1e-9)
+    return transform(
+        lambda x, y, z=None: (
+            (x - min_x) * width / x_span,
+            height - ((y - min_y) * height / y_span),
+        ),
+        geometry,
+    )
+
+
+def _render_municipal_map_layers(
+    image: Image.Image,
+    municipal_map: gpd.GeoDataFrame | str | Path,
+    cfg: dict[str, Any],
+    width: int,
+    height: int,
+) -> None:
+    draw = ImageDraw.Draw(image)
+    if isinstance(municipal_map, (str, Path)):
+        frame = gpd.read_file(municipal_map)
+    else:
+        frame = municipal_map.copy()
+
+    if frame.empty:
+        return
+    if frame.crs is None:
+        raise ValueError("Municipal map data is missing a CRS.")
+    if frame.crs.is_geographic or frame.crs.to_string() != "EPSG:32633":
+        frame = frame.to_crs("EPSG:32633")
+
+    bounds = frame.total_bounds
+    if bounds.size == 0:
+        return
+
+    palette = {key: tuple(value) for key, value in cfg["style"].items()}
+    for _, row in frame.iterrows():
+        geometry = row.geometry
+        if geometry is None or geometry.is_empty:
+            continue
+        kind = _municipal_feature_kind(row)
+        if kind == "water":
+            fill = palette["water"]
+            outline = palette["water"]
+            stroke = 1
+        elif kind == "park":
+            fill = palette["park"]
+            outline = palette["park"]
+            stroke = 1
+        elif kind == "rail":
+            fill = palette["rail"]
+            outline = palette["rail"]
+            stroke = max(1, int(width / 240))
+        elif kind == "major_road":
+            fill = palette["major_road"]
+            outline = palette["major_road"]
+            stroke = max(2, int(width / 220))
+        elif kind == "secondary_road":
+            fill = palette["secondary_road"]
+            outline = palette["secondary_road"]
+            stroke = max(1, int(width / 300))
+        else:
+            fill = palette["land"]
+            outline = palette["land"]
+            stroke = 1
+
+        projected = _project_geometry(geometry, width, height, tuple(bounds))
+        _draw_geometry(draw, projected, fill, outline, stroke)
+
+
+def render_clean_map(
+    config: dict[str, Any],
+    output_path: str | Path,
+    municipal_map: gpd.GeoDataFrame | str | Path | None = None,
+) -> dict[str, Any]:
     cfg = validate_config(config)
     width, height = texture_dimensions(cfg)
     path = Path(output_path)
@@ -93,52 +235,52 @@ def render_clean_map(config: dict[str, Any], output_path: str | Path) -> dict[st
         str(cfg["layout"].get("label_density", "medium")).lower(),
         LABEL_DENSITY_SETTINGS["medium"],
     )
-    palette = {
-        key: tuple(value)
-        for key, value in cfg["style"].items()
-    }
+    palette = {key: tuple(value) for key, value in cfg["style"].items()}
 
     image = Image.new("RGB", (width, height), color=palette["background"])
     draw = ImageDraw.Draw(image)
 
-    land_polygon = [
-        (width * 0.12, height * 0.22),
-        (width * 0.62, height * 0.12),
-        (width * 0.84, height * 0.28),
-        (width * 0.9, height * 0.66),
-        (width * 0.66, height * 0.9),
-        (width * 0.26, height * 0.84),
-        (width * 0.12, height * 0.56),
-    ]
-    draw.polygon(land_polygon, fill=palette["land"])
+    if municipal_map is not None:
+        _render_municipal_map_layers(image, municipal_map, cfg, width, height)
+    else:
+        land_polygon = [
+            (width * 0.12, height * 0.22),
+            (width * 0.62, height * 0.12),
+            (width * 0.84, height * 0.28),
+            (width * 0.9, height * 0.66),
+            (width * 0.66, height * 0.9),
+            (width * 0.26, height * 0.84),
+            (width * 0.12, height * 0.56),
+        ]
+        draw.polygon(land_polygon, fill=palette["land"])
 
-    water = [
-        (0.0, 0.18),
-        (0.2, 0.14),
-        (0.34, 0.22),
-        (0.2, 0.52),
-        (0.3, 0.78),
-        (0.08, 0.88),
-        (0.0, 0.72),
-    ]
-    draw.polygon(
-        [(int(x * width), int(y * height)) for x, y in water],
-        fill=palette["water"],
-    )
-
-    for road_index in range(6):
-        y = int(height * (0.18 + road_index * 0.11))
-        draw.line(
-            [(0, y), (width, y + int(height * 0.03))],
-            fill=palette["major_road"],
-            width=max(2, int(width / 200)),
+        water = [
+            (0.0, 0.18),
+            (0.2, 0.14),
+            (0.34, 0.22),
+            (0.2, 0.52),
+            (0.3, 0.78),
+            (0.08, 0.88),
+            (0.0, 0.72),
+        ]
+        draw.polygon(
+            [(int(x * width), int(y * height)) for x, y in water],
+            fill=palette["water"],
         )
 
-    draw.line(
-        [(0, int(height * 0.53)), (width, int(height * 0.63))],
-        fill=palette["secondary_road"],
-        width=max(3, int(width / 120)),
-    )
+        for road_index in range(6):
+            y = int(height * (0.18 + road_index * 0.11))
+            draw.line(
+                [(0, y), (width, y + int(height * 0.03))],
+                fill=palette["major_road"],
+                width=max(2, int(width / 200)),
+            )
+
+        draw.line(
+            [(0, int(height * 0.53)), (width, int(height * 0.63))],
+            fill=palette["secondary_road"],
+            width=max(3, int(width / 120)),
+        )
 
     labels = [
         {"label": "Leipzig", "x": 0.30, "y": 0.32},

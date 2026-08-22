@@ -3,9 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 
+import geopandas as gpd
 import pytest
-
 from PIL import Image
+from shapely.geometry import LineString, Polygon
 
 from leipzig_globe.config import (
     default_config_path,
@@ -222,7 +223,62 @@ def test_render_clean_map_uses_configured_style_palette(tmp_path):
 
     image = Image.open(output_path).convert("RGB")
     assert image.getpixel((0, 0)) == (10, 20, 30)
-    assert image.getpixel((int(image.width * 0.42), int(image.height * 0.45))) == (40, 50, 60)
+    assert image.getpixel((int(image.width * 0.42), int(image.height * 0.45))) == (
+        40,
+        50,
+        60,
+    )
+
+
+def test_render_clean_map_uses_supplied_municipal_geometry(tmp_path):
+    config = {
+        "city": "Leipzig",
+        "globe": {
+            "diameter_mm": 300,
+            "gore_count": 12,
+            "assembly_overlap_mm": 2,
+            "ppi": 200,
+            "paper_size": "A4",
+        },
+        "style": {
+            "background": [255, 255, 255],
+            "land": [200, 210, 200],
+            "water": [40, 80, 120],
+            "park": [150, 200, 160],
+            "major_road": [90, 90, 90],
+            "secondary_road": [150, 150, 150],
+            "rail": [120, 130, 140],
+            "label": [20, 20, 20],
+        },
+        "layout": {
+            "tile_overlap_mm": 10,
+            "print_margin_mm": 10,
+            "pole_safety_zone_mm": 20,
+            "world_layout_scale_x": 1.0,
+            "world_layout_scale_y": 1.0,
+            "gore_order": "clockwise",
+            "label_density": "low",
+            "gore_seam_margin_mm": 10,
+            "curated_landmarks": ["Leipzig"],
+        },
+        "paths": {"map_file": "leipzig-map.png"},
+    }
+    municipal_map = gpd.GeoDataFrame(
+        {"kind": ["water", "road"]},
+        geometry=[
+            Polygon([(0, 0), (100, 0), (100, 100), (0, 100)]),
+            LineString([(0, 50), (100, 50)]),
+        ],
+        crs="EPSG:32633",
+    )
+
+    output_path = tmp_path / "leipzig-data-map.png"
+    result = render_clean_map(config, output_path, municipal_map=municipal_map)
+
+    image = Image.open(output_path).convert("RGB")
+    assert image.getpixel((image.width // 2, image.height // 2)) == (90, 90, 90)
+    assert image.getpixel((image.width // 4, image.height // 4)) == (40, 80, 120)
+    assert result["image_path"] == output_path
 
 
 def test_render_clean_map_generates_png_and_omitted_label_report(tmp_path):

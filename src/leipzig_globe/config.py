@@ -104,7 +104,9 @@ def _validate_rgb_triplet(name: str, value: Any) -> list[int]:
         try:
             return [int(candidate[i : i + 2], 16) for i in (1, 3, 5)]
         except ValueError as exc:  # pragma: no cover - defensive branch
-            raise ValueError(f"Invalid {name}: unable to parse hexadecimal color.") from exc
+            raise ValueError(
+                f"Invalid {name}: unable to parse hexadecimal color."
+            ) from exc
 
     if not isinstance(value, (list, tuple)) or len(value) != 3:
         raise ValueError(f"Invalid {name}: expected a 3-item RGB triplet.")
@@ -113,10 +115,12 @@ def _validate_rgb_triplet(name: str, value: Any) -> list[int]:
     for index, component in enumerate(value):
         if not isinstance(component, (int, float)) or isinstance(component, bool):
             raise TypeError(f"Invalid {name}[{index}]: expected a numeric channel.")
-        channel = int(round(float(component)))
+        channel = round(component)
         if not 0 <= channel <= 255:
-            raise ValueError(f"Invalid {name}[{index}]: channel must be between 0 and 255.")
-        rgb.append(channel)
+            raise ValueError(
+                f"Invalid {name}[{index}]: channel must be between 0 and 255."
+            )
+        rgb.append(int(channel))
     return rgb
 
 
@@ -177,7 +181,9 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
     )
     layout["gore_seam_margin_mm"] = _validate_non_negative_number(
         "layout.gore_seam_margin_mm",
-        layout.get("gore_seam_margin_mm", DEFAULT_CONFIG["layout"]["gore_seam_margin_mm"]),
+        layout.get(
+            "gore_seam_margin_mm", DEFAULT_CONFIG["layout"]["gore_seam_margin_mm"]
+        ),
     )
     layout["world_layout_scale_x"] = _validate_positive_number(
         "layout.world_layout_scale_x", layout.get("world_layout_scale_x")
@@ -186,7 +192,9 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
         "layout.world_layout_scale_y", layout.get("world_layout_scale_y")
     )
 
-    curated_landmarks = layout.get("curated_landmarks", DEFAULT_CONFIG["layout"]["curated_landmarks"])
+    curated_landmarks = layout.get(
+        "curated_landmarks", DEFAULT_CONFIG["layout"]["curated_landmarks"]
+    )
     if curated_landmarks is None:
         curated_landmarks = []
     if not isinstance(curated_landmarks, list) or not all(
