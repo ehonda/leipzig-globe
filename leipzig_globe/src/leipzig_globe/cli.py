@@ -1,24 +1,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
 from leipzig_globe.config import DEFAULT_CONFIG, load_config, validate_config
 from leipzig_globe.fetcher import SourceManifest, fetch_data_cache
-from leipzig_globe.pipeline import build_artifacts, ensure_osmium_available, validate_output_directory
+from leipzig_globe.pipeline import (
+    build_artifacts,
+    ensure_osmium_available,
+    validate_output_directory,
+)
 
 app = typer.Typer(help="Leipzig Globe build and validation CLI")
 
 
 @app.command("fetch-data")
 def fetch_data(
-    cache_dir: Path = typer.Option(Path(".cache"), "--cache-dir", help="Directory for cached OpenStreetMap and boundary data."),
-    url: str = typer.Option(
-        "https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf",
-        "--url",
-        help="URL to the source OSM extract.",
-    ),
+    cache_dir: Annotated[
+        Path, typer.Option(help="Directory for cached OpenStreetMap and boundary data.")
+    ] = Path(".cache"),
+    url: Annotated[
+        str,
+        typer.Option(help="URL to the source OSM extract."),
+    ] = "https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf",
 ) -> None:
     ensure_osmium_available()
     manifest = SourceManifest(
@@ -34,8 +40,12 @@ def fetch_data(
 
 @app.command("build")
 def build(
-    output_dir: Path = typer.Option(Path("output"), "--output-dir", help="Directory for generated outputs."),
-    config_path: Path | None = typer.Option(None, "--config", help="Optional YAML config file."),
+    output_dir: Annotated[
+        Path, typer.Option(help="Directory for generated outputs.")
+    ] = Path("output"),
+    config_path: Annotated[
+        Path | None, typer.Option(help="Optional YAML config file.")
+    ] = None,
 ) -> None:
     config = load_config(config_path) if config_path else DEFAULT_CONFIG
     validate_config(config)
@@ -46,7 +56,9 @@ def build(
 
 @app.command("validate")
 def validate(
-    output_dir: Path = typer.Option(Path("output"), "--output-dir", help="Directory to validate."),
+    output_dir: Annotated[Path, typer.Option(help="Directory to validate.")] = Path(
+        "output"
+    ),
 ) -> None:
     result = validate_output_directory(output_dir)
     typer.echo(f"Validation status: {result['status']}")

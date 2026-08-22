@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import copy
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import yaml
 
 DEFAULT_CONFIG: dict[str, Any] = {
+    "version": 1,
     "city": "Leipzig",
     "globe": {
         "diameter_mm": 300,
@@ -47,48 +49,133 @@ def _deep_merge(base: dict[str, Any], override: Mapping[str, Any]) -> dict[str, 
     return merged
 
 
-def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
-    merged = _deep_merge(DEFAULT_CONFIG, config)
+def _validate_non_negative_number(name: str, value: Any) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise TypeError(f"Invalid {name}: expected a non-negative number.")
+    numeric = float(value)
+    if numeric < 0:
+        raise ValueError(f"Invalid {name}: must be zero or greater.")
+    return numeric
+
+
+def _validate_positive_number(name: str, value: Any) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise TypeError(f"Invalid {name}: expected a positive number.")
+    numeric = float(value)
+    if numeric <= 0:
+        raise ValueError(f"Invalid {name}: must be greater than zero.")
+    return numeric
+
+
+def _validate_seam_offset(name: str, value: Any) -> float:
+    number = _validate_non_negative_number(name, value)
+    if number > 360:
+        raise ValueError(f"Invalid {name}: must be between 0 and 360 degrees.")
+    return number
+
+
+def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
+    merged = _deep_merge(DEFAULT_CONFIG, config or {})
+    city = str(merged.get("city", "")).strip()
+    if not city:
+        raise ValueError("Configuration is missing a city. Supported city: Leipzig.")
+    if city.lower() != "leipzig":
+        raise ValueError(
+            f"Unsupported city configuration: {city!r}. Only Leipzig is supported."
+        )
+    merged["city"] = "Leipzig"
+
     globe = merged.get("globe", {})
     layout = merged.get("layout", {})
 
-    if not isinstance(globe.get("diameter_mm"), (int, float)) or globe["diameter_mm"] <= 0:
-        raise ValueError("Invalid globe settings: diameter_mm must be a positive number.")
-    if not isinstance(globe.get("gore_count"), int) or globe["gore_count"] <= 0:
-        raise ValueError("Invalid globe settings: gore_count must be a positive integer.")
-    if not isinstance(globe.get("assembly_overlap_mm"), (int, float)) or globe["assembly_overlap_mm"] < 0:
-        raise ValueError("Invalid globe settings: assembly_overlap_mm must be zero or greater.")
-    if not isinstance(globe.get("ppi"), (int, float)) or globe["ppi"] <= 0:
-        raise ValueError("Invalid globe settings: ppi must be a positive number.")
-    if not isinstance(layout.get("print_margin_mm"), (int, float)) or layout["print_margin_mm"] < 0:
-        raise ValueError("Invalid layout settings: print_margin_mm must be zero or greater.")
-    seam = float(layout.get("seam_offset_deg", 0))
-    if seam < 0 or seam > 360:
-        raise ValueError("Invalid layout settings: seam_offset_deg must be between 0 and 360 degrees.")
+    globe["diameter_mm"] = _validate_positive_number(
+        "globe.diameter_mm", globe.get("diameter_mm")
+    )
+    gore_count = globe.get("gore_count")
+    if (
+        not isinstance(gore_count, int)
+        or isinstance(gore_count, bool)
+        or gore_count <= 0
+    ):
+        raise ValueError(
+            "Invalid globe settings: gore_count must be a positive integer."
+        )
+    globe["gore_count"] = gore_count
+    globe["assembly_overlap_mm"] = _validate_non_negative_number(
+        "globe.assembly_overlap_mm", globe.get("assembly_overlap_mm")
+    )
+    globe["ppi"] = _validate_positive_number("globe.ppi", globe.get("ppi"))
+    paper_size = str(globe.get("paper_size", "A4")).upper()
+    if paper_size not in {"A4"}:
+        raise ValueError(
+            f"Unsupported paper size: {paper_size!r}. Only A4 is currently supported."
+        )
+    globe["paper_size"] = paper_size
+
+    layout["tile_overlap_mm"] = _validate_non_negative_number(
+        "layout.tile_overlap_mm", layout.get("tile_overlap_mm")
+    )
+    layout["print_margin_mm"] = _validate_non_negative_number(
+        "layout.print_margin_mm", layout.get("print_margin_mm")
+    )
+    layout["pole_safety_zone_mm"] = _validate_non_negative_number(
+        "layout.pole_safety_zone_mm", layout.get("pole_safety_zone_mm")
+    )
+    layout["world_layout_scale_x"] = _validate_positive_number(
+        "layout.world_layout_scale_x", layout.get("world_layout_scale_x")
+    )
+    layout["world_layout_scale_y"] = _validate_positive_number(
+        "layout.world_layout_scale_y", layout.get("world_layout_scale_y")
+    )
+
+    seam_offset = _validate_seam_offset(
+        "globe.seam_offset_deg",
+        globe.get("seam_offset_deg", layout.get("seam_offset_deg", 0)),
+    )
+    globe["seam_offset_deg"] = seam_offset
+    layout_seam = _validate_seam_offset(
+        "layout.seam_offset_deg",
+        layout.get("seam_offset_deg", globe.get("seam_offset_deg", 0)),
+    )
+    layout["seam_offset_deg"] = layout_seam
+    if abs(globe["seam_offset_deg"] - layout["seam_offset_deg"]) > 1e-9:
+        raise ValueError(
+            "globe.seam_offset_deg and layout.seam_offset_deg must match when both are configured."
+        )
+
+    gore_order = str(layout.get("gore_order", "clockwise")).lower()
+    if gore_order not in {"clockwise", "counterclockwise"}:
+        raise ValueError(
+            "Invalid layout settings: gore_order must be 'clockwise' or 'counterclockwise'."
+        )
+    layout["gore_order"] = gore_order
 
     return merged
 
 
 def load_config(path: str | Path | None = None) -> dict[str, Any]:
-    config = copy.deepcopy(DEFAULT_CONFIG)
     if path is None:
-        return validate_config(config)
-
-    source = Path(path)
-    if not source.exists():
-        raise FileNotFoundError(f"Configuration file not found: {source}")
+        default_path = default_config_path()
+        if default_path.exists():
+            source = default_path
+        else:
+            return validate_config(DEFAULT_CONFIG)
+    else:
+        source = Path(path)
+        if not source.exists():
+            raise FileNotFoundError(f"Configuration file not found: {source}")
 
     contents = yaml.safe_load(source.read_text(encoding="utf-8")) or {}
     if not isinstance(contents, dict):
-        raise ValueError("Configuration file must contain a YAML mapping.")
+        raise TypeError("Configuration file must contain a YAML mapping.")
 
-    merged = _deep_merge(config, contents)
+    merged = _deep_merge(DEFAULT_CONFIG, contents)
     return validate_config(merged)
 
 
 try:
     from leipzig_globe import __version__
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
     __version__ = "0.1.0"
 
 

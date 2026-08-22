@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +27,7 @@ class SourceManifest:
             "checksum": self.checksum,
             "sha256": self.sha256,
             "metadata": self.metadata,
-            "fetched_at_utc": datetime.now(timezone.utc).isoformat(),
+            "fetched_at_utc": datetime.now(UTC).isoformat(),
         }
 
 
@@ -53,7 +53,9 @@ def verify_manifest(manifest: SourceManifest, file_path: str | Path) -> str:
     return actual
 
 
-def fetch_remote_file(url: str, destination: str | Path, *, expected_sha256: str | None = None) -> Path:
+def fetch_remote_file(
+    url: str, destination: str | Path, *, expected_sha256: str | None = None
+) -> Path:
     destination_path = Path(destination)
     destination_path.parent.mkdir(parents=True, exist_ok=True)
     response = requests.get(url, timeout=60)
@@ -74,7 +76,11 @@ def fetch_data_cache(cache_dir: str | Path, manifest: SourceManifest) -> Path:
     cache_root.mkdir(parents=True, exist_ok=True)
     file_path = cache_root / manifest.file_name
     if not file_path.exists():
-        fetch_remote_file(manifest.url, file_path, expected_sha256=manifest.sha256 or manifest.checksum)
+        fetch_remote_file(
+            manifest.url,
+            file_path,
+            expected_sha256=manifest.sha256 or manifest.checksum,
+        )
     verify_manifest(manifest, file_path)
     manifest_path = cache_root / "source-manifest.json"
     manifest_path.write_text(json.dumps(manifest.as_dict(), indent=2), encoding="utf-8")

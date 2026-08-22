@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 import base64
-import hashlib
 import json
 import shutil
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
-import geopandas as gpd
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from shapely.geometry import Polygon
 
 from leipzig_globe.config import DEFAULT_CONFIG, validate_config
 
@@ -34,12 +31,14 @@ def texture_dimensions(config: dict[str, Any]) -> tuple[int, int]:
     cfg = validate_config(config)
     globe = cfg["globe"]
     px_per_mm = globe["ppi"] / 25.4
-    width_px = max(2, int(round(globe["diameter_mm"] * px_per_mm)))
-    height_px = max(1, int(round(width_px / 2)))
+    width_px = max(2, round(globe["diameter_mm"] * px_per_mm))
+    height_px = max(1, round(width_px / 2))
     return width_px, height_px
 
 
-def gore_outline_points(gore_index: int, gore_count: int, width: int, height: int) -> list[tuple[float, float]]:
+def gore_outline_points(
+    gore_index: int, gore_count: int, width: int, height: int
+) -> list[tuple[float, float]]:
     if gore_count <= 0:
         raise ValueError("gore_count must be positive")
     if not 0 <= gore_index < gore_count:
@@ -99,7 +98,10 @@ def generate_globe_texture(config: dict[str, Any], output_path: str | Path) -> P
     draw.line(road_band, fill=(72, 76, 81), width=max(3, int(width / 120)))
 
     for label in ["Leipzig", "Zentrum", "Mitte", "Connewitz", "Schönefeld", "Plagwitz"]:
-        position = (int(width * (0.12 + len(label) * 0.02)), int(height * (0.15 + (abs(hash(label)) % 6) * 0.11)))
+        position = (
+            int(width * (0.12 + len(label) * 0.02)),
+            int(height * (0.15 + (abs(hash(label)) % 6) * 0.11)),
+        )
         try:
             font = ImageFont.truetype("DejaVuSans.ttf", max(12, int(width / 70)))
         except OSError:
@@ -111,7 +113,13 @@ def generate_globe_texture(config: dict[str, Any], output_path: str | Path) -> P
     return path
 
 
-def generate_gore_svg(texture_path: str | Path, output_path: str | Path, gore_index: int, gore_count: int, config: dict[str, Any]) -> Path:
+def generate_gore_svg(
+    texture_path: str | Path,
+    output_path: str | Path,
+    gore_index: int,
+    gore_count: int,
+    config: dict[str, Any],
+) -> Path:
     texture_file = Path(texture_path)
     out_file = Path(output_path)
     width, height = texture_dimensions(config)
@@ -120,7 +128,7 @@ def generate_gore_svg(texture_path: str | Path, output_path: str | Path, gore_in
     with texture_file.open("rb") as handle:
         encoded = base64.b64encode(handle.read()).decode("ascii")
 
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
     <clipPath id="clip-{gore_index}">
       <polygon points="{polygon_svg}" />
@@ -131,20 +139,24 @@ def generate_gore_svg(texture_path: str | Path, output_path: str | Path, gore_in
   <polygon points="{polygon_svg}" fill="none" stroke="black" stroke-width="2"/>
   <line x1="{(polygon[0][0]+polygon[1][0])/2}" y1="{polygon[0][1]}" x2="{(polygon[3][0]+polygon[2][0])/2}" y2="{polygon[3][1]}" stroke="gray" stroke-width="1"/>
   <text x="{((polygon[0][0]+polygon[1][0])/2)}" y="{height * 0.08}" font-size="28" text-anchor="middle">Gore {gore_index + 1:02d}</text>
-</svg>'''
+</svg>"""
     out_file.parent.mkdir(parents=True, exist_ok=True)
     out_file.write_text(svg, encoding="utf-8")
     return out_file
 
 
-def build_gore_set(texture_path: str | Path, output_dir: str | Path, config: dict[str, Any]) -> list[Path]:
+def build_gore_set(
+    texture_path: str | Path, output_dir: str | Path, config: dict[str, Any]
+) -> list[Path]:
     cfg = validate_config(config)
     output_root = Path(output_dir)
     output_root.mkdir(parents=True, exist_ok=True)
     gores: list[Path] = []
     for gore_index in range(cfg["globe"]["gore_count"]):
         out = output_root / f"gore-{gore_index + 1:02d}.svg"
-        generate_gore_svg(texture_path, out, gore_index, cfg["globe"]["gore_count"], cfg)
+        generate_gore_svg(
+            texture_path, out, gore_index, cfg["globe"]["gore_count"], cfg
+        )
         gores.append(out)
     return gores
 
@@ -168,7 +180,7 @@ def build_pdf(gore_files: Iterable[str | Path], output_path: str | Path) -> Path
         c.rect(10, 10, width_mm - 20, height_mm - 20)
         c.line(10, 10, width_mm - 10, 10)
         c.line(10, 10, 10, height_mm - 10)
-        c.drawString(x, y, f"Calibration line 100mm")
+        c.drawString(x, y, "Calibration line 100mm")
         c.line(x, y, x + 100, y)
         c.drawString(x, y + 10, "100 mm")
 
@@ -180,7 +192,9 @@ def build_pdf(gore_files: Iterable[str | Path], output_path: str | Path) -> Path
     return pdf_path
 
 
-def generate_preview_set(texture_path: str | Path, output_dir: str | Path) -> list[Path]:
+def generate_preview_set(
+    texture_path: str | Path, output_dir: str | Path
+) -> list[Path]:
     texture_file = Path(texture_path)
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -191,7 +205,9 @@ def generate_preview_set(texture_path: str | Path, output_dir: str | Path) -> li
         preview = img.copy()
         overlay = Image.new("RGBA", preview.size, (0, 0, 0, 0))
         draw = ImageDraw.Draw(overlay)
-        draw.rectangle((0, 0, preview.width, preview.height), outline=(120, 120, 120, 180), width=6)
+        draw.rectangle(
+            (0, 0, preview.width, preview.height), outline=(120, 120, 120, 180), width=6
+        )
         draw.text((20, 20), f"{name.title()} View", fill=(30, 30, 30, 220))
         preview = Image.alpha_composite(preview.convert("RGBA"), overlay).convert("RGB")
         output = out_dir / f"{name}.png"
@@ -200,19 +216,25 @@ def generate_preview_set(texture_path: str | Path, output_dir: str | Path) -> li
     return images
 
 
-def write_build_report(config: dict[str, Any], output_dir: str | Path, artifact_paths: dict[str, Any]) -> Path:
+def write_build_report(
+    config: dict[str, Any], output_dir: str | Path, artifact_paths: dict[str, Any]
+) -> Path:
     report_path = Path(output_dir) / "build-report.json"
     payload = {
         "city": config.get("city", "Leipzig"),
         "config": config,
         "artifacts": artifact_paths,
-        "generated_at_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+        "generated_at_utc": __import__("datetime")
+        .datetime.now(__import__("datetime").timezone.utc)
+        .isoformat(),
     }
     report_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return report_path
 
 
-def build_artifacts(config: dict[str, Any] | None = None, output_dir: str | Path = "output") -> dict[str, Any]:
+def build_artifacts(
+    config: dict[str, Any] | None = None, output_dir: str | Path = "output"
+) -> dict[str, Any]:
     cfg = validate_config(config or DEFAULT_CONFIG)
     work_dir = Path(output_dir)
     work_dir.mkdir(parents=True, exist_ok=True)

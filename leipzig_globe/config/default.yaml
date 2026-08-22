@@ -1,0 +1,25 @@
+version: 1
+city: Leipzig
+globe:
+  diameter_mm: 300
+  gore_count: 12
+  assembly_overlap_mm: 2
+  seam_offset_deg: 0
+  ppi: 200
+  paper_size: A4
+layout:
+  tile_overlap_mm: 10
+  print_margin_mm: 10
+  pole_safety_zone_mm: 20
+  seam_offset_deg: 0
+  world_layout_scale_x: 1.0
+  world_layout_scale_y: 1.0
+  gore_order: clockwise
+  source_cache_dir: .cache
+paths:
+  output_dir: output
+  texture_file: leipzig-texture.png
+  gore_dir: gores
+  pdf_file: leipzig-globe-print.pdf
+  preview_dir: preview
+  report_file: build-report.json

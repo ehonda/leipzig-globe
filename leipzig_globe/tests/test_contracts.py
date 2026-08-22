@@ -1,34 +1,55 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
-from leipzig_globe.config import DEFAULT_CONFIG, load_config, validate_config
+from leipzig_globe.config import (
+    default_config_path,
+    load_config,
+    validate_config,
+)
 from leipzig_globe.fetcher import SourceManifest, verify_manifest
 
 
 def test_default_config_sets_expected_mvp_values():
     config = load_config()
 
+    assert config["version"] == 1
+    assert config["city"] == "Leipzig"
     assert config["globe"]["diameter_mm"] == 300
     assert config["globe"]["gore_count"] == 12
     assert config["globe"]["assembly_overlap_mm"] == 2
     assert config["layout"]["seam_offset_deg"] == 0
+    assert config["layout"]["tile_overlap_mm"] == 10
+    assert config["paths"]["texture_file"] == "leipzig-texture.png"
+    assert default_config_path().exists()
 
 
 def test_invalid_configuration_raises_actionable_error():
     bad_config = {
+        "city": "Berlin",
         "globe": {
             "diameter_mm": 0,
             "gore_count": 0,
             "assembly_overlap_mm": -1,
+            "seam_offset_deg": 361,
+            "ppi": 0,
         },
-        "layout": {"seam_offset_deg": 180},
+        "layout": {
+            "tile_overlap_mm": -1,
+            "print_margin_mm": -1,
+            "pole_safety_zone_mm": -1,
+            "world_layout_scale_x": 0,
+            "world_layout_scale_y": 0,
+            "seam_offset_deg": 361,
+        },
     }
 
-    with pytest.raises(ValueError, match="diameter_mm|gore_count|assembly_overlap_mm"):
+    with pytest.raises(
+        ValueError,
+        match="Leipzig|diameter_mm|gore_count|assembly_overlap_mm|tile_overlap_mm|print_margin_mm|pole_safety_zone_mm|world_layout_scale_x|world_layout_scale_y|seam_offset_deg|ppi",
+    ):
         validate_config(bad_config)
 
 

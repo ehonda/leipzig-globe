@@ -14,8 +14,16 @@ REQUIRED_SYSTEM_TOOLS = {
 def require_system_dependencies(*tool_names: str) -> None:
     missing = [name for name in tool_names if shutil.which(name) is None]
     if missing:
-        details = ", ".join(f"{name} ({REQUIRED_SYSTEM_TOOLS.get(name, 'required system tool')})" for name in missing)
+        details = ", ".join(
+            f"{name} ({REQUIRED_SYSTEM_TOOLS.get(name, 'required system tool')})"
+            for name in missing
+        )
         raise RuntimeError(f"Missing required system tools: {details}")
 
 
-__all__ = ["main", "__version__", "require_system_dependencies", "REQUIRED_SYSTEM_TOOLS"]
+__all__ = [
+    "REQUIRED_SYSTEM_TOOLS",
+    "__version__",
+    "main",
+    "require_system_dependencies",
+]
