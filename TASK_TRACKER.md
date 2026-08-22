@@ -4,7 +4,7 @@
 
 - [x] 1. Bootstrap the `uv` Python project (reviewed and corrected)
 - [x] 2. Define configuration and artifact contracts
-- [ ] 3. Implement deterministic source acquisition
+- [x] 3. Implement deterministic source acquisition
 - [ ] 4. Derive the Municipal Map
 - [ ] 5. Render the clean Leipzig map
 - [ ] 6. Create the 2:1 Globe Texture

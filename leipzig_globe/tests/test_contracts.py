@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 
 import pytest
@@ -9,7 +10,7 @@ from leipzig_globe.config import (
     load_config,
     validate_config,
 )
-from leipzig_globe.fetcher import SourceManifest, verify_manifest
+from leipzig_globe.fetcher import SourceManifest, fetch_data_cache, verify_manifest
 
 
 def test_default_config_sets_expected_mvp_values():
@@ -84,3 +85,49 @@ def test_build_manifest_is_serializable(tmp_path):
     payload = json.loads(manifest_path.read_text())
     assert payload["globe"]["diameter_mm"] == 300
     assert payload["artifacts"]["texture"].endswith("texture.png")
+
+
+def test_fetch_data_cache_writes_deterministic_manifest(tmp_path):
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    sample_bytes = b"fixture-osm-data"
+    file_path = cache_dir / "sachsen-latest.osm.pbf"
+    file_path.write_bytes(sample_bytes)
+
+    manifest = SourceManifest(
+        source_name="sachsen-latest",
+        url="https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf",
+        file_name="sachsen-latest.osm.pbf",
+        sha256=hashlib.sha256(sample_bytes).hexdigest(),
+        metadata={
+            "license": "OpenStreetMap © Contributors",
+            "source_version": "2024-01-01",
+        },
+    )
+
+    stored = fetch_data_cache(cache_dir, manifest)
+    assert stored == file_path
+
+    payload = json.loads((cache_dir / "source-manifest.json").read_text())
+    assert payload["source_name"] == "sachsen-latest"
+    assert payload["sha256"] == hashlib.sha256(sample_bytes).hexdigest()
+    assert payload["metadata"]["source_version"] == "2024-01-01"
+    assert "fetched_at_utc" not in payload
+
+
+def test_fetch_data_cache_rejects_checksum_mismatch(tmp_path):
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    file_path = cache_dir / "sachsen-latest.osm.pbf"
+    file_path.write_bytes(b"fixture-osm-data")
+
+    manifest = SourceManifest(
+        source_name="sachsen-latest",
+        url="https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf",
+        file_name="sachsen-latest.osm.pbf",
+        sha256="0" * 64,
+        metadata={"license": "OpenStreetMap © Contributors"},
+    )
+
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        fetch_data_cache(cache_dir, manifest)
