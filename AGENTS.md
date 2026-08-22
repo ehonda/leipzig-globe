@@ -12,12 +12,3 @@ criteria are actually satisfied and validated.
 
 Do not weaken requirements or tests in order to declare a task complete.
 Do not autonomously perform milestones explicitly requiring human action.
-
-## Running Python commands
-
-The repository root is the Python project root. Run `uv`, `pytest`, and other
-Python tooling from there, for example:
-
-- `uv sync --group dev`
-- `uv run pytest -q`
-- `uv run leipzig-globe --help`
