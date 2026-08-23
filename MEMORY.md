@@ -54,3 +54,24 @@ Why this matters:
 - the Debian WSL distribution on this machine is also an unsupported Buster
   release with retired package sources, so it cannot currently install the
   Debian package.
+
+### 2026-08-23 — Windows `osmium` invocation and performance investigation
+
+For the current PowerShell session, make the Conda-forge executable available
+before running a real build:
+
+```powershell
+$env:PATH = "$env:LOCALAPPDATA\osmium-tool\Library\bin;$env:PATH"
+uv run leipzig-globe build --output-dir output
+```
+
+In Python, use the configured command name `osmium` after checking it with
+`shutil.which`; do not pass the absolute path returned by `which` to
+`subprocess.run`. The current Windows installation accepts the PATH command
+name but failed when invoked through its resolved absolute executable path.
+
+The current real-source build is blocked by BG-004. A 255 MB Saxony PBF
+expanded to a 534 MB temporary GeoJSON, and a boundary-first extraction attempt
+still wrote a 753 MB partial Municipal Map before cancellation. Temporary build
+artifacts were removed from `output/`. Do not retry the full build until the
+feature-selection and performance work in BG-004 is complete.

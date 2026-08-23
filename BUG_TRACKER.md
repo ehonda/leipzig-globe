@@ -5,6 +5,7 @@
 - [x] BG-001: Clean map renderer uses placeholder geometry
 - [x] BG-002: Globe texture is independently drawn, not transformed from the map
 - [x] BG-003: Offline data stages are disconnected from `build`
+- [ ] BG-004: Municipal Map derivation does not finish in a practical time
 
 ## Notes
 

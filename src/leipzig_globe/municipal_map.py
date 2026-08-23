@@ -51,14 +51,14 @@ def extract_osm_features(
     source_pbf: str | Path,
     output_path: str | Path,
     *,
+    boundary_path: str | Path | None = None,
     osmium_path: str = "osmium",
 ) -> Path:
     """Extract Task 4 feature classes from a cached OSM PBF without network access."""
     source_path = Path(source_pbf)
     if not source_path.exists():
         raise FileNotFoundError(f"Cached OSM PBF not found: {source_path}")
-    executable = shutil.which(osmium_path)
-    if executable is None:
+    if shutil.which(osmium_path) is None:
         raise RuntimeError(
             "Osmium is required for map extraction. Install the `osmium-tool` binary and ensure it is on your PATH."
         )
@@ -66,22 +66,43 @@ def extract_osm_features(
     target_path = Path(output_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=target_path.parent) as temporary_dir:
+        input_pbf = source_path
+        if boundary_path is not None:
+            boundary = _as_geodataframe(boundary_path)
+            if boundary.crs is None:
+                raise ValueError("Municipal boundary is missing a CRS.")
+            polygon_path = Path(temporary_dir) / "municipal-boundary-wgs84.geojson"
+            boundary.to_crs("EPSG:4326").to_file(polygon_path, driver="GeoJSON")
+            input_pbf = Path(temporary_dir) / "municipal-extract.osm.pbf"
+            subprocess.run(
+                [
+                    osmium_path,
+                    "extract",
+                    "--overwrite",
+                    "--polygon",
+                    str(polygon_path),
+                    "--output",
+                    str(input_pbf),
+                    str(source_path),
+                ],
+                check=True,
+            )
         filtered_pbf = Path(temporary_dir) / "leipzig-features.osm.pbf"
         subprocess.run(
             [
-                executable,
+                osmium_path,
                 "tags-filter",
                 "--overwrite",
                 "-o",
                 str(filtered_pbf),
-                str(source_path),
+                str(input_pbf),
                 *OSM_FEATURE_FILTERS,
             ],
             check=True,
         )
         subprocess.run(
             [
-                executable,
+                osmium_path,
                 "export",
                 "--overwrite",
                 "-o",
@@ -109,6 +130,7 @@ def derive_municipal_map_from_sources(
         extract_osm_features(
             source_pbf,
             extracted_features,
+            boundary_path=boundary_path,
             osmium_path=osmium_path,
         )
         return derive_municipal_map(

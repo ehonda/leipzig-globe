@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import geopandas as gpd
 import pytest
 from shapely.geometry import LineString, Point, Polygon
@@ -72,7 +74,10 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(tmp_path, monkeypatch):
     output_path = tmp_path / "features.geojson"
     commands: list[list[str]] = []
 
-    monkeypatch.setattr("leipzig_globe.municipal_map.shutil.which", lambda _: "osmium")
+    monkeypatch.setattr(
+        "leipzig_globe.municipal_map.shutil.which",
+        lambda _: r"C:\\Users\\dennis\\AppData\\Local\\osmium-tool\\Library\\bin\\osmium.exe",
+    )
 
     def run(command, *, check):
         commands.append(command)
@@ -84,6 +89,7 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(tmp_path, monkeypatch):
     result = extract_osm_features(source_pbf, output_path)
 
     assert result == output_path
+    assert commands[0][0] == "osmium"
     assert commands[0][1] == "tags-filter"
     assert commands[0][-len(OSM_FEATURE_FILTERS) :] == list(OSM_FEATURE_FILTERS)
     assert commands[1][1] == "export"
@@ -98,6 +104,40 @@ def test_extract_osm_features_requires_osmium(tmp_path, monkeypatch):
 
     with pytest.raises(RuntimeError, match="Osmium"):
         extract_osm_features(source_pbf, tmp_path / "features.geojson")
+
+
+def test_extract_osm_features_clips_to_wgs84_boundary_before_tag_filtering(
+    tmp_path, monkeypatch
+):
+    source_pbf = tmp_path / "sachsen-latest.osm.pbf"
+    source_pbf.write_bytes(b"fixture")
+    boundary_path = tmp_path / "boundary.geojson"
+    gpd.GeoDataFrame(
+        geometry=[Polygon([(300000, 5700000), (301000, 5700000), (301000, 5701000)])],
+        crs="EPSG:32633",
+    ).to_file(boundary_path, driver="GeoJSON")
+    output_path = tmp_path / "features.geojson"
+    commands: list[list[str]] = []
+
+    monkeypatch.setattr("leipzig_globe.municipal_map.shutil.which", lambda _: "osmium")
+
+    def run(command, *, check):
+        commands.append(command)
+        if command[1] == "export":
+            output_path.write_text('{"type": "FeatureCollection", "features": []}')
+
+    monkeypatch.setattr("leipzig_globe.municipal_map.subprocess.run", run)
+
+    extract_osm_features(source_pbf, output_path, boundary_path=boundary_path)
+
+    assert [command[1] for command in commands] == [
+        "extract",
+        "tags-filter",
+        "export",
+    ]
+    assert "--polygon" in commands[0]
+    polygon_path = Path(commands[0][commands[0].index("--polygon") + 1])
+    assert polygon_path.name == "municipal-boundary-wgs84.geojson"
 
 
 def test_derive_municipal_map_from_sources_uses_only_cached_inputs(

@@ -52,3 +52,28 @@ the source-map pixels.
 **Done when:** An offline fixture build proves every downstream artifact is
 derived from the same Municipal Map and fails clearly when required cached
 sources are missing.
+
+## BG-004: Municipal Map derivation does not finish in a practical time
+
+- **Related tasks:** [Task 4: Derive the Municipal Map](IMPLEMENTATION_TASKS.md#4-derive-the-municipal-map), [Task 5: Render the clean Leipzig map](IMPLEMENTATION_TASKS.md#5-render-the-clean-leipzig-map), and [Task 11: Expose the end-to-end CLI](IMPLEMENTATION_TASKS.md#11-expose-the-end-to-end-cli)
+- **Affected workflow:** `uv run leipzig-globe build`
+- **Observed behavior:** A real cached Leipzig build does not reach
+  `output/leipzig-map.png` in a practical time. The 255 MB Saxony PBF first
+  produced a 534 MB temporary GeoJSON; a boundary-first extraction attempt
+  still produced a 753 MB partial Municipal Map before the build was stopped.
+- **Root cause:** The derivation pipeline materializes too many OSM features
+  and then asks GeoPandas to load, reproject, intersect, validate, and write
+  them as GeoJSON. The pipeline lacks a bounded Leipzig-only data path and a
+  performance acceptance check.
+- **Required fix:** Profile feature counts and tag classes after each Osmium
+  stage; reduce the extract to the exact feature classes and Leipzig extent
+  needed by the renderer before GeoPandas loads it; avoid writing oversized
+  intermediate GeoJSON when a smaller clipped format or streamed operation is
+  available. Add a repeatable performance test or benchmark for the cached
+  real-source build on the supported Windows environment.
+
+**Done when:** A populated-cache build produces `output/leipzig-map.png` from
+the real sources within five minutes on the documented Windows environment,
+without leaving a temporary or Municipal Map GeoJSON larger than 100 MB, and
+the measured feature counts and duration are recorded in the Build Report or
+benchmark output.
