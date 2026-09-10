@@ -70,8 +70,35 @@ In Python, use the configured command name `osmium` after checking it with
 `subprocess.run`. The current Windows installation accepts the PATH command
 name but failed when invoked through its resolved absolute executable path.
 
-The current real-source build is blocked by BG-004. A 255 MB Saxony PBF
+The August real-source build was blocked by BG-004. A 255 MB Saxony PBF
 expanded to a 534 MB temporary GeoJSON, and a boundary-first extraction attempt
 still wrote a 753 MB partial Municipal Map before cancellation. Temporary build
 artifacts were removed from `output/`. Do not retry the full build until the
-feature-selection and performance work in BG-004 is complete.
+feature-selection and performance work in BG-004 is complete. See the September
+entry below for the replacement benchmark.
+
+### 2026-09-10 — Bounded municipal extraction
+
+The official file contains ten districts. Osmium reads only the **first**
+GeoJSON feature as its extraction polygon; dissolve them before export to
+WGS84. Use `smart` extraction to complete multipolygon relations, and source
+district data from the official file rather than broad OSM administrative
+relations. See [Osmium extract documentation](https://docs.osmcode.org/osmium/latest/osmium-extract.html).
+
+Export a fixed tag schema and strip tags from referenced, nonmatching objects.
+Unrestricted OSM tags become thousands of sparse GeoPandas columns, multiplying
+GeoJSON output size. The export is now consumed feature by feature with a
+100 MB cap; no unrestricted export is written. Explicit area/linear tag rules
+avoid rendering every closed road as a filled polygon.
+
+Prepare the detailed municipal polygon for repeated spatial predicates and
+intersect only features crossing its boundary. Vectorizing an unprepared
+predicate alone still took several minutes. One-metre topology-preserving
+simplification occurs before exact clipping; validation allows only 0.1 µm
+floating-point tolerance around the official boundary.
+
+`uv run scripts/benchmark_map.py` reached the real map in 108.95 seconds on
+Windows 11 / Python 3.14.6 / Osmium 1.19.1: 60,852 features, 35.50 MB Municipal
+Map, 19.95 MB temporary export. The old renderer then painted a city polygon
+over the road/water layers; checkpoint 01 intentionally preserves that defect.
+Performance success does not establish rendering correctness.

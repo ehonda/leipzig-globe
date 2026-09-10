@@ -2,6 +2,16 @@
 
 ## Next Focus
 
+**2026-09-10 update:** the map-only benchmark now completes in 108.95 seconds
+with a 35.50 MB Municipal Map (60,852 features) and a 19.95 MB temporary export.
+See `demos/01-extraction/` and `scripts/benchmark_map.py`. Extraction now
+dissolves all ten official districts, uses explicit map tag filters, streams a
+bounded export, and prepares the municipal polygon for spatial predicates.
+The next defect is renderer drawing order: the city polygon covers roads and
+water. Labels and downstream printable artifacts also remain placeholders;
+see the reopened tracker entries. The historical notes below describe the
+August state, not the current working tree.
+
 Resolve BG-004 so a populated-cache Windows build produces the real
 `output/leipzig-map.png` in a practical, measured time.
 

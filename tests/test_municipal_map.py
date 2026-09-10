@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import json
 from pathlib import Path
 
 import geopandas as gpd
@@ -12,6 +14,27 @@ from leipzig_globe.municipal_map import (
     derive_municipal_map_from_sources,
     extract_osm_features,
 )
+
+
+@pytest.fixture
+def fake_export(monkeypatch):
+    class Process:
+        returncode = 0
+
+        def __init__(self, command, **kwargs):
+            self.stdout = io.BytesIO()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def wait(self):
+            return self.returncode
+
+    monkeypatch.setattr("leipzig_globe.municipal_map.subprocess.Popen", Process)
+    monkeypatch.setattr("leipzig_globe.municipal_map._pbf_profile", lambda *args: {})
 
 
 def test_derive_municipal_map_clips_features_to_boundary(tmp_path):
@@ -68,7 +91,9 @@ def test_derive_municipal_map_requires_a_polygonal_boundary():
         derive_municipal_map(boundary_gdf, features)
 
 
-def test_extract_osm_features_uses_cached_pbf_and_osmium(tmp_path, monkeypatch):
+def test_extract_osm_features_uses_cached_pbf_and_osmium(
+    tmp_path, monkeypatch, fake_export
+):
     source_pbf = tmp_path / "sachsen-latest.osm.pbf"
     source_pbf.write_bytes(b"fixture")
     output_path = tmp_path / "features.geojson"
@@ -92,7 +117,7 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(tmp_path, monkeypatch):
     assert commands[0][0] == "osmium"
     assert commands[0][1] == "tags-filter"
     assert commands[0][-len(OSM_FEATURE_FILTERS) :] == list(OSM_FEATURE_FILTERS)
-    assert commands[1][1] == "export"
+    assert "--remove-tags" in commands[0]
     assert str(source_pbf) in commands[0]
     assert output_path.exists()
 
@@ -107,7 +132,7 @@ def test_extract_osm_features_requires_osmium(tmp_path, monkeypatch):
 
 
 def test_extract_osm_features_clips_to_wgs84_boundary_before_tag_filtering(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, fake_export
 ):
     source_pbf = tmp_path / "sachsen-latest.osm.pbf"
     source_pbf.write_bytes(b"fixture")
@@ -133,7 +158,6 @@ def test_extract_osm_features_clips_to_wgs84_boundary_before_tag_filtering(
     assert [command[1] for command in commands] == [
         "extract",
         "tags-filter",
-        "export",
     ]
     assert "--polygon" in commands[0]
     polygon_path = Path(commands[0][commands[0].index("--polygon") + 1])
@@ -165,3 +189,42 @@ def test_derive_municipal_map_from_sources_uses_only_cached_inputs(
 
     assert result["feature_count"] == 1
     assert gpd.read_file(output_path).iloc[0]["kind"] == "road"
+
+
+def test_extract_combines_all_districts_and_strips_unneeded_tags(tmp_path):
+    """Exercise the real CLI: a mocked command cannot catch first-feature loss."""
+    import shutil
+
+    if shutil.which("osmium") is None:
+        pytest.skip("osmium-tool is required for the real extraction fixture")
+    source = tmp_path / "fixture.osm"
+    source.write_text(
+        """<osm version="0.6">
+      <node id="1" lat="51.30" lon="12.30"/>
+      <node id="2" lat="51.31" lon="12.31"/>
+      <node id="3" lat="51.40" lon="12.50"/>
+      <node id="4" lat="51.41" lon="12.51"/>
+      <node id="5" lat="52.00" lon="13.00"/>
+      <node id="6" lat="52.01" lon="13.01"/>
+      <way id="1"><nd ref="1"/><nd ref="2"/><tag k="highway" v="primary"/><tag k="name" v="First"/><tag k="unneeded" v="discard"/></way>
+      <way id="2"><nd ref="3"/><nd ref="4"/><tag k="highway" v="residential"/><tag k="name" v="Second"/></way>
+      <way id="3"><nd ref="5"/><nd ref="6"/><tag k="highway" v="primary"/><tag k="name" v="Outside"/></way>
+    </osm>""",
+        encoding="utf-8",
+    )
+    from shapely.geometry import box
+
+    boundary = tmp_path / "districts.geojson"
+    gpd.GeoDataFrame(
+        geometry=[box(12.29, 51.29, 12.32, 51.32), box(12.49, 51.39, 12.52, 51.42)],
+        crs=4326,
+    ).to_crs(25833).to_file(boundary)
+    metrics = {}
+    output = extract_osm_features(
+        source, tmp_path / "features.geojson", boundary_path=boundary, metrics=metrics
+    )
+    data = json.loads(output.read_text(encoding="utf-8"))
+    assert {f["properties"]["name"] for f in data["features"]} == {"First", "Second"}
+    assert all("unneeded" not in f["properties"] for f in data["features"])
+    assert metrics["export"]["feature_count"] == 2
+    assert metrics["filter"]["objects"]["ways"] == 2

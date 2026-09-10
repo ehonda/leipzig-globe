@@ -77,3 +77,10 @@ the real sources within five minutes on the documented Windows environment,
 without leaving a temporary or Municipal Map GeoJSON larger than 100 MB, and
 the measured feature counts and duration are recorded in the Build Report or
 benchmark output.
+
+## 2026-09-10 audit additions
+
+- BG-001 is reopened: source geometry is used, but labels still use invented pixel positions; polygon holes are filled, drawing order follows OSM input order, and several road classes are misclassified.
+- BG-002 is reopened: missing source images still trigger synthetic drawing; texture resolution uses globe diameter instead of circumference and can have an odd width; Zentrum is not explicitly anchored at the equator.
+- BG-004 also includes a coverage defect: Osmium uses only the first GeoJSON feature, so the ten-feature district boundary must be dissolved before extraction. Arbitrary OSM tags become a wide, sparse GeoPandas table, inflating the subsequent GeoJSON. Use a fixed tag schema and profile spatial predicates as well as file I/O.
+- Tasks 7–9 contain placeholders, despite callable functions: four-point gore outlines, no spherical resampling, a PDF raster loader given SVG paths, calibration lengths in points rather than millimetres, and six identical flat previews.

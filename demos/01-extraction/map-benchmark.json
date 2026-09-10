@@ -1,0 +1,150 @@
+{
+  "feature_count": 60852,
+  "crs": "EPSG:32633",
+  "output_path": "output\\municipal-map.geojson",
+  "bytes": 35504155,
+  "tag_counts": {
+    "highway": {
+      "trunk": 166,
+      "motorway_link": 157,
+      "residential": 8870,
+      "secondary": 3725,
+      "primary": 1775,
+      "tertiary": 1872,
+      "unclassified": 785,
+      "trunk_link": 113,
+      "motorway": 195,
+      "primary_link": 55,
+      "service": 18551,
+      "pedestrian": 255,
+      "living_street": 390,
+      "secondary_link": 66,
+      "tertiary_link": 36
+    },
+    "waterway": {
+      "river": 132,
+      "canal": 97,
+      "stream": 619,
+      "ditch": 706
+    },
+    "railway": {
+      "tram": 1643,
+      "abandoned": 153,
+      "razed": 14,
+      "narrow_gauge": 72,
+      "rail": 2405,
+      "disused": 7,
+      "construction": 9,
+      "platform": 1
+    },
+    "leisure": {
+      "park": 595,
+      "garden": 5493,
+      "water_park": 1,
+      "pitch": 2,
+      "playground": 4,
+      "track": 1,
+      "dog_park": 1,
+      "sports_centre": 1,
+      "nature_reserve": 6,
+      "slipway": 1
+    },
+    "natural": {
+      "water": 686,
+      "wood": 620,
+      "grassland": 735,
+      "wetland": 75,
+      "floodplain": 21,
+      "scrub": 1,
+      "beach": 1,
+      "grass": 5,
+      "stone": 1
+    },
+    "landuse": {
+      "forest": 410,
+      "grass": 8620,
+      "allotments": 530,
+      "recreation_ground": 40,
+      "farmland": 1,
+      "village_green": 4,
+      "meadow": 510,
+      "brownfield": 3,
+      "greenery": 1,
+      "residential": 4,
+      "industrial": 1,
+      "cemetery": 1,
+      "garages": 1
+    },
+    "place": {
+      "city": 1,
+      "suburb": 60,
+      "neighbourhood": 29,
+      "quarter": 1,
+      "islet": 2
+    },
+    "area": {
+      "yes": 107
+    }
+  },
+  "performance": {
+    "extract": {
+      "seconds": 24.804960099994787,
+      "bytes": 18485134,
+      "objects": {
+        "changesets": 0,
+        "nodes": 1359881,
+        "ways": 287505,
+        "relations": 5743
+      },
+      "tags": [
+        "91834\t\"highway\"",
+        "63149\t\"natural\"",
+        "15683\t\"railway\"",
+        "13973\t\"landuse\"",
+        "10372\t\"leisure\"",
+        "1929\t\"waterway\"",
+        "1085\t\"area\"",
+        "247\t\"place\""
+      ]
+    },
+    "filter": {
+      "seconds": 3.4002840999892214,
+      "bytes": 4945495,
+      "objects": {
+        "changesets": 0,
+        "nodes": 389070,
+        "ways": 64984,
+        "relations": 959
+      },
+      "tags": [
+        "37146\t\"highway\"",
+        "10138\t\"landuse\"",
+        "6107\t\"leisure\"",
+        "4305\t\"railway\"",
+        "2152\t\"natural\"",
+        "1562\t\"waterway\"",
+        "107\t\"area\"",
+        "95\t\"place\""
+      ]
+    },
+    "export": {
+      "seconds": 8.380068099999335,
+      "bytes": 19954226,
+      "feature_count": 61014,
+      "tag_counts": {
+        "place": 95,
+        "highway": 37146,
+        "railway": 4305,
+        "waterway": 1562,
+        "natural": 2152,
+        "landuse": 10138,
+        "leisure": 6106,
+        "area": 107
+      }
+    },
+    "derive_seconds": 62.2106608000031
+  },
+  "seconds_to_map": 108.95075040000665,
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.14.3"
+}
