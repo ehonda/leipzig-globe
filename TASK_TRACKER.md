@@ -13,7 +13,7 @@
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
-- [ ] 12. Add automated validation (46 local tests pass; CI fixture workflow added, first hosted run pending)
+- [x] 12. Add automated validation (46 local tests pass; hosted offline-fixture workflow passed)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
 
 ## Notes
@@ -22,3 +22,4 @@
 - Remaining tasks are being implemented sequentially and committed as they are completed.
 - 2026-09-10 audit found that the original 29 passing tests did not establish specification compliance. The quadrilateral gores, broken PDF loader, flat previews and hard-coded labels have been replaced. Checkpoints under `demos/` preserve the before/after evidence.
 - The physical sample is `demos/02-real-globe/test-print-two-gores.pdf` for a **300 mm** globe. Confirm the actual globe size and regenerate before judging fit; do not scale the PDF in the print dialog.
+- Hosted validation: [CI run 34529763078](https://github.com/ehonda/leipzig-globe/actions/runs/34529763078), commit `05382e0`, completed successfully on 2026-09-10.

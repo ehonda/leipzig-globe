@@ -157,3 +157,10 @@ source acquisition is still not pinned to a dated release (BG-005); preserve
 the current source cache and its manifest. Hosted CI installs Osmium and
 runs the real offline fixture. A final physical globe size and manual fit
 test are still required before claiming the physical milestone complete.
+
+The first hosted Ubuntu CI run passed at commit `05382e0`:
+https://github.com/ehonda/leipzig-globe/actions/runs/34529763078.
+Keep `.gitattributes` binary rules for PDFs/images: Windows `core.autocrlf`
+otherwise tries to treat some PDF headers as text and may corrupt later
+stream bytes or cross-reference offsets on checkout. The committed sample
+was checked byte-for-byte against the inspected local PDF.
