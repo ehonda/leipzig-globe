@@ -84,3 +84,28 @@ benchmark output.
 - BG-002 is reopened: missing source images still trigger synthetic drawing; texture resolution uses globe diameter instead of circumference and can have an odd width; Zentrum is not explicitly anchored at the equator.
 - BG-004 also includes a coverage defect: Osmium uses only the first GeoJSON feature, so the ten-feature district boundary must be dissolved before extraction. Arbitrary OSM tags become a wide, sparse GeoPandas table, inflating the subsequent GeoJSON. Use a fixed tag schema and profile spatial predicates as well as file I/O.
 - Tasks 7–9 contain placeholders, despite callable functions: four-point gore outlines, no spherical resampling, a PDF raster loader given SVG paths, calibration lengths in points rather than millimetres, and six identical flat previews.
+
+These rendering/printing audit findings are repaired in checkpoint 02. The
+following acquisition finding remains open.
+
+## BG-005: Fresh source acquisition is not pinned to reproducible releases
+
+- **Related task:** Task 3.
+- **Observed behavior:** a populated cache is checksum-verified, including at
+  build time, but a new cache downloads `sachsen-latest.osm.pbf` and accepts its
+  newly calculated checksum. Two clean caches populated on different dates can
+  therefore contain different inputs despite identical repository revisions.
+- **Evidence:** `DEFAULT_OSM_PBF_URL`, `fetch_data_cache`, and CLI source metadata
+  still use a rolling URL and the version label `sachsen-latest`. The existing
+  cache's exact hashes are preserved in checkpoint reports. Geofabrik provides
+  [dated extracts](https://download.geofabrik.de/europe/germany/sachsen.html).
+- **Required fix:** select a dated, obtainable extract and a pinned official
+  boundary snapshot, record expected checksums and precise license/version
+  metadata in a tracked source lock, and verify new downloads before accepting
+  them. Preserve the existing cache and its provenance when introducing a new
+  source lock; never relabel old bytes as a new source version.
+
+**Done when:** two clean cache acquisitions using the tracked source lock yield
+the same verified inputs, changed upstream bytes fail clearly, and the existing
+checkpoint cache remains usable offline. Tests must cover malformed manifests,
+checksum mismatches and changed source URLs as well as successful acquisition.

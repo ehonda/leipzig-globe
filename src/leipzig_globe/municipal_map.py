@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+import pandas as pd
 import shapely
 from shapely.ops import unary_union
 
@@ -35,6 +36,10 @@ RETAINED_TAGS = (
     "landuse",
     "place",
     "area",
+    "building",
+    "historic",
+    "tourism",
+    "amenity",
 )
 MAX_GEOJSON_BYTES = 100_000_000
 
@@ -140,16 +145,19 @@ def extract_osm_features(
                     "Curated landmark names cannot contain Osmium filter metacharacters (=,!*)."
                 )
             filters.extend([f"nwr/name={name}", f"nwr/name:de={name}"])
+        expressions = Path(temporary_dir) / "feature-filters.txt"
+        expressions.write_text("\n".join(filters) + "\n", encoding="utf-8")
         subprocess.run(
             [
                 osmium_path,
                 "tags-filter",
                 "--remove-tags",
+                "--expressions",
+                str(expressions),
                 "--overwrite",
                 "-o",
                 str(filtered_pbf),
                 str(input_pbf),
-                *filters,
             ],
             check=True,
         )
@@ -162,7 +170,16 @@ def extract_osm_features(
             json.dumps(
                 {
                     "include_tags": list(RETAINED_TAGS),
-                    "area_tags": ["natural", "landuse", "leisure", "area=yes"],
+                    "area_tags": [
+                        "natural",
+                        "landuse",
+                        "leisure",
+                        "area=yes",
+                        "building",
+                        "historic",
+                        "tourism",
+                        "amenity",
+                    ],
                     "linear_tags": ["highway", "waterway", "railway"],
                 }
             ),
@@ -258,6 +275,7 @@ def derive_municipal_map_from_sources(
             extracted_features,
             output_path=target_path,
             working_crs=working_crs,
+            include_districts=True,
         )
         result["performance"] = metrics
         result["performance"]["derive_seconds"] = time.perf_counter() - started
@@ -270,6 +288,7 @@ def derive_municipal_map(
     *,
     output_path: str | Path | None = None,
     working_crs: str = WORKING_CRS,
+    include_districts: bool = False,
 ) -> dict[str, Any]:
     """Clip OSM-derived features to the official Leipzig municipal boundary.
 
@@ -346,6 +365,16 @@ def derive_municipal_map(
     if outside.any():
         raise ValueError(
             "Derived municipal map retains features outside the municipal boundary."
+        )
+
+    if include_districts:
+        districts = boundary_gdf[["geometry"]].copy()
+        districts["name"] = boundary_gdf.get(
+            "Name", boundary_gdf.get("name", "Leipzig")
+        )
+        districts["kind"] = "district"
+        retained = gpd.GeoDataFrame(
+            pd.concat([districts, retained], ignore_index=True), crs=working_crs
         )
 
     target_path = (

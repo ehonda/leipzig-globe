@@ -1,7 +1,7 @@
 [project]
 name = "leipzig-globe"
 version = "0.1.0"
-description = "Add your description here"
+description = "Render Leipzig municipal map data as printable globe gores"
 authors = [
     { name = "Dennis Renz", email = "dennis@r-renz.de" }
 ]
@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.11.1",
     "numpy>=2.5.2",
     "pillow>=12.3.0",
+    "pypdf>=6.18.0",
     "pyyaml>=6.0.3",
     "reportlab>=5.0.1",
     "requests>=2.34.2",

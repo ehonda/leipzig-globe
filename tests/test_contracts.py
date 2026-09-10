@@ -5,9 +5,10 @@ import json
 from pathlib import Path
 
 import geopandas as gpd
+import numpy as np
 import pytest
 from PIL import Image, ImageDraw
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 from leipzig_globe.config import (
     default_config_path,
@@ -20,6 +21,7 @@ from leipzig_globe.fetcher import (
     compute_sha256,
     fetch_data_cache,
     load_source_manifests,
+    persist_source_manifest,
     verify_manifest,
 )
 from leipzig_globe.pipeline import (
@@ -37,7 +39,7 @@ def test_default_config_sets_expected_mvp_values():
     assert config["globe"]["diameter_mm"] == 300
     assert config["globe"]["gore_count"] == 12
     assert config["globe"]["assembly_overlap_mm"] == 2
-    assert config["layout"]["seam_offset_deg"] == 0
+    assert config["layout"]["seam_offset_deg"] == 15
     assert config["layout"]["tile_overlap_mm"] == 10
     assert config["paths"]["texture_file"] == "leipzig-texture.png"
     assert default_config_path().exists()
@@ -287,7 +289,9 @@ def test_render_clean_map_uses_supplied_municipal_geometry(tmp_path):
 
     image = Image.open(output_path).convert("RGB")
     assert image.getpixel((image.width // 2, image.height // 2)) == (90, 90, 90)
-    assert image.getpixel((image.width // 2 - image.height // 4, image.height // 4)) == (
+    assert image.getpixel(
+        (image.width // 2 - image.height // 4, image.height // 4)
+    ) == (
         40,
         80,
         120,
@@ -307,15 +311,8 @@ def test_render_clean_map_preserves_municipal_geometry_aspect_ratio(tmp_path):
 
     image = Image.open(output_path).convert("RGB")
     water = (132, 178, 198)
-    xs: list[int] = []
-    ys: list[int] = []
-    for y in range(image.height):
-        for x in range(image.width):
-            if image.getpixel((x, y)) == water:
-                xs.append(x)
-                ys.append(y)
-
-    assert xs and ys
+    ys, xs = np.where(np.all(np.asarray(image) == water, axis=2))
+    assert len(xs) and len(ys)
     assert max(xs) - min(xs) == pytest.approx(max(ys) - min(ys), abs=2)
 
 
@@ -330,7 +327,9 @@ def test_render_clean_map_classifies_raw_osm_highway_tags(tmp_path):
     render_clean_map({}, output_path, municipal_map=municipal_map)
 
     image = Image.open(output_path).convert("RGB")
-    assert image.getpixel((image.width // 2, image.height // 2)) == (72, 76, 81)
+    assert image.getpixel((image.width // 2, image.height // 2)) == tuple(
+        load_config()["style"]["secondary_road"]
+    )
 
 
 def test_render_clean_map_requires_municipal_geometry(tmp_path):
@@ -433,7 +432,7 @@ def test_generate_globe_texture_uses_rendered_map_and_rotates_for_seam_offset(
 
     texture = Image.open(texture_path).convert("RGB")
     assert texture.size[0] == texture.size[1] * 2
-    assert texture.getpixel((1000, 550)) == (28, 60, 90)
+    assert texture.getpixel((texture.width // 2, texture.height // 3)) == (28, 60, 90)
     assert texture.getpixel((1500, 550)) != (28, 60, 90)
 
     offset_cfg = {
@@ -447,7 +446,11 @@ def test_generate_globe_texture_uses_rendered_map_and_rotates_for_seam_offset(
     offset_texture = Image.open(offset_texture_path).convert("RGB")
     assert offset_texture.size == texture.size
     assert offset_texture.tobytes() != texture.tobytes()
-    assert offset_texture.getpixel((1500, 550)) == (28, 60, 90)
+    assert offset_texture.getpixel((texture.width * 3 // 4, texture.height // 3)) == (
+        28,
+        60,
+        90,
+    )
     assert texture.getpixel((1500, 550)) != (28, 60, 90)
 
 
@@ -494,7 +497,10 @@ def test_build_artifacts_requires_cached_sources_before_rendering(tmp_path):
         },
     }
 
-    with pytest.raises(FileNotFoundError, match="sachsen-latest.osm.pbf|leipzig-municipal-boundary.geojson"):
+    with pytest.raises(
+        FileNotFoundError,
+        match="sachsen-latest.osm.pbf|leipzig-municipal-boundary.geojson",
+    ):
         build_artifacts(config, tmp_path / "output")
 
 
@@ -508,6 +514,16 @@ def test_build_artifacts_records_offline_source_provenance(tmp_path, monkeypatch
         geometry=[Polygon([(0, 0), (1000, 0), (1000, 1000), (0, 1000)])],
         crs="EPSG:32633",
     ).to_file(boundary_file, driver="GeoJSON")
+    for path in (osm_file, boundary_file):
+        persist_source_manifest(
+            cache_dir,
+            SourceManifest(
+                source_name=path.stem,
+                url="https://example.com/fixture",
+                file_name=path.name,
+                sha256=compute_sha256(path),
+            ),
+        )
 
     config = {
         "city": "Leipzig",
@@ -596,11 +612,11 @@ def test_build_artifacts_records_offline_source_provenance(tmp_path, monkeypatch
     )
     monkeypatch.setattr(
         "leipzig_globe.pipeline.build_pdf",
-        lambda gore_files, output_path: Path(output_path),
+        lambda gore_files, output_path, **kwargs: Path(output_path),
     )
     monkeypatch.setattr(
         "leipzig_globe.pipeline.generate_preview_set",
-        lambda texture_path, output_dir: [Path(output_dir) / "front.png"],
+        lambda texture_path, output_dir, **kwargs: [Path(output_dir) / "front.png"],
     )
 
     output_dir = tmp_path / "output"
@@ -610,7 +626,7 @@ def test_build_artifacts_records_offline_source_provenance(tmp_path, monkeypatch
     report = json.loads((output_dir / "build-report.json").read_text(encoding="utf-8"))
     assert report["source_provenance"]["osm_pbf"] == str(osm_file)
     assert report["source_provenance"]["municipal_boundary"] == str(boundary_file)
-    assert report["artifacts"]["municipal_map"] == str(result["municipal_map"])
+    assert report["artifacts"]["municipal_map"] == "municipal-map.geojson"
 
 
 def test_render_clean_map_omits_labels_near_gore_seams(tmp_path):
@@ -633,15 +649,15 @@ def test_render_clean_map_omits_labels_near_gore_seams(tmp_path):
             "world_layout_scale_y": 1.0,
             "gore_order": "clockwise",
             "label_density": "medium",
-            "gore_seam_margin_mm": 10,
+            "gore_seam_margin_mm": 30,
             "curated_landmarks": ["Mitte", "Connewitz", "Schönefeld"],
         },
         "paths": {"map_file": "leipzig-map.png"},
     }
 
     municipal_map = gpd.GeoDataFrame(
-        {"kind": ["land"]},
-        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])],
+        {"kind": ["land", "label"], "name": [None, "Mitte"], "place": [None, "suburb"]},
+        geometry=[Polygon([(0, 0), (100, 0), (100, 100), (0, 100)]), Point(50, 50)],
         crs="EPSG:32633",
     )
     output_path = tmp_path / "leipzig-map.png"

@@ -98,6 +98,7 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(
     source_pbf.write_bytes(b"fixture")
     output_path = tmp_path / "features.geojson"
     commands: list[list[str]] = []
+    expressions = []
 
     monkeypatch.setattr(
         "leipzig_globe.municipal_map.shutil.which",
@@ -106,6 +107,12 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(
 
     def run(command, *, check):
         commands.append(command)
+        if command[1] == "tags-filter":
+            expressions.extend(
+                Path(command[command.index("--expressions") + 1])
+                .read_text(encoding="utf-8")
+                .splitlines()
+            )
         if command[1] == "export":
             output_path.write_text('{"type": "FeatureCollection", "features": []}')
 
@@ -116,7 +123,7 @@ def test_extract_osm_features_uses_cached_pbf_and_osmium(
     assert result == output_path
     assert commands[0][0] == "osmium"
     assert commands[0][1] == "tags-filter"
-    assert commands[0][-len(OSM_FEATURE_FILTERS) :] == list(OSM_FEATURE_FILTERS)
+    assert expressions == list(OSM_FEATURE_FILTERS)
     assert "--remove-tags" in commands[0]
     assert str(source_pbf) in commands[0]
     assert output_path.exists()
@@ -187,8 +194,8 @@ def test_derive_municipal_map_from_sources_uses_only_cached_inputs(
 
     result = derive_municipal_map_from_sources(boundary_path, source_pbf, output_path)
 
-    assert result["feature_count"] == 1
-    assert gpd.read_file(output_path).iloc[0]["kind"] == "road"
+    assert result["feature_count"] == 2
+    assert set(gpd.read_file(output_path)["kind"]) == {"district", "road"}
 
 
 def test_extract_combines_all_districts_and_strips_unneeded_tags(tmp_path):

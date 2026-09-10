@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -14,17 +15,17 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "diameter_mm": 300,
         "gore_count": 12,
         "assembly_overlap_mm": 2,
-        "seam_offset_deg": 0,
+        "seam_offset_deg": 15,
         "ppi": 200,
         "paper_size": "A4",
     },
     "style": {
         "background": [247, 244, 238],
-        "land": [214, 227, 220],
+        "land": [247, 244, 238],
         "water": [132, 178, 198],
         "park": [186, 210, 188],
         "major_road": [92, 100, 105],
-        "secondary_road": [72, 76, 81],
+        "secondary_road": [170, 169, 161],
         "rail": [140, 145, 150],
         "label": [70, 71, 73],
     },
@@ -32,7 +33,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "tile_overlap_mm": 10,
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,
-        "seam_offset_deg": 0,
+        "seam_offset_deg": 15,
         "gore_seam_margin_mm": 10,
         "world_layout_scale_x": 1.0,
         "world_layout_scale_y": 1.0,
@@ -44,8 +45,15 @@ DEFAULT_CONFIG: dict[str, Any] = {
             "Connewitz",
             "Schönefeld",
             "Plagwitz",
+            "Völkerschlachtdenkmal",
+            "Thomaskirche",
+            "Gewandhaus",
         ],
         "source_cache_dir": ".cache",
+        "show_railways": True,
+        "gore_centerlines": False,
+        "gore_numbering": True,
+        "preview_overlays": False,
     },
     "paths": {
         "output_dir": "output",
@@ -73,7 +81,7 @@ def _validate_non_negative_number(name: str, value: Any) -> float:
     if not isinstance(value, (int, float)) or isinstance(value, bool):
         raise TypeError(f"Invalid {name}: expected a non-negative number.")
     numeric = float(value)
-    if numeric < 0:
+    if not math.isfinite(numeric) or numeric < 0:
         raise ValueError(f"Invalid {name}: must be zero or greater.")
     return numeric
 
@@ -82,7 +90,7 @@ def _validate_positive_number(name: str, value: Any) -> float:
     if not isinstance(value, (int, float)) or isinstance(value, bool):
         raise TypeError(f"Invalid {name}: expected a positive number.")
     numeric = float(value)
-    if numeric <= 0:
+    if not math.isfinite(numeric) or numeric <= 0:
         raise ValueError(f"Invalid {name}: must be greater than zero.")
     return numeric
 
@@ -125,7 +133,27 @@ def _validate_rgb_triplet(name: str, value: Any) -> list[int]:
 
 
 def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
+    if config is not None and not isinstance(config, Mapping):
+        raise TypeError("Configuration must be a mapping.")
     merged = _deep_merge(DEFAULT_CONFIG, config or {})
+    if merged["version"] != 1:
+        raise ValueError("Unsupported configuration version; expected version 1.")
+    for section in ("globe", "style", "layout", "paths"):
+        if not isinstance(merged[section], Mapping):
+            raise TypeError(f"Configuration section {section} must be a mapping.")
+    if config:
+        supplied_globe = config.get("globe", {})
+        supplied_layout = config.get("layout", {})
+        if (
+            "seam_offset_deg" in supplied_globe
+            and "seam_offset_deg" not in supplied_layout
+        ):
+            merged["layout"]["seam_offset_deg"] = supplied_globe["seam_offset_deg"]
+        elif (
+            "seam_offset_deg" in supplied_layout
+            and "seam_offset_deg" not in supplied_globe
+        ):
+            merged["globe"]["seam_offset_deg"] = supplied_layout["seam_offset_deg"]
     city = str(merged.get("city", "")).strip()
     if not city:
         raise ValueError("Configuration is missing a city. Supported city: Leipzig.")
@@ -234,6 +262,59 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
         )
     layout["label_density"] = label_density
 
+    margin = layout["print_margin_mm"]
+    if not 8 <= margin <= 40:
+        raise ValueError(
+            "layout.print_margin_mm must be between 8 and 40 mm to fit print guides and calibration."
+        )
+    if layout["tile_overlap_mm"] >= min(210 - 2 * margin, 297 - 2 * margin):
+        raise ValueError(
+            "layout.tile_overlap_mm must be smaller than the printable page."
+        )
+    circumference = math.pi * globe["diameter_mm"]
+    if globe["assembly_overlap_mm"] >= circumference / globe["gore_count"] / 2:
+        raise ValueError(
+            "globe.assembly_overlap_mm must be less than half a gore equatorial width."
+        )
+    if layout["pole_safety_zone_mm"] >= circumference / 4:
+        raise ValueError("layout.pole_safety_zone_mm leaves no nonpolar map area.")
+    if (circumference * globe["ppi"] / 25.4) ** 2 / 2 > 100_000_000:
+        raise ValueError(
+            "Requested diameter and PPI exceed the 100-megapixel texture budget; reduce PPI."
+        )
+    for key in (
+        "show_railways",
+        "gore_centerlines",
+        "gore_numbering",
+        "preview_overlays",
+    ):
+        if not isinstance(layout[key], bool):
+            raise TypeError(f"layout.{key} must be true or false.")
+    center = layout.get("center_lon_lat")
+    if center is not None:
+        if (
+            not isinstance(center, (list, tuple))
+            or len(center) != 2
+            or not all(isinstance(v, (int, float)) and math.isfinite(v) for v in center)
+        ):
+            raise ValueError(
+                "layout.center_lon_lat must contain two finite WGS84 coordinates."
+            )
+        if not (12.2 <= center[0] <= 12.6 and 51.2 <= center[1] <= 51.5):
+            raise ValueError("layout.center_lon_lat must lie within Leipzig.")
+    for key, value in merged["paths"].items():
+        if key == "output_dir":
+            continue
+        if (
+            not isinstance(value, str)
+            or not value
+            or Path(value).is_absolute()
+            or ".." in Path(value).parts
+        ):
+            raise ValueError(
+                f"paths.{key} must be a relative path inside the output directory."
+            )
+
     return merged
 
 
@@ -253,8 +334,7 @@ def load_config(path: str | Path | None = None) -> dict[str, Any]:
     if not isinstance(contents, dict):
         raise TypeError("Configuration file must contain a YAML mapping.")
 
-    merged = _deep_merge(DEFAULT_CONFIG, contents)
-    return validate_config(merged)
+    return validate_config(contents)
 
 
 try:

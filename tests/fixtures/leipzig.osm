@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="leipzig-globe-fixture">
+  <node id="1" lat="51.33" lon="12.36"/>
+  <node id="2" lat="51.33" lon="12.38"/>
+  <node id="3" lat="51.35" lon="12.38"/>
+  <node id="4" lat="51.35" lon="12.36"/>
+  <node id="5" lat="51.335" lon="12.365"/>
+  <node id="6" lat="51.335" lon="12.370"/>
+  <node id="7" lat="51.340" lon="12.370"/>
+  <node id="8" lat="51.340" lon="12.365"/>
+  <node id="9" lat="51.325" lon="12.350"/>
+  <node id="10" lat="51.355" lon="12.390"/>
+  <node id="11" lat="51.340" lon="12.374"><tag k="place" v="city"/><tag k="name" v="Leipzig"/></node>
+  <node id="12" lat="51.344" lon="12.360"><tag k="place" v="suburb"/><tag k="name" v="Plagwitz"/></node>
+  <node id="13" lat="51.330" lon="12.375"><tag k="historic" v="monument"/><tag k="name" v="Testdenkmal ÄÖÜ"/></node>
+  <node id="14" lat="51.30" lon="12.30"/>
+  <node id="15" lat="51.31" lon="12.31"/>
+  <way id="1"><nd ref="1"/><nd ref="2"/><nd ref="3"/><nd ref="4"/><nd ref="1"/><tag k="leisure" v="park"/><tag k="name" v="Testpark"/></way>
+  <way id="2"><nd ref="5"/><nd ref="6"/><nd ref="7"/><nd ref="8"/><nd ref="5"/><tag k="natural" v="water"/></way>
+  <way id="3"><nd ref="9"/><nd ref="10"/><tag k="highway" v="primary"/><tag k="source:noise" v="must not survive export"/></way>
+  <way id="4"><nd ref="1"/><nd ref="4"/><tag k="railway" v="tram"/></way>
+  <way id="5"><nd ref="2"/><nd ref="3"/><tag k="highway" v="residential"/></way>
+  <way id="6"><nd ref="14"/><nd ref="15"/><tag k="highway" v="primary"/></way>
+</osm>

@@ -98,8 +98,12 @@ edges, and the calculated equatorial widths match the configured circumference.
 
 - Compute Page Tiles dynamically from physical dimensions, paper size,
   configurable printable margin, and tile overlap.
-- At the default size, support the expected four vertical rows and two Gores per
+- At the default size, support the calculated two vertical rows and two Gores per
   row where they fit; do not hard-code that arrangement.
+
+  Confirmed 2026-09-10: pole-to-pole length is half the circumference, so a
+  300 mm globe needs 471.24 mm Gores and two portrait A4 Page Tiles vertically.
+  Recalculate the layout for other diameters, margins, and overlaps.
 - Include page identifiers, tile registration marks, a 100 mm calibration line,
   cut lines, Gore identifiers, and OSM attribution in each page's outer margin.
 - Prevent automatic fitting or rescaling in the PDF metadata and instructions.

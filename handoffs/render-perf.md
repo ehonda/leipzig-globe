@@ -2,6 +2,22 @@
 
 ## Next Focus
 
+**Latest checkpoint (2026-09-10):** the complete real offline build now takes
+97.55 seconds, with 64.01 seconds to the map and a 41.33 MB Municipal Map
+(60,891 features). BG-001–004 are fixed and regression-tested. The tracked
+`demos/02-real-globe/` contains a six-view globe gallery, map/texture samples,
+a rendered print page, a two-gore PDF and full-build provenance. The CLI now
+produces real sinusoidal gores and a twelve-page A4 PDF for the default
+300 mm globe; the user confirmed the calculated two vertical tiles.
+
+Next work: BG-005 (release-pinned acquisition), then visual layout/label
+iteration and the explicitly human physical test. The actual globe size is
+not yet chosen. Default labels are source-positioned; omissions are recorded.
+See `MEMORY.md` for UTF-8 Osmium expression files, current code organization,
+remaining label omissions, artifact validation and print geometry.
+
+The notes below are preserved as investigation history.
+
 **2026-09-10 update:** the map-only benchmark now completes in 108.95 seconds
 with a 35.50 MB Municipal Map (60,852 features) and a 19.95 MB temporary export.
 See `demos/01-extraction/` and `scripts/benchmark_map.py`. Extraction now

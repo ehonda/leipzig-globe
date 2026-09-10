@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
-from leipzig_globe.config import DEFAULT_CONFIG, load_config, validate_config
+from leipzig_globe.config import load_config
 from leipzig_globe.fetcher import (
     DEFAULT_LEIPZIG_BOUNDARY_URL,
     DEFAULT_OSM_PBF_URL,
@@ -68,9 +69,18 @@ def build(
         Path | None, typer.Option(help="Optional YAML config file.")
     ] = None,
 ) -> None:
-    config = load_config(config_path) if config_path else DEFAULT_CONFIG
-    validate_config(config)
-    artifacts = build_artifacts(config, output_dir)
+    try:
+        config = load_config(config_path)
+        artifacts = build_artifacts(config, output_dir)
+    except (
+        ValueError,
+        TypeError,
+        OSError,
+        RuntimeError,
+        subprocess.CalledProcessError,
+    ) as exc:
+        typer.echo(f"Build failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
     typer.echo(f"Build complete. Texture: {artifacts['texture']}")
     typer.echo(f"PDF: {artifacts['pdf']}")
 
@@ -81,10 +91,13 @@ def validate(
         "output"
     ),
 ) -> None:
-    result = validate_output_directory(output_dir)
+    try:
+        result = validate_output_directory(output_dir)
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        typer.echo(f"Validation failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
     typer.echo(f"Validation status: {result['status']}")
-    for artifact in result["artifacts"]:
-        typer.echo(f"- {artifact}")
+    typer.echo(f"Checked {len(result['artifacts'])} artifacts.")
 
 
 def main() -> None:
