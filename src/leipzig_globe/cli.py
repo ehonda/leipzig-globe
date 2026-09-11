@@ -4,14 +4,15 @@ import subprocess
 from pathlib import Path
 from typing import Annotated
 
+import requests
 import typer
 
 from leipzig_globe.config import load_config
 from leipzig_globe.fetcher import (
-    DEFAULT_LEIPZIG_BOUNDARY_URL,
-    DEFAULT_OSM_PBF_URL,
-    SourceManifest,
+    DEFAULT_CACHE_DIR,
+    DEFAULT_SOURCE_LOCK,
     fetch_data_sources,
+    load_source_lock,
 )
 from leipzig_globe.pipeline import build_artifacts, validate_output_directory
 
@@ -22,40 +23,19 @@ app = typer.Typer(help="Leipzig Globe build and validation CLI")
 def fetch_data(
     cache_dir: Annotated[
         Path, typer.Option(help="Directory for cached OpenStreetMap and boundary data.")
-    ] = Path(".cache"),
-    pbf_url: Annotated[
-        str,
-        typer.Option(help="URL to the Geofabrik Saxony OSM PBF extract."),
-    ] = DEFAULT_OSM_PBF_URL,
-    boundary_url: Annotated[
-        str,
-        typer.Option(help="URL to the official Leipzig municipal boundary source."),
-    ] = DEFAULT_LEIPZIG_BOUNDARY_URL,
+    ] = Path(DEFAULT_CACHE_DIR),
+    source_lock: Annotated[
+        Path,
+        typer.Option(
+            help="Versioned source lock with URLs, expected checksums and attribution."
+        ),
+    ] = DEFAULT_SOURCE_LOCK,
 ) -> None:
-    manifests = (
-        SourceManifest(
-            source_name="sachsen-latest",
-            url=pbf_url,
-            file_name="sachsen-latest.osm.pbf",
-            metadata={
-                "license": "OpenStreetMap © Contributors",
-                "source_type": "osm.pbf",
-                "source_version": "sachsen-latest",
-            },
-        ),
-        SourceManifest(
-            source_name="leipzig-municipal-boundary",
-            url=boundary_url,
-            file_name="leipzig-municipal-boundary.geojson",
-            metadata={
-                "license": "Leipzig Open Data",
-                "source_type": "geojson",
-                "source_version": "official",
-            },
-        ),
-    )
-
-    downloaded = fetch_data_sources(cache_dir, manifests)
+    try:
+        downloaded = fetch_data_sources(cache_dir, load_source_lock(source_lock))
+    except (ValueError, OSError, requests.RequestException) as exc:
+        typer.echo(f"Source acquisition failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
     for source_name, data_file in downloaded.items():
         typer.echo(f"{source_name}: {data_file}")
 

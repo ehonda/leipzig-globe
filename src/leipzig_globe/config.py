@@ -49,7 +49,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
             "Thomaskirche",
             "Gewandhaus",
         ],
-        "source_cache_dir": ".cache",
+        "source_cache_dir": ".cache/pinned-2026-09",
         "show_railways": True,
         "gore_centerlines": False,
         "gore_numbering": True,

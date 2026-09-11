@@ -2,17 +2,22 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import tempfile
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
 import requests
 
 DEFAULT_OSM_PBF_URL = (
-    "https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf"
+    "https://download.geofabrik.de/europe/germany/sachsen-260901.osm.pbf"
 )
 DEFAULT_LEIPZIG_BOUNDARY_URL = "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.1_Dez1_Allgemeine_Verwaltung/12_Statistik_und_Wahlen/Geodaten/Stadtbezirke_Leipzig_UTM33N.json"
+DEFAULT_SOURCE_LOCK = Path(__file__).resolve().parents[2] / "config/source-lock.json"
+DEFAULT_CACHE_DIR = ".cache/pinned-2026-09"
+MAX_DOWNLOAD_BYTES = 400_000_000
 
 
 @dataclass
@@ -42,32 +47,26 @@ class SourceManifest:
         return payload
 
 
-DEFAULT_SOURCE_MANIFESTS: tuple[SourceManifest, ...] = (
-    SourceManifest(
-        source_name="sachsen-latest",
-        url=DEFAULT_OSM_PBF_URL,
-        file_name="sachsen-latest.osm.pbf",
-        checksum=None,
-        sha256=None,
-        metadata={
-            "license": "OpenStreetMap © Contributors",
-            "source_type": "osm.pbf",
-            "source_version": "sachsen-latest",
-        },
-    ),
-    SourceManifest(
-        source_name="leipzig-municipal-boundary",
-        url=DEFAULT_LEIPZIG_BOUNDARY_URL,
-        file_name="leipzig-municipal-boundary.geojson",
-        checksum=None,
-        sha256=None,
-        metadata={
-            "license": "Leipzig Open Data",
-            "source_type": "geojson",
-            "source_version": "official",
-        },
-    ),
-)
+def _validate_manifest(manifest: SourceManifest) -> None:
+    for key in ("source_name", "url", "file_name"):
+        value = getattr(manifest, key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(
+                f"Invalid source manifest: {key} must be a nonempty string."
+            )
+    if manifest.file_name in {".", ".."} or any(
+        char in manifest.file_name for char in "/\\:"
+    ):
+        raise ValueError(
+            "Invalid source manifest: file_name must be a single local filename."
+        )
+    digest = manifest.expected_digest
+    if not isinstance(digest, str) or not re.fullmatch("[0-9a-fA-F]{64}", digest):
+        raise ValueError(
+            f"Invalid SHA-256 checksum for {manifest.file_name}; expected a pinned 64-digit digest."
+        )
+    if not isinstance(manifest.metadata, dict):
+        raise ValueError("Invalid source manifest: metadata must be an object.")
 
 
 def compute_sha256(path: str | Path) -> str:
@@ -79,148 +78,182 @@ def compute_sha256(path: str | Path) -> str:
 
 
 def verify_manifest(manifest: SourceManifest, file_path: str | Path) -> str:
-    expected = (manifest.expected_digest or "").lower()
-    if not expected:
-        return ""
-
-    actual = compute_sha256(file_path).lower()
-    if actual != expected:
+    _validate_manifest(manifest)
+    actual = compute_sha256(file_path)
+    if actual != manifest.expected_digest.lower():
         raise ValueError(
-            f"checksum mismatch for {Path(file_path).name}: expected {expected}, got {actual}"
+            f"checksum mismatch for {Path(file_path).name}: expected {manifest.expected_digest}, got {actual}"
         )
     return actual
+
+
+def _read_manifests(path: Path) -> dict[str, SourceManifest]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeError) as exc:
+        raise ValueError(f"Malformed source manifest: {path}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"Malformed source manifest: {path} must contain an object.")
+    entries = [payload] if "source_name" in payload else payload.get("sources")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError(f"Malformed source manifest: {path} has no source entries.")
+    manifests = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError(f"Malformed source entry in {path}")
+        try:
+            manifest = SourceManifest(
+                source_name=entry["source_name"],
+                url=entry["url"],
+                file_name=entry["file_name"],
+                checksum=entry.get("checksum"),
+                sha256=entry.get("sha256"),
+                metadata=entry.get("metadata", {}),
+            )
+        except KeyError as exc:
+            raise ValueError(f"Missing source manifest field in {path}: {exc}") from exc
+        _validate_manifest(manifest)
+        if manifest.file_name in manifests:
+            raise ValueError(
+                f"Duplicate source filename in {path}: {manifest.file_name}"
+            )
+        manifests[manifest.file_name] = manifest
+    return manifests
+
+
+def load_source_lock(
+    path: str | Path = DEFAULT_SOURCE_LOCK,
+) -> tuple[SourceManifest, ...]:
+    source = Path(path)
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or payload.get("version") != 1:
+        raise ValueError("Source lock must have version 1.")
+    manifests = _read_manifests(source)
+    if set(manifests) != {
+        "sachsen-latest.osm.pbf",
+        "leipzig-municipal-boundary.geojson",
+    }:
+        raise ValueError(
+            "Source lock must contain the Saxony PBF and official Leipzig boundary."
+        )
+    for manifest in manifests.values():
+        for key in ("source_version", "license", "license_url", "attribution"):
+            if (
+                not isinstance(manifest.metadata.get(key), str)
+                or not manifest.metadata[key].strip()
+            ):
+                raise ValueError(f"Source lock entry {manifest.file_name} lacks {key}.")
+    return tuple(manifests.values())
+
+
+def load_source_manifests(cache_dir: str | Path) -> dict[str, SourceManifest]:
+    path = Path(cache_dir) / "source-manifest.json"
+    return _read_manifests(path) if path.exists() else {}
+
+
+def _atomic_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent, suffix=".part", delete=False
+        ) as handle:
+            temporary = Path(handle.name)
+            json.dump(payload, handle, indent=2, sort_keys=True, ensure_ascii=False)
+        temporary.replace(path)
+    finally:
+        if temporary:
+            temporary.unlink(missing_ok=True)
+
+
+def persist_source_manifest(cache_dir: str | Path, manifest: SourceManifest) -> Path:
+    _validate_manifest(manifest)
+    root = Path(cache_dir)
+    existing = load_source_manifests(root)
+    existing[manifest.file_name] = manifest
+    entries = [existing[key].as_dict() for key in sorted(existing)]
+    path = root / "source-manifest.json"
+    _atomic_json(path, entries[0] if len(entries) == 1 else {"sources": entries})
+    return path
 
 
 def fetch_remote_file(
     url: str, destination: str | Path, *, expected_sha256: str | None = None
 ) -> Path:
-    destination_path = Path(destination)
-    destination_path.parent.mkdir(parents=True, exist_ok=True)
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
-    destination_path.write_bytes(response.content)
-
-    if expected_sha256:
-        actual = compute_sha256(destination_path).lower()
-        if actual != expected_sha256.lower():
-            raise ValueError(
-                f"checksum mismatch for {destination_path.name}: expected {expected_sha256}, got {actual}"
-            )
-    return destination_path
-
-
-def load_source_manifests(cache_dir: str | Path) -> dict[str, SourceManifest]:
-    manifest_path = Path(cache_dir) / "source-manifest.json"
-    if not manifest_path.exists():
-        return {}
-
+    if not isinstance(expected_sha256, str) or not re.fullmatch(
+        "[0-9a-fA-F]{64}", expected_sha256
+    ):
+        raise ValueError("A pinned SHA-256 checksum is required before downloading.")
+    path = Path(destination)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
     try:
-        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
+        digest = hashlib.sha256()
+        with requests.get(url, stream=True, timeout=(15, 60)) as response:
+            response.raise_for_status()
+            with tempfile.NamedTemporaryFile(
+                mode="wb", dir=path.parent, suffix=".part", delete=False
+            ) as handle:
+                temporary = Path(handle.name)
+                for chunk in response.iter_content(1024 * 1024):
+                    if handle.tell() + len(chunk) > MAX_DOWNLOAD_BYTES:
+                        raise ValueError(
+                            f"Download exceeds the {MAX_DOWNLOAD_BYTES} byte limit: {url}"
+                        )
+                    handle.write(chunk)
+                    digest.update(chunk)
+        if digest.hexdigest() != expected_sha256.lower():
+            raise ValueError(
+                f"checksum mismatch for {path.name}: expected {expected_sha256}, got {digest.hexdigest()}"
+            )
+        temporary.replace(path)
+    finally:
+        if temporary:
+            temporary.unlink(missing_ok=True)
+    return path
 
-    if not isinstance(payload, dict):
-        return {}
 
-    if "source_name" in payload:
-        entry = SourceManifest(
-            source_name=str(payload.get("source_name", "unknown")),
-            url=str(payload.get("url", "")),
-            file_name=str(payload.get("file_name", "")),
-            checksum=payload.get("checksum"),
-            sha256=payload.get("sha256"),
-            metadata=dict(payload.get("metadata") or {}),
+def _check_cached_identity(
+    manifest: SourceManifest, cached: SourceManifest | None
+) -> None:
+    _validate_manifest(manifest)
+    if cached and (
+        cached.url != manifest.url
+        or cached.source_name != manifest.source_name
+        or cached.expected_digest.lower() != manifest.expected_digest.lower()
+        or cached.metadata.get("source_version")
+        != manifest.metadata.get("source_version")
+    ):
+        raise ValueError(
+            f"Cached source identity differs for {manifest.file_name}; select a new --cache-dir to preserve the existing inputs."
         )
-        return {entry.file_name: entry} if entry.file_name else {}
-
-    sources: dict[str, SourceManifest] = {}
-    for item in payload.get("sources", []):
-        if not isinstance(item, dict):
-            continue
-        entry = SourceManifest(
-            source_name=str(item.get("source_name", "unknown")),
-            url=str(item.get("url", "")),
-            file_name=str(item.get("file_name", "")),
-            checksum=item.get("checksum"),
-            sha256=item.get("sha256"),
-            metadata=dict(item.get("metadata") or {}),
-        )
-        if entry.file_name:
-            sources[entry.file_name] = entry
-    return sources
-
-
-def persist_source_manifest(cache_dir: str | Path, manifest: SourceManifest) -> Path:
-    cache_root = Path(cache_dir)
-    cache_root.mkdir(parents=True, exist_ok=True)
-    manifest_path = cache_root / "source-manifest.json"
-
-    existing = load_source_manifests(cache_root)
-    existing[manifest.file_name] = manifest
-    entries = [entry.as_dict() for entry in existing.values()]
-
-    payload: dict[str, Any] | list[dict[str, Any]]
-    if len(entries) == 1:
-        payload = entries[0]
-    else:
-        payload = {"sources": entries}
-
-    manifest_path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
-    return manifest_path
 
 
 def fetch_data_cache(cache_dir: str | Path, manifest: SourceManifest) -> Path:
-    cache_root = Path(cache_dir)
-    cache_root.mkdir(parents=True, exist_ok=True)
-    file_path = cache_root / manifest.file_name
-    cached_manifest = load_source_manifests(cache_root).get(manifest.file_name)
-    if cached_manifest is not None:
-        if manifest.checksum is None and cached_manifest.checksum is not None:
-            manifest.checksum = cached_manifest.checksum
-        if manifest.sha256 is None and cached_manifest.sha256 is not None:
-            manifest.sha256 = cached_manifest.sha256
-        if manifest.metadata:
-            cached_metadata = dict(cached_manifest.metadata)
-            cached_metadata.update(manifest.metadata)
-            manifest.metadata = cached_metadata
-        elif cached_manifest.metadata:
-            manifest.metadata = dict(cached_manifest.metadata)
-
-    if file_path.exists():
-        if manifest.expected_digest:
-            verify_manifest(manifest, file_path)
-        else:
-            manifest.sha256 = compute_sha256(file_path)
-    else:
-        fetch_remote_file(
-            manifest.url,
-            file_path,
-            expected_sha256=manifest.expected_digest,
-        )
-        manifest.sha256 = compute_sha256(file_path)
-        if (
-            manifest.expected_digest
-            and manifest.sha256.lower() != manifest.expected_digest.lower()
-        ):
-            raise ValueError(
-                f"checksum mismatch for {file_path.name}: expected {manifest.expected_digest}, got {manifest.sha256}"
-            )
-
-    manifest.sha256 = compute_sha256(file_path)
-    manifest.metadata["source_version"] = manifest.metadata.get(
-        "source_version", "unknown"
+    root = Path(cache_dir)
+    _check_cached_identity(
+        manifest, load_source_manifests(root).get(manifest.file_name)
     )
-    persist_source_manifest(cache_root, manifest)
-    return file_path
+    root.mkdir(parents=True, exist_ok=True)
+    path = root / manifest.file_name
+    if path.exists():
+        verify_manifest(manifest, path)
+    else:
+        fetch_remote_file(manifest.url, path, expected_sha256=manifest.expected_digest)
+        verify_manifest(manifest, path)
+    persist_source_manifest(
+        root, replace(manifest, sha256=manifest.expected_digest.lower())
+    )
+    return path
 
 
 def fetch_data_sources(
     cache_dir: str | Path, manifests: Iterable[SourceManifest]
 ) -> dict[str, Path]:
-    downloaded: dict[str, Path] = {}
-    for manifest in manifests:
-        downloaded[manifest.source_name] = fetch_data_cache(cache_dir, manifest)
-    return downloaded
+    entries = tuple(manifests)
+    if len({entry.file_name for entry in entries}) != len(entries):
+        raise ValueError("Duplicate source filenames in acquisition request.")
+    cached = load_source_manifests(cache_dir)
+    for entry in entries:
+        _check_cached_identity(entry, cached.get(entry.file_name))
+    return {entry.source_name: fetch_data_cache(cache_dir, entry) for entry in entries}

@@ -1,0 +1,3 @@
+# Reproduce checkpoints 01/02 using the preserved August cache.
+layout:
+  source_cache_dir: .cache
