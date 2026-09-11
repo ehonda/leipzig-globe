@@ -3,6 +3,16 @@
 This project turns Leipzig's real municipal map into a printable globe texture,
 sinusoidal gores, a tiled A4 PDF, and six spherical previews.
 
+The repository also contains a static interactive preview under `docs/`. After
+a successful build, generate its reduced browser assets with:
+
+```bash
+uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/assets
+```
+
+Publish `docs/` with GitHub Pages to host the viewer. Its MVP scope and deferred
+features are tracked in [docs/3d-preview-mvp-status.md](docs/3d-preview-mvp-status.md).
+
 See the tracked [visual checkpoints](demos/README.md), especially
 [the globe gallery](demos/02-real-globe/globe-views.jpg) and
 [two adjacent sample gores](demos/02-real-globe/test-print-two-gores.pdf).

@@ -15,6 +15,7 @@
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
 - [x] 12. Add automated validation (46 local tests pass; hosted offline-fixture workflow passed)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
+- [x] 14. Add the basic interactive 3D preview (static Three.js viewer, generated WebP asset export, real gore assembly mode, mobile layout, and export geometry test)
 
 ## Notes
 

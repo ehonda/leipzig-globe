@@ -165,3 +165,20 @@ coverage, missing output artifacts, and changed physical dimensions.
 
 **Done when:** the observations are documented as follow-up issues or accepted
 as the baseline for a complete physical build.
+
+## 14. Add the basic interactive 3D preview
+
+- Export reduced WebP versions of the canonical texture and actual generated
+  gore images, together with a browser manifest derived from print geometry.
+- Provide a static Three.js viewer under `docs/`, suitable for GitHub Pages.
+- Support Finished Globe and Gore Assembly modes, mouse/touch rotation, zoom,
+  auto-rotation, camera shortcuts, and nominal-seam, cut-edge, overlap,
+  equator, and pole safety-zone overlays.
+- Keep exploded view, gore selection, metadata panels, URL state, and export
+  functions outside this bounded MVP.
+- Maintain an explicit status document describing implemented and deferred
+  viewer functionality and the asset-regeneration command.
+
+**Done when:** a completed build can export all browser assets, the static
+viewer loads both modes from only those assets, and the export has automated
+geometry coverage.

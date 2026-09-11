@@ -32,6 +32,7 @@ from leipzig_globe.rendering import (
     render_clean_map,
     texture_dimensions,
 )
+from leipzig_globe.web_preview import export_web_preview
 
 
 @pytest.mark.parametrize("diameter,ppi", [(300, 200), (250, 150), (180, 80), (301, 27)])
@@ -223,6 +224,31 @@ def test_six_previews_are_different_spherical_views(printed_fixture, tmp_path):
     with Image.open(paths[0]) as image:
         assert image.getpixel((0, 0)) == (247, 247, 247)
         assert image.getpixel((64, 64)) != (247, 247, 247)
+
+
+def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path):
+    config, _texture, gores, _ = printed_fixture
+    manifest_path = export_web_preview(
+        gores[0].parent.parent / "texture.png",
+        gores[0].parent,
+        tmp_path / "site-assets",
+        config=config,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["gore_count"] == 12
+    assert manifest["pole_safety_zone_mm"] == config["layout"]["pole_safety_zone_mm"]
+    assert (manifest_path.parent / manifest["texture"]).is_file()
+    assert len(manifest["gores"]) == len(gores)
+    first = manifest["gores"][0]
+    assert first["id"] == "Gore 01"
+    assert (manifest_path.parent / first["texture"]).is_file()
+    assert len(first["mesh"]["indices"]) == 6 * 120
+    midpoint = 2 * (120 // 2) * 3
+    left_equator = first["mesh"]["positions"][midpoint : midpoint + 3]
+    assert left_equator == pytest.approx([0, 0, 1], abs=1e-8)
+    seam_midpoint = (120 // 2) * 3
+    nominal_seam = first["nominal_seam"][seam_midpoint : seam_midpoint + 3]
+    assert nominal_seam == pytest.approx([0.5, 0, math.sqrt(3) / 2], abs=1e-8)
 
 
 def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):

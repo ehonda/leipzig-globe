@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 from typing import Annotated
@@ -15,6 +16,7 @@ from leipzig_globe.fetcher import (
     load_source_lock,
 )
 from leipzig_globe.pipeline import build_artifacts, validate_output_directory
+from leipzig_globe.web_preview import export_web_preview
 
 app = typer.Typer(help="Leipzig Globe build and validation CLI")
 
@@ -78,6 +80,33 @@ def validate(
         raise typer.Exit(1) from exc
     typer.echo(f"Validation status: {result['status']}")
     typer.echo(f"Checked {len(result['artifacts'])} artifacts.")
+
+
+@app.command("export-web-preview")
+def export_web_preview_assets(
+    build_dir: Annotated[
+        Path, typer.Option(help="Validated build output containing texture and gores.")
+    ] = Path("output"),
+    site_dir: Annotated[
+        Path, typer.Option(help="Static-site asset directory to populate.")
+    ] = Path("docs/assets"),
+) -> None:
+    try:
+        report = (build_dir / "build-report.json")
+        if not report.is_file():
+            raise FileNotFoundError(f"Build Report not found: {report}")
+        build = json.loads(report.read_text(encoding="utf-8"))
+        artifacts = build["artifacts"]
+        manifest = export_web_preview(
+            build_dir / artifacts["texture"],
+            build_dir / artifacts["gore_dir"],
+            site_dir,
+            config=build["config"],
+        )
+    except (KeyError, ValueError, OSError) as exc:
+        typer.echo(f"Web preview export failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"Web preview assets: {manifest}")
 
 
 def main() -> None:

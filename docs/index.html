@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#123c40">
+    <title>Planet Leipzig — 3D Preview</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="globe.js"></script>
+  </head>
+  <body>
+    <main class="preview-shell">
+      <header class="masthead">
+        <p class="eyebrow">Leipzig Globe</p>
+        <h1>3D Preview</h1>
+      </header>
+
+      <section class="stage" aria-label="Interactive globe">
+        <canvas id="globe-canvas"></canvas>
+        <p id="status" class="status" role="status">Loading preview assets...</p>
+      </section>
+
+      <section class="controls" aria-label="Preview controls">
+        <div class="control-group mode-group" role="group" aria-label="Preview mode">
+          <span class="control-label">Mode</span>
+          <div class="segmented-control">
+            <button class="mode-button active" type="button" data-mode="finished" aria-pressed="true">Finished globe</button>
+            <button class="mode-button" type="button" data-mode="gores" aria-pressed="false">Gore assembly</button>
+          </div>
+        </div>
+
+        <div class="control-group toggles" role="group" aria-label="Overlays">
+          <label><input id="toggle-seams" type="checkbox">Nominal seams</label>
+          <label><input id="toggle-cuts" type="checkbox">Cut edges</label>
+          <label><input id="toggle-overlap" type="checkbox">Overlap</label>
+          <label><input id="toggle-equator" type="checkbox">Equator</label>
+          <label><input id="toggle-poles" type="checkbox">Pole zones</label>
+          <label><input id="toggle-rotate" type="checkbox">Auto rotate</label>
+        </div>
+
+        <div class="control-group camera-group" role="group" aria-label="Camera views">
+          <span class="control-label">Camera</span>
+          <div class="camera-buttons">
+            <button type="button" data-view="front">Front</button>
+            <button type="button" data-view="back">Back</button>
+            <button type="button" data-view="north">North</button>
+            <button type="button" data-view="south">South</button>
+            <button type="button" data-view="reset">Reset</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
