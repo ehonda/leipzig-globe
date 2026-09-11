@@ -5,6 +5,7 @@
 - Static GitHub Pages-compatible viewer in `docs/`, with only relative asset URLs.
 - Finished Globe mode: the generated equirectangular texture is rendered on an interactive sphere.
 - Gore Assembly mode: one mesh per generated gore, textured from downsampled production gore PNGs.
+- Preset selector populated from Python-exported configurations, allowing multiple independently generated globe variants in the same static site.
 - Drag rotation, wheel/pinch zoom, auto-rotation, and responsive control layout.
 - Deterministic Front, Back, North, South, and Reset camera controls.
 - Independent nominal-seam, physical-cut-edge, overlap, equator, and pole safety-zone overlays.
@@ -19,14 +20,14 @@
 - URL-controlled camera/debug presets.
 - Screenshot or image export.
 - Separate canonical-texture sampling mode within Gore Assembly; the MVP uses the actual generated gore images directly.
-- Automated browser visual-regression coverage and GitHub Pages deployment configuration.
+- Automated browser visual-regression coverage.
 
 ## Regenerate Preview Assets
 
 After a successful full build, run:
 
 ```powershell
-uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/assets
+uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/assets --preset-id default
 ```
 
-Commit the generated `docs/assets/` files with the static viewer when publishing through GitHub Pages. GitHub Pages should publish the `docs/` directory from the selected branch.
+For additional choices, export each validated build to the same `docs/assets/` directory with a distinct `--preset-id`, such as `globe-215mm-high-density`. The generated `presets.json` drives the selector. Commit the generated `docs/assets/` files with the static viewer when publishing through GitHub Pages. The tracked GitHub Actions workflow deploys `docs/` on every push to `main`; configuration and publishing instructions are in the repository README.

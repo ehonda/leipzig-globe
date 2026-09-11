@@ -1,0 +1,6 @@
+globe:
+  diameter_mm: 215
+  ppi: 300
+
+layout:
+  label_density: high

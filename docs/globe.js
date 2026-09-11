@@ -3,6 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const canvas = document.querySelector("#globe-canvas");
 const status = document.querySelector("#status");
+const presetSelect = document.querySelector("#preset");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -42,6 +43,19 @@ scene.add(
   equatorGroup,
   poleZoneGroup,
 );
+const previewGroups = [
+  finishedGroup,
+  goreGroup,
+  seamGroup,
+  cutGroup,
+  overlapGroup,
+  equatorGroup,
+  poleZoneGroup,
+];
+const presets = new Map();
+let activeMode = "finished";
+let presetIndexUrl;
+let loadSequence = 0;
 
 function setStatus(message) {
   status.textContent = message;
@@ -125,6 +139,28 @@ function latitudeRing(latitude, color) {
   return lineFromData(positions, color, true);
 }
 
+function disposeObject(object) {
+  object.traverse((child) => {
+    child.geometry?.dispose();
+    const materials = child.material
+      ? Array.isArray(child.material) ? child.material : [child.material]
+      : [];
+    for (const material of materials) {
+      material.map?.dispose();
+      material.dispose();
+    }
+  });
+}
+
+function clearPreview() {
+  for (const group of previewGroups) {
+    for (const child of [...group.children]) {
+      group.remove(child);
+      disposeObject(child);
+    }
+  }
+}
+
 async function loadTexture(url) {
   const texture = await new THREE.TextureLoader().loadAsync(url);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -133,6 +169,7 @@ async function loadTexture(url) {
 }
 
 function setMode(mode) {
+  activeMode = mode;
   finishedGroup.visible = mode === "finished";
   goreGroup.visible = mode === "gores";
   for (const button of document.querySelectorAll(".mode-button")) {
@@ -159,6 +196,9 @@ function setView(view) {
 }
 
 function connectControls() {
+  presetSelect.addEventListener("change", () => {
+    loadPreset(presets.get(presetSelect.value));
+  });
   for (const button of document.querySelectorAll(".mode-button")) {
     button.addEventListener("click", () => setMode(button.dataset.mode));
   }
@@ -185,23 +225,31 @@ function connectControls() {
   });
 }
 
-async function initialize() {
+async function loadPreset(entry) {
+  if (!entry) return;
+  const request = ++loadSequence;
+  setStatus(`Loading ${entry.label}...`);
   try {
-    const manifestUrl = new URL("assets/preview-manifest.json", import.meta.url);
+    const manifestUrl = new URL(entry.manifest, presetIndexUrl);
     const response = await fetch(manifestUrl);
     if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`);
     const manifest = await response.json();
     const assetUrl = (path) => new URL(path, manifestUrl).href;
     const finishedTexture = await loadTexture(assetUrl(manifest.texture));
+    const goreTextures = await Promise.all(
+      manifest.gores.map((gore) => loadTexture(assetUrl(gore.texture))),
+    );
+    if (request !== loadSequence) {
+      finishedTexture.dispose();
+      for (const texture of goreTextures) texture.dispose();
+      return;
+    }
+    clearPreview();
     finishedGroup.add(
       new THREE.Mesh(
         buildFinishedGeometry(),
         new THREE.MeshLambertMaterial({ map: finishedTexture }),
       ),
-    );
-
-    const goreTextures = await Promise.all(
-      manifest.gores.map((gore) => loadTexture(assetUrl(gore.texture))),
     );
     for (const [index, gore] of manifest.gores.entries()) {
       goreGroup.add(
@@ -229,12 +277,36 @@ async function initialize() {
     const poleLatitude = Math.PI / 2 - (2 * manifest.pole_safety_zone_mm) / manifest.diameter_mm;
     poleZoneGroup.add(latitudeRing(poleLatitude, 0xd37b59));
     poleZoneGroup.add(latitudeRing(-poleLatitude, 0xd37b59));
-    setMode("finished");
-    connectControls();
+    setMode(activeMode);
     setStatus("");
   } catch (error) {
+    if (request !== loadSequence) return;
     console.error(error);
     setStatus("Preview assets are unavailable.");
+  }
+}
+
+async function initialize() {
+  try {
+    presetIndexUrl = new URL("assets/presets.json", import.meta.url);
+    const response = await fetch(presetIndexUrl);
+    if (!response.ok) throw new Error(`Preset request failed: ${response.status}`);
+    const index = await response.json();
+    if (!Array.isArray(index.presets) || index.presets.length === 0) {
+      throw new Error("The preview has no exported presets.");
+    }
+    for (const entry of index.presets) {
+      if (!entry.id || !entry.label || !entry.manifest) continue;
+      presets.set(entry.id, entry);
+      presetSelect.add(new Option(entry.label, entry.id));
+    }
+    if (presets.size === 0) throw new Error("The preview has no valid presets.");
+    presetSelect.replaceChildren(...[...presetSelect.options].filter((option) => option.value));
+    presetSelect.disabled = false;
+    await loadPreset(presets.get(presetSelect.value));
+  } catch (error) {
+    console.error(error);
+    setStatus("Preview presets are unavailable.");
   }
 }
 
@@ -244,5 +316,6 @@ function render() {
   requestAnimationFrame(render);
 }
 
+connectControls();
 initialize();
 render();

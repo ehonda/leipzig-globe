@@ -13,6 +13,51 @@ uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/asset
 Publish `docs/` with GitHub Pages to host the viewer. Its MVP scope and deferred
 features are tracked in [docs/3d-preview-mvp-status.md](docs/3d-preview-mvp-status.md).
 
+## Configure And Publish The 3D Preview
+
+The checked-in [config/default.yaml](config/default.yaml) is the baseline. For
+an alternate globe, create a small YAML override instead of changing that file.
+Overrides are merged with the defaults, so they need contain only values that
+should differ. The viewer's alternate preset is
+[config/globe-215mm-high-density.yaml](config/globe-215mm-high-density.yaml):
+
+```yaml
+globe:
+  diameter_mm: 215
+  ppi: 300
+
+layout:
+  label_density: high
+```
+
+Useful settings include `globe.diameter_mm`, `globe.ppi`,
+`globe.gore_count`, `globe.assembly_overlap_mm`, and the `layout` settings
+`label_density` (`low`, `medium`, or `high`), `seam_offset_deg`,
+`pole_safety_zone_mm`, `gore_order`, `curated_landmarks`, and
+`show_railways`. Physical texture dimensions, gore geometry, and PDF tiling
+are recalculated from the selected configuration. The validation step rejects
+settings outside the supported physical and rendering limits.
+
+To regenerate and publish the viewer with an override, use a separate build
+directory, then replace the tracked static preview assets:
+
+```powershell
+$env:PATH = "$env:LOCALAPPDATA\osmium-tool\Library\bin;$env:PATH"
+uv run leipzig-globe build --config-path config/globe-215mm-high-density.yaml --output-dir output/globe-215mm-high-density
+uv run leipzig-globe validate --output-dir output/globe-215mm-high-density
+uv run leipzig-globe export-web-preview --build-dir output/globe-215mm-high-density --site-dir docs/assets --preset-id globe-215mm-high-density
+git add config/globe-215mm-high-density.yaml docs/assets
+git commit -m "Publish 215 mm high-density globe preview"
+git push origin main
+```
+
+The GitHub Actions workflow in [.github/workflows/pages-deploy.yml](.github/workflows/pages-deploy.yml)
+deploys `docs/` after every push to `main`. GitHub Pages is configured to use
+that workflow, so no separate Pages action is needed after the push. The live
+viewer is https://ehonda.github.io/leipzig-globe/. To offer multiple choices in
+the selector, export each completed build to the same `docs/assets` directory
+with a distinct `--preset-id`; the exporter updates `docs/assets/presets.json`.
+
 See the tracked [visual checkpoints](demos/README.md), especially
 [the globe gallery](demos/02-real-globe/globe-views.jpg) and
 [two adjacent sample gores](demos/02-real-globe/test-print-two-gores.pdf).

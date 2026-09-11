@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "presets": [
+    {
+      "id": "default",
+      "label": "300 mm - medium labels",
+      "manifest": "default/preview-manifest.json",
+      "diameter_mm": 300.0,
+      "gore_count": 12,
+      "label_density": "medium"
+    },
+    {
+      "id": "globe-215mm-high-density",
+      "label": "215 mm - high labels",
+      "manifest": "globe-215mm-high-density/preview-manifest.json",
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "label_density": "high"
+    }
+  ]
+}

@@ -90,6 +90,12 @@ def export_web_preview_assets(
     site_dir: Annotated[
         Path, typer.Option(help="Static-site asset directory to populate.")
     ] = Path("docs/assets"),
+    preset_id: Annotated[
+        str,
+        typer.Option(
+            help="Stable preset ID used by the viewer, for example 'globe-215mm-high-density'."
+        ),
+    ] = "default",
 ) -> None:
     try:
         report = (build_dir / "build-report.json")
@@ -102,6 +108,7 @@ def export_web_preview_assets(
             build_dir / artifacts["gore_dir"],
             site_dir,
             config=build["config"],
+            preset_id=preset_id,
         )
     except (KeyError, ValueError, OSError) as exc:
         typer.echo(f"Web preview export failed: {exc}", err=True)

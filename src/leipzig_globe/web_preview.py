@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from .config import validate_config
 FINISHED_TEXTURE_WIDTH = 2048
 GORE_TEXTURE_HEIGHT = 1600
 GORE_VERTICAL_SEGMENTS = 120
+PRESET_ID_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 
 def _write_webp(source: Path, destination: Path, *, max_width: int, max_height: int):
@@ -113,17 +115,63 @@ def _export_gore(gore: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]
     }
 
 
+def _validate_preset_id(preset_id: str) -> str:
+    if not PRESET_ID_PATTERN.fullmatch(preset_id):
+        raise ValueError(
+            "Preset ID must contain lowercase letters, numbers, and single hyphens."
+        )
+    return preset_id
+
+
+def _preset_entry(preset_id: str, config: dict[str, Any]) -> dict[str, Any]:
+    globe = config["globe"]
+    layout = config["layout"]
+    diameter = globe["diameter_mm"]
+    return {
+        "id": preset_id,
+        "label": f"{diameter:g} mm - {layout['label_density']} labels",
+        "manifest": f"{preset_id}/preview-manifest.json",
+        "diameter_mm": diameter,
+        "gore_count": globe["gore_count"],
+        "label_density": layout["label_density"],
+    }
+
+
+def _write_preset_index(
+    site_root: Path, preset_id: str, config: dict[str, Any]
+) -> Path:
+    index_path = site_root / "presets.json"
+    entries = {}
+    if index_path.is_file():
+        existing = json.loads(index_path.read_text(encoding="utf-8"))
+        for entry in existing.get("presets", []):
+            if isinstance(entry, dict) and isinstance(entry.get("id"), str):
+                entries[entry["id"]] = entry
+    entries[preset_id] = _preset_entry(preset_id, config)
+    presets = sorted(
+        entries.values(), key=lambda entry: (entry["id"] != "default", entry["label"])
+    )
+    index_path.write_text(
+        json.dumps({"schema_version": 1, "presets": presets}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return index_path
+
+
 def export_web_preview(
     texture_path: str | Path,
     gore_dir: str | Path,
     output_dir: str | Path,
     *,
     config: dict[str, Any] | None = None,
+    preset_id: str = "default",
 ) -> Path:
     """Write reduced WebP assets and a manifest for the static Three.js viewer."""
     texture = Path(texture_path)
     root = Path(gore_dir)
-    destination = Path(output_dir)
+    site_root = Path(output_dir)
+    preset = _validate_preset_id(preset_id)
+    destination = site_root / preset
     manifest_path = root / "geometry-manifest.json"
     if not texture.is_file():
         raise FileNotFoundError(f"Globe texture not found: {texture}")
@@ -156,6 +204,7 @@ def export_web_preview(
 
     preview_manifest = {
         "schema_version": 1,
+        "preset_id": preset,
         "city": cfg["city"],
         "texture": "texture.webp",
         "diameter_mm": cfg["globe"]["diameter_mm"],
@@ -172,4 +221,5 @@ def export_web_preview(
         json.dumps(preview_manifest, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
+    _write_preset_index(site_root, preset, cfg)
     return exported_manifest

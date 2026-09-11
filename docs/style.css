@@ -19,7 +19,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -35,6 +36,19 @@ button {
 button:hover {
   border-color: #17666a;
   background: #ffffff;
+}
+
+select {
+  min-width: 12rem;
+  border: 1px solid #9aa8a3;
+  border-radius: 4px;
+  padding: 0.48rem 2rem 0.48rem 0.72rem;
+  background: #f7f4ee;
+  color: #172427;
+}
+
+select:disabled {
+  color: #657574;
 }
 
 button:focus-visible,

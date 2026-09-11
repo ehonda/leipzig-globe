@@ -235,6 +235,8 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         config=config,
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest_path == tmp_path / "site-assets" / "default" / "preview-manifest.json"
+    assert manifest["preset_id"] == "default"
     assert manifest["gore_count"] == 12
     assert manifest["pole_safety_zone_mm"] == config["layout"]["pole_safety_zone_mm"]
     assert (manifest_path.parent / manifest["texture"]).is_file()
@@ -249,6 +251,43 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
     seam_midpoint = (120 // 2) * 3
     nominal_seam = first["nominal_seam"][seam_midpoint : seam_midpoint + 3]
     assert nominal_seam == pytest.approx([0.5, 0, math.sqrt(3) / 2], abs=1e-8)
+
+    alternate_config = validate_config(
+        {
+            "globe": {"diameter_mm": 215, "ppi": 20},
+            "layout": {"label_density": "high"},
+        }
+    )
+    alternate_gores = build_gore_set(
+        gores[0].parent.parent / "texture.png", tmp_path / "alternate-gores", alternate_config
+    )
+    alternate_manifest = export_web_preview(
+        gores[0].parent.parent / "texture.png",
+        alternate_gores[0].parent,
+        tmp_path / "site-assets",
+        config=alternate_config,
+        preset_id="globe-215mm-high-density",
+    )
+    presets = json.loads((tmp_path / "site-assets" / "presets.json").read_text(encoding="utf-8"))
+    assert alternate_manifest.is_file()
+    assert presets["presets"] == [
+        {
+            "id": "default",
+            "label": "300 mm - medium labels",
+            "manifest": "default/preview-manifest.json",
+            "diameter_mm": 300.0,
+            "gore_count": 12,
+            "label_density": "medium",
+        },
+        {
+            "id": "globe-215mm-high-density",
+            "label": "215 mm - high labels",
+            "manifest": "globe-215mm-high-density/preview-manifest.json",
+            "diameter_mm": 215.0,
+            "gore_count": 12,
+            "label_density": "high",
+        },
+    ]
 
 
 def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):

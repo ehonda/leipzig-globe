@@ -45,6 +45,17 @@ def test_default_config_sets_expected_mvp_values():
     assert default_config_path().exists()
 
 
+def test_215mm_high_density_preset_inherits_default_geometry():
+    config = load_config("config/globe-215mm-high-density.yaml")
+
+    assert config["globe"]["diameter_mm"] == 215
+    assert config["globe"]["ppi"] == 300
+    assert config["layout"]["label_density"] == "high"
+    assert config["globe"]["gore_count"] == 12
+    assert config["globe"]["assembly_overlap_mm"] == 2
+    assert config["layout"]["seam_offset_deg"] == 15
+
+
 def test_invalid_configuration_raises_actionable_error():
     bad_config = {
         "city": "Berlin",
