@@ -3,3 +3,6 @@
 *.png binary
 *.jpg binary
 *.jpeg binary
+*.webp binary
+# Preserve the exact bytes and checksum of the official boundary snapshot.
+data/sources/*.geojson -text
