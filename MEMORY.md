@@ -207,3 +207,48 @@ the tourism-information node `n670225761`, not city node `n21687149`.
 The blanket tourism-first candidate ranking is wrong for geographic places.
 Task 5 is reopened; fix semantic identity selection, persist source IDs in
 label metadata, and test mixed-name city/landmark/sign/stop fixtures.
+
+### 2026-09-13 — Effective source sampling and semantic label identity
+
+Checkpoint 04 repairs BG-006/007. Source-map resolution is chosen from the
+maximum final sampling requirement in either axis while retaining metric
+aspect ratio: default 7423 × 7522 source pixels, then a single Lanczos resize
+to 7422 × 3711. World Layout zoom is included before that resize, not applied
+to a previously downsampled texture. Too-small supplied rasters are rejected.
+Both source and scaled intermediate have 100 MP limits; preserve these guards
+when increasing print PPI. Physical stroke/font/offset units use the source
+sampling scale; seam/pole/crop checks use final texture coordinates instead.
+`physical.map_sampling` records the dimensions, source-detail PPI and budget;
+validation checks the actual raster dimensions. Old reports lack this field
+and retain their legacy integrity validation, not proof of corrected PPI.
+
+Place labels now prefer place nodes; genuine landmarks/attractions beat
+same-named signs or stops. Stable ID/geometry tie breaks avoid input-order
+selection, and metadata includes source IDs/tags for visible and omitted
+labels. Correct Leipzig node `n21687149` anchors at the map centre but its
+default label is omitted for feature collision. Do not restore the previous
+information-sign label merely to make the word Leipzig visible.
+
+The full build in `output/corrected-rendering` took 271.96 s to map / 410.76 s
+total while sharing resources with tests. An isolated benchmark took 162.44 s
+and produced the identical map hash. Run benchmarks separately from full tests
+for representative timings. `benchmark_map.py` now defaults to its own
+`output/map-benchmark/` folder and supports `--output-dir` / `--config-path`,
+avoiding accidental replacement of a validated full build's map.
+Checkpoint 04 persists the gallery, exact two-gore sample, report and benchmark.
+All 94 local tests pass, including scale/crop safety and real offline validation.
+
+The 215 mm / 300 PPI high-density preset was also rebuilt in
+`output/corrected-215mm`: 7979 × 8086 source, 7978 × 3989 texture, 173.85 s to
+map / 337.94 s total, 50 validated artifacts. Its report is archived with
+checkpoint 04, and both Pages presets receive freshly exported WebP assets.
+Existing builds and old source caches are preserved. `PHYSICAL_TEST.md` is
+the explicit pending human observation record, not an assertion of physical fit.
+
+Next audit finding is BG-008 / Task 14: `_strip_mesh` emits only the two edge
+vertices per latitude row. The default equatorial triangle edge midpoint has
+radius 0.9641789 instead of 1 (5.37 mm inward at D=300 mm). Subdivide across
+gores and test triangle interiors, UVs and seams across multiple gore counts.
+This affects browser Gore Assembly, not the sinusoidal printed gores or the
+analytic static previews. The old edge-coordinate test alone did not prove
+spherical surface accuracy.

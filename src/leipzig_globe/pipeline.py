@@ -17,7 +17,12 @@ from .fetcher import compute_sha256, load_source_manifests, verify_manifest
 from .municipal_map import derive_municipal_map_from_sources
 from .preview import VIEWPOINTS, generate_preview_set
 from .printing import build_gore_set, build_pdf, gore_outline_points
-from .rendering import generate_globe_texture, render_clean_map, texture_dimensions
+from .rendering import (
+    generate_globe_texture,
+    render_clean_map,
+    scaled_texture_dimensions,
+    texture_dimensions,
+)
 
 __all__ = [
     "build_artifacts",
@@ -175,6 +180,7 @@ def build_artifacts(
         "circumference_mm": math.pi * cfg["globe"]["diameter_mm"],
         "pole_to_pole_mm": math.pi * cfg["globe"]["diameter_mm"] / 2,
         "texture_pixels": list(texture_dimensions(cfg)),
+        "map_sampling": rendered.get("layout", {}).get("sampling"),
         "tile_count": len(tiles.get("tiles", [])),
     }
     performance["total_seconds"] = time.perf_counter() - started
@@ -237,6 +243,26 @@ def validate_output_directory(output_dir):
         if texture.size != texture_dimensions(cfg):
             raise ValueError(
                 "Texture dimensions do not match physical PPI / exact 2:1 ratio."
+            )
+    sampling = report.get("physical", {}).get("map_sampling")
+    if sampling is not None:
+        with Image.open(artifact(entries["map"])) as source_map:
+            source_size = source_map.size
+        scaled_size = scaled_texture_dimensions(cfg)
+        if (
+            list(source_size) != sampling["source_pixels"]
+            or list(scaled_size) != sampling["scaled_map_pixels"]
+            or list(texture_dimensions(cfg)) != sampling["texture_pixels"]
+        ):
+            raise ValueError(
+                "Map sampling metadata does not match actual raster dimensions."
+            )
+        if any(
+            source < scaled
+            for source, scaled in zip(source_size, scaled_size, strict=True)
+        ):
+            raise ValueError(
+                "Source map has insufficient sampling density for the requested PPI."
             )
     gores = entries["gore_files"]
     if len(gores) != cfg["globe"]["gore_count"] or len(set(gores)) != len(gores):

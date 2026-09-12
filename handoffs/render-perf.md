@@ -2,6 +2,19 @@
 
 ## Next Focus
 
+**Checkpoint 04:** BG-006/007 are repaired and covered by 94 passing tests.
+The real source raster is 7423 × 7522; its texture is 7422 × 3711. Correct
+Leipzig city-node identity is recorded, with safe feature-collision omission
+instead of the misplaced information-sign label. The isolated benchmark
+reaches the map in 162.44 s, with a 41.36 MB Municipal Map. See
+`demos/04-corrected-rendering/` for inspected images and a sample print PDF.
+Next: audit the remaining end-to-end/preview contracts against actual artifacts
+and prepare the physical-test handoff; do not infer completion from tracker
+ticks. The physical milestone still requires human measurement and assembly.
+The preview audit has now confirmed BG-008: browser gore strips lack horizontal
+subdivision, producing 5.37 mm inward equatorial error at D=300 mm. Fix that
+next; the printed gores and static sphere previews are not affected.
+
 **2026-09-13 resume:** BG-005 is verified using two real clean downloads of
 the dated September PBF and byte-preserved official boundary mirror at commit
 `9047147`. Use `.cache/sources-2026-09-01`; the old `.cache/` and copied

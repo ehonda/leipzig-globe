@@ -17,6 +17,74 @@ from pyproj import Transformer
 from .config import validate_config
 from .municipal_map import WORKING_CRS
 
+MAX_SOURCE_PIXELS = 100_000_000
+PLACE_LABELS = {"city", "suburb", "quarter", "neighbourhood"}
+
+
+def scaled_texture_dimensions(config):
+    cfg = validate_config(config)
+    width, height = texture_dimensions(cfg)
+    return (
+        max(1, math.ceil(width * cfg["layout"]["world_layout_scale_x"])),
+        max(1, math.ceil(height * cfg["layout"]["world_layout_scale_y"])),
+    )
+
+
+def source_map_dimensions(config, aspect_ratio):
+    """Keep metric aspect while meeting the final sampling demand in both axes."""
+    cfg = validate_config(config)
+    if not math.isfinite(aspect_ratio) or not 0.5 <= aspect_ratio <= 2:
+        raise ValueError("Source-map aspect ratio must be between 0.5 and 2.")
+    scaled_width, scaled_height = scaled_texture_dimensions(cfg)
+    _, texture_height = texture_dimensions(cfg)
+    height = math.ceil(max(texture_height, scaled_height, scaled_width / aspect_ratio))
+    width = math.ceil(height * aspect_ratio)
+    if width * height > MAX_SOURCE_PIXELS:
+        raise ValueError(
+            "Requested PPI and World Layout scale exceed the 100-megapixel "
+            "source-map budget; reduce PPI or layout scale."
+        )
+    return width, height
+
+
+def _label_identity(row):
+    tags = {
+        key: row[key]
+        for key in (
+            "place",
+            "kind",
+            "historic",
+            "tourism",
+            "amenity",
+            "building",
+            "highway",
+            "railway",
+        )
+        if isinstance(row.get(key), str) and row[key]
+    }
+    if tags.get("place") in PLACE_LABELS:
+        rank = 0
+    elif (
+        tags.get("historic") not in {None, "no"}
+        or tags.get("tourism")
+        in {"attraction", "museum", "artwork", "gallery", "viewpoint"}
+        or tags.get("amenity") in {"place_of_worship", "theatre", "concert_hall"}
+    ):
+        rank = 1
+    elif tags.get("kind") == "district":
+        rank = 2
+    elif tags.get("building") not in {None, "no"}:
+        rank = 3
+    else:
+        rank = 4
+    identifier = row.get("id")
+    identity = {
+        "source_id": identifier if isinstance(identifier, str) else None,
+        "source_tags": tags,
+    }
+    # Geometry provides a stable final tie-break even for fixtures without IDs.
+    return rank, identity, (identity["source_id"] or "", row["geometry"].wkb_hex)
+
 
 def texture_dimensions(config: dict[str, Any]) -> tuple[int, int]:
     globe = validate_config(config)["globe"]
@@ -110,7 +178,7 @@ def render_clean_map(config, output_path, municipal_map=None):
     frame = frame.to_crs(WORKING_CRS)
     if frame.empty:
         raise ValueError("Municipal map contains no features.")
-    width, height = texture_dimensions(cfg)
+    texture_width, texture_height = texture_dimensions(cfg)
     bounds = frame.total_bounds
     # The real OSM city node anchors Zentrum; deterministic fixtures use their
     # bounds centre unless the caller supplies an explicit WGS84 centre.
@@ -130,8 +198,11 @@ def render_clean_map(config, output_path, municipal_map=None):
     # Degenerate fixtures or narrow extents must not allocate a gigantic image.
     span_y = max(span_y, span_x / 2)
     span_x = max(span_x, span_y / 2)
-    texture_width = width
-    width = max(2, round(height * span_x / span_y))
+    width, height = source_map_dimensions(cfg, span_x / span_y)
+    sampling_scale = height / texture_height
+    scaled_width, scaled_height = scaled_texture_dimensions(cfg)
+    placement_x = (texture_width - scaled_width) // 2
+    placement_y = (texture_height - scaled_height) // 2
 
     def project(coords):
         return np.column_stack(
@@ -144,7 +215,8 @@ def render_clean_map(config, output_path, municipal_map=None):
     projected = shapely.transform(frame.geometry.array, project)
     palette = {key: tuple(value) for key, value in cfg["style"].items()}
     image = Image.new("RGB", (width, height), palette["background"])
-    px_mm = cfg["globe"]["ppi"] / 25.4
+    texture_px_mm = cfg["globe"]["ppi"] / 25.4
+    px_mm = texture_px_mm * sampling_scale
     layers = {
         "land": [],
         "district": [],
@@ -186,32 +258,17 @@ def render_clean_map(config, output_path, municipal_map=None):
         if not isinstance(name, str) or not name:
             continue
         is_curated = name in curated
-        district = row.get("kind") == "district" or row.get("place") in {
-            "suburb",
-            "quarter",
-            "neighbourhood",
-            "city",
-        }
+        district = row.get("kind") == "district" or row.get("place") in PLACE_LABELS
         if is_curated or district:
-            entity_rank = (
-                0
-                if isinstance(row.get("historic"), str)
-                or isinstance(row.get("tourism"), str)
-                or row.get("amenity") in {"place_of_worship", "theatre"}
-                else (
-                    1
-                    if row.get("place")
-                    in {"city", "suburb", "quarter", "neighbourhood"}
-                    else 2 if row.get("kind") == "district" else 3
-                )
-            )
+            entity_rank, identity, tie_break = _label_identity(row)
             priority = (
                 0 if is_curated else 1 if row.get("kind") == "district" else 2,
                 entity_rank,
                 name,
+                tie_break,
             )
             point = geom.representative_point()
-            candidate = (priority, point.x, point.y)
+            candidate = (priority, point.x, point.y, identity)
             if name not in candidates or priority < candidates[name][0]:
                 candidates[name] = candidate
     omitted = [
@@ -221,16 +278,20 @@ def render_clean_map(config, output_path, municipal_map=None):
     ]
     density = {"low": 20, "medium": 45, "high": 80}[cfg["layout"]["label_density"]]
     font_path = Path(matplotlib.get_data_path()) / "fonts/ttf/DejaVuSans.ttf"
-    font = ImageFont.truetype(str(font_path), max(8, round(2.5 * px_mm)))
+    font = ImageFont.truetype(
+        str(font_path), round(max(8, 2.5 * texture_px_mm) * sampling_scale)
+    )
     draw = ImageDraw.Draw(image)
     visible = []
-    seam_shift = cfg["globe"]["seam_offset_deg"] / 360 * texture_width
+    seam_shift = round(cfg["globe"]["seam_offset_deg"] / 360 * texture_width)
     seam_step = texture_width / cfg["globe"]["gore_count"]
-    seam_margin = cfg["layout"]["gore_seam_margin_mm"] * px_mm
-    pole_margin = cfg["layout"]["pole_safety_zone_mm"] * px_mm
-    for name, (_, x, y) in sorted(candidates.items(), key=lambda item: item[1][0]):
+    seam_margin = cfg["layout"]["gore_seam_margin_mm"] * texture_px_mm
+    pole_margin = cfg["layout"]["pole_safety_zone_mm"] * texture_px_mm
+    for name, (_, x, y, identity) in sorted(
+        candidates.items(), key=lambda item: item[1][0]
+    ):
         if len(visible) >= density:
-            omitted.append({"label": name, "reason": "label_density"})
+            omitted.append({"label": name, "reason": "label_density", **identity})
             continue
         reason = "feature_collision"
         offsets = sorted(
@@ -247,19 +308,16 @@ def render_clean_map(config, output_path, municipal_map=None):
                 stroke_width=max(1, round(0.25 * px_mm)),
             )
             # Safety is evaluated in the final, scaled world placement.
-            sx, sy = (
-                cfg["layout"]["world_layout_scale_x"],
-                cfg["layout"]["world_layout_scale_y"],
-            )
             tx0, tx1 = (
-                (bbox[i] / width - 0.5) * texture_width * sx
-                + texture_width / 2
-                + seam_shift
+                bbox[i] / width * scaled_width + placement_x + seam_shift
                 for i in (0, 2)
             )
-            ty0, ty1 = ((bbox[i] - height / 2) * sy + height / 2 for i in (1, 3))
-            if ty0 < pole_margin or ty1 > height - pole_margin:
+            ty0, ty1 = (bbox[i] / height * scaled_height + placement_y for i in (1, 3))
+            if ty0 < pole_margin or ty1 > texture_height - pole_margin:
                 reason = "pole_safety_zone"
+                continue
+            if tx0 - seam_shift < 0 or tx1 - seam_shift > texture_width:
+                reason = "world_layout_crop"
                 continue
             if math.floor((tx0 - seam_margin) / seam_step) != math.floor(
                 (tx1 + seam_margin) / seam_step
@@ -267,7 +325,7 @@ def render_clean_map(config, output_path, municipal_map=None):
                 reason = "gore_seam"
                 continue
             box = shapely.box(*bbox)
-            if bbox[0] < 0 or bbox[2] > width:
+            if bbox[0] < 0 or bbox[2] > width or bbox[1] < 0 or bbox[3] > height:
                 reason = "map_edge"
                 continue
             if any(box.intersects(shapely.box(*prior["bbox"])) for prior in visible):
@@ -291,11 +349,15 @@ def render_clean_map(config, output_path, municipal_map=None):
                     "bbox": list(bbox),
                     "anchor_px": [x, y],
                     "position_px": list(pos),
+                    "texture_bbox_unwrapped": [tx0, ty0, tx1, ty1],
+                    **identity,
                 }
             )
             break
         else:
-            omitted.append({"label": name, "reason": reason})
+            omitted.append(
+                {"label": name, "reason": reason, "anchor_px": [x, y], **identity}
+            )
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path, dpi=(cfg["globe"]["ppi"], cfg["globe"]["ppi"]))
@@ -304,6 +366,28 @@ def render_clean_map(config, output_path, municipal_map=None):
         "center_pixel": [width / 2, height / 2],
         "bounds_metric": bounds.tolist(),
         "crs": WORKING_CRS,
+        "sampling": {
+            "source_pixels": [width, height],
+            "scaled_map_pixels": [scaled_width, scaled_height],
+            "texture_pixels": [texture_width, texture_height],
+            "source_pixels_per_output_pixel": [
+                width / scaled_width,
+                height / scaled_height,
+            ],
+            "source_effective_ppi": [
+                width
+                / scaled_width
+                * texture_width
+                * 25.4
+                / (math.pi * cfg["globe"]["diameter_mm"]),
+                height
+                / scaled_height
+                * texture_height
+                * 50.8
+                / (math.pi * cfg["globe"]["diameter_mm"]),
+            ],
+            "source_pixel_budget": MAX_SOURCE_PIXELS,
+        },
         "rendered_labels": visible,
         "omitted_labels": omitted,
     }
@@ -327,19 +411,19 @@ def generate_globe_texture(config, output_path, *, source_map=None):
     if not source.is_file():
         raise FileNotFoundError(f"Rendered map not found: {source}")
     width, height = texture_dimensions(cfg)
+    scaled_width, scaled_height = scaled_texture_dimensions(cfg)
     with Image.open(source) as loaded:
-        base = loaded.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
-    sx, sy = (
-        cfg["layout"]["world_layout_scale_x"],
-        cfg["layout"]["world_layout_scale_y"],
-    )
-    texture = base.transform(
-        (width, height),
-        Image.Transform.AFFINE,
-        (1 / sx, 0, width / 2 * (1 - 1 / sx), 0, 1 / sy, height / 2 * (1 - 1 / sy)),
-        Image.Resampling.BICUBIC,
-        fillcolor=tuple(cfg["style"]["background"]),
-    )
+        if loaded.width * loaded.height > MAX_SOURCE_PIXELS:
+            raise ValueError("Source map exceeds the 100-megapixel source-map budget.")
+        if loaded.width < scaled_width or loaded.height < scaled_height:
+            raise ValueError(
+                "Source map has insufficient resolution for the requested effective PPI; rerender the map."
+            )
+        base = loaded.convert("RGB").resize(
+            (scaled_width, scaled_height), Image.Resampling.LANCZOS
+        )
+    texture = Image.new("RGB", (width, height), tuple(cfg["style"]["background"]))
+    texture.paste(base, ((width - scaled_width) // 2, (height - scaled_height) // 2))
     texture = ImageChops.offset(
         texture, round(cfg["globe"]["seam_offset_deg"] / 360 * width), 0
     )

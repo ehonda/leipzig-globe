@@ -114,6 +114,7 @@ page tiles using matching crosses, then cut along the solid gore outline;
 the dashed edge marks the nominal seam beneath the neighboring gore. Do not
 use printer fitting or scaling to adapt to a different globe. A human must
 test paper fit, glue behavior and label legibility before the full assembly.
+Use [PHYSICAL_TEST.md](PHYSICAL_TEST.md) to record that required milestone.
 
 ## Reproducibility and performance
 
@@ -156,6 +157,27 @@ uv run pytest -q
 uv run --with pymupdf scripts/save_checkpoint.py my-checkpoint
 ```
 
-The benchmark produces `output/map-benchmark.json`. The checkpoint command
+The benchmark uses its own `output/map-benchmark/` directory, including
+`map-benchmark.json`, so it does not overwrite an existing full build. Use
+`--output-dir` or `--config-path` for a separate measurement. The checkpoint command
 requires a completed, validated full build. See `MEMORY.md` for Windows
 toolchain details and `TASK_TRACKER.md` for remaining work.
+
+## Rendering resolution and label provenance
+
+The metric source raster is sized for the final World Layout in **both** axes,
+then downsampled once. Texture generation rejects undersized inputs rather
+than declaring an enlarged image to be high-resolution. At the default size,
+the source is 7423 × 7522 pixels and the texture remains 7422 × 3711.
+The source and scaled intermediate each have a 100-megapixel allocation cap;
+large diameter/PPI/layout combinations may require reducing PPI or layout scale.
+The report's `physical.map_sampling` records the actual sampling dimensions
+and source-detail PPI; `validate` compares those dimensions with the files.
+
+Label metadata records selected source IDs and tags, including for omissions.
+Geographic place nodes take priority over same-named signs, while historic
+landmarks and actual attractions beat transport stops or information boards.
+The correct Leipzig city node is `n21687149`. In the default corrected build,
+its label is omitted for feature collision instead of being placed at a
+same-named information sign. This is a reported cartographic omission, not a
+license to move the label to an unrelated place.

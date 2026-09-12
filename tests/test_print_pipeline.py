@@ -59,7 +59,8 @@ def test_sinusoidal_gore_tapers_symmetrically_and_covers_circumference():
 
 def test_texture_rotation_is_pixel_exact_and_source_is_untouched(tmp_path):
     source = tmp_path / "source.png"
-    array = np.zeros((60, 120, 3), dtype=np.uint8)
+    width, height = texture_dimensions({"globe": {"ppi": 20}})
+    array = np.zeros((height, width, 3), dtype=np.uint8)
     array[:, :40] = [200, 10, 20]
     array[10:30, 70:100] = [5, 220, 60]
     Image.fromarray(array).save(source)
@@ -348,6 +349,13 @@ def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):
     assert "Testdenkmal ÄÖÜ" in set(municipal["name"])
     report = json.loads(artifacts["report"].read_text(encoding="utf-8"))
     assert report["physical"]["tile_count"] == 12
+    assert min(report["physical"]["map_sampling"]["source_effective_ppi"]) >= 20
+    unchanged_report = artifacts["report"].read_text(encoding="utf-8")
+    report["physical"]["map_sampling"]["source_pixels"][0] -= 1
+    artifacts["report"].write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError, match="sampling metadata"):
+        validate_output_directory(output)
+    artifacts["report"].write_text(unchanged_report, encoding="utf-8")
     assert report["source_provenance"]["manifests"]["osm_pbf"][
         "sha256"
     ] == compute_sha256(pbf)

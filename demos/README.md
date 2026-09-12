@@ -62,3 +62,28 @@ It establishes reproducible inputs, not final print-quality acceptance.
 Visual inspection also identified BG-007: the displayed Leipzig label belongs
 to a same-named information sign north of the actual city centre. The next
 rendering checkpoint must correct that candidate-selection error.
+
+## 04 — Correct source resolution and label identities
+
+`04-corrected-rendering/` uses the same pinned September inputs as checkpoint
+03, now rendering a 7423 × 7522 metric source raster before producing the
+7422 × 3711 texture. Neither axis is enlarged to manufacture resolution.
+The source sampling and selected label identities are recorded in the full
+Build Report and source-map metadata.
+
+The gallery and rendered PDF page have been visually inspected. The erroneous
+northern Leipzig label is gone: the correct city-node candidate is explicitly
+omitted for feature collision. The exact-size, two-page sample still covers
+two adjacent central gores at the default 300 mm scale; this does not establish
+fit on an unknown physical sphere.
+
+`map-benchmark.json` records an isolated 162.44-second real-source run. The
+full build, which overlapped a test-suite run, reached the map in 271.96 seconds
+and completed in 410.76 seconds. Both map images have the same SHA-256. The
+Municipal Map is 41.36 MB and the temporary export 19.99 MB in both runs.
+
+`215mm-build-report.json` records the refreshed high-density browser preset:
+7979 × 8086 source pixels, 7978 × 3989 texture, at least 300 PPI of source
+detail in both axes; 173.85 seconds to map / 337.94 seconds total. The preset's
+full build remains in `output/corrected-215mm`; both presets' reduced browser
+assets are published under `docs/assets/`. Older build directories are preserved.

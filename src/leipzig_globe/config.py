@@ -278,9 +278,22 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
         )
     if layout["pole_safety_zone_mm"] >= circumference / 4:
         raise ValueError("layout.pole_safety_zone_mm leaves no nonpolar map area.")
-    if (circumference * globe["ppi"] / 25.4) ** 2 / 2 > 100_000_000:
+    requested_width = circumference * globe["ppi"] / 25.4
+    if not math.isfinite(requested_width) or requested_width > math.sqrt(200_000_000):
         raise ValueError(
             "Requested diameter and PPI exceed the 100-megapixel texture budget; reduce PPI."
+        )
+    texture_height = max(1, math.ceil(circumference * globe["ppi"] / 50.8))
+    scaled_width = 2 * texture_height * layout["world_layout_scale_x"]
+    scaled_height = texture_height * layout["world_layout_scale_y"]
+    if (
+        not math.isfinite(scaled_width)
+        or not math.isfinite(scaled_height)
+        or max(scaled_width, scaled_height) > 100_000_000
+        or math.ceil(scaled_width) * math.ceil(scaled_height) > 100_000_000
+    ):
+        raise ValueError(
+            "World Layout scaling exceeds the 100-megapixel raster budget; reduce PPI or layout scale."
         )
     for key in (
         "show_railways",

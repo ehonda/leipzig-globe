@@ -1,0 +1,212 @@
+{
+  "feature_count": 60934,
+  "crs": "EPSG:32633",
+  "output_path": "output\\map-performance-04\\municipal-map.geojson",
+  "bytes": 41358263,
+  "tag_counts": {
+    "highway": {
+      "bus_stop": 5,
+      "trunk": 166,
+      "motorway_link": 157,
+      "residential": 8883,
+      "secondary": 3752,
+      "primary": 1776,
+      "tertiary": 1874,
+      "unclassified": 787,
+      "trunk_link": 113,
+      "motorway": 195,
+      "primary_link": 55,
+      "service": 18560,
+      "pedestrian": 255,
+      "living_street": 391,
+      "secondary_link": 66,
+      "tertiary_link": 36,
+      "platform": 4
+    },
+    "waterway": {
+      "river": 132,
+      "canal": 97,
+      "stream": 621,
+      "ditch": 712
+    },
+    "railway": {
+      "tram_stop": 4,
+      "tram": 1633,
+      "abandoned": 153,
+      "razed": 14,
+      "narrow_gauge": 72,
+      "rail": 2397,
+      "disused": 7,
+      "platform": 4,
+      "construction": 3
+    },
+    "leisure": {
+      "park": 595,
+      "garden": 5493,
+      "water_park": 1,
+      "pitch": 2,
+      "playground": 4,
+      "track": 1,
+      "dog_park": 1,
+      "sports_centre": 1,
+      "nature_reserve": 6,
+      "slipway": 1
+    },
+    "natural": {
+      "water": 686,
+      "wood": 620,
+      "grassland": 735,
+      "wetland": 75,
+      "floodplain": 21,
+      "beach": 1,
+      "grass": 5,
+      "stone": 1
+    },
+    "landuse": {
+      "forest": 409,
+      "grass": 8620,
+      "allotments": 530,
+      "recreation_ground": 40,
+      "farmland": 1,
+      "village_green": 4,
+      "meadow": 511,
+      "brownfield": 3,
+      "greenery": 1,
+      "residential": 4,
+      "industrial": 1,
+      "cemetery": 1,
+      "garages": 1
+    },
+    "place": {
+      "city": 1,
+      "suburb": 60,
+      "neighbourhood": 29,
+      "quarter": 1,
+      "islet": 2
+    },
+    "area": {
+      "yes": 109
+    },
+    "building": {
+      "public": 1,
+      "concert_hall": 1,
+      "church": 1
+    },
+    "historic": {
+      "heritage": 9,
+      "monument": 1,
+      "yes": 1,
+      "church": 1,
+      "park": 9
+    },
+    "tourism": {
+      "information": 6,
+      "attraction": 3,
+      "street": 4
+    },
+    "amenity": {
+      "shelter": 1,
+      "fountain": 9,
+      "theatre": 1,
+      "vehicle_ramp": 1,
+      "weighbridge": 2,
+      "kindergarten": 1
+    }
+  },
+  "performance": {
+    "extract": {
+      "seconds": 42.767599600018,
+      "bytes": 18511178,
+      "objects": {
+        "changesets": 0,
+        "nodes": 1361684,
+        "ways": 287802,
+        "relations": 5741
+      },
+      "tags": [
+        "109019\t\"building\"",
+        "92078\t\"highway\"",
+        "63184\t\"natural\"",
+        "34052\t\"amenity\"",
+        "15669\t\"railway\"",
+        "13977\t\"landuse\"",
+        "10372\t\"leisure\"",
+        "2062\t\"historic\"",
+        "1937\t\"waterway\"",
+        "1248\t\"tourism\"",
+        "1085\t\"area\"",
+        "248\t\"place\""
+      ]
+    },
+    "filter": {
+      "seconds": 6.06564809998963,
+      "bytes": 4959819,
+      "objects": {
+        "changesets": 0,
+        "nodes": 389893,
+        "ways": 65067,
+        "relations": 964
+      },
+      "tags": [
+        "37210\t\"highway\"",
+        "10138\t\"landuse\"",
+        "6107\t\"leisure\"",
+        "4288\t\"railway\"",
+        "2151\t\"natural\"",
+        "1570\t\"waterway\"",
+        "109\t\"area\"",
+        "95\t\"place\"",
+        "21\t\"historic\"",
+        "15\t\"amenity\"",
+        "14\t\"tourism\"",
+        "4\t\"building\""
+      ]
+    },
+    "export": {
+      "seconds": 11.691955200047232,
+      "bytes": 19985607,
+      "feature_count": 61086,
+      "tag_counts": {
+        "place": 95,
+        "railway": 4288,
+        "tourism": 13,
+        "highway": 37210,
+        "amenity": 15,
+        "waterway": 1570,
+        "historic": 21,
+        "natural": 2151,
+        "landuse": 10138,
+        "leisure": 6106,
+        "area": 109,
+        "building": 3
+      }
+    },
+    "derive_seconds": 106.78330229996936
+  },
+  "seconds_to_map": 162.43563550000545,
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.14.3",
+  "sampling": {
+    "source_pixels": [
+      7423,
+      7522
+    ],
+    "scaled_map_pixels": [
+      7422,
+      3711
+    ],
+    "texture_pixels": [
+      7422,
+      3711
+    ],
+    "source_pixels_per_output_pixel": [
+      1.0001347345728915,
+      2.026946914578281
+    ],
+    "source_effective_ppi": [
+      200.05160947537956,
+      405.43936588274414
+    ],
+    "source_pixel_budget": 100000000
+  }
+}

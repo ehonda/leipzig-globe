@@ -31,3 +31,22 @@ uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/asset
 ```
 
 For additional choices, export each validated build to the same `docs/assets/` directory with a distinct `--preset-id`, such as `globe-215mm-high-density`. The generated `presets.json` drives the selector. Commit the generated `docs/assets/` files with the static viewer when publishing through GitHub Pages. The tracked GitHub Actions workflow deploys `docs/` on every push to `main`; configuration and publishing instructions are in the repository README.
+
+## Checkpoint 04 asset refresh
+
+Both presets use the pinned September sources and corrected renderer. The
+300 mm preset was exported from `output/corrected-rendering`; the 215 mm /
+300 PPI high-density preset from `output/corrected-215mm`. Both full builds
+passed artifact validation. Their provenance reports are preserved under
+`demos/04-corrected-rendering/`. Source rasters meet the final sampling demand
+in both axes, and city labels no longer select same-named information signs.
+
+The generated static views and default print page were visually inspected.
+Live browser interaction is not newly verified by this asset refresh: the
+browser-control tool failed before connection in this session. Existing
+geometry/export unit tests are not a substitute for browser verification.
+
+Known open defect: **BG-008**. Gore Assembly has only one mesh segment across
+each gore, making a faceted rather than sufficiently spherical surface (5.37 mm
+inward at the default equator). Finished Globe and the printed gores use separate
+geometry and are not affected. Task 14 is reopened pending cross-gore subdivision.

@@ -134,6 +134,14 @@ downloads repeatedly reset, although a curl header request succeeds.
 layout, scale changes retain the configured sampling density, and a real build
 produces an inspected checkpoint without breaching the documented resource budget.
 
+2026-09-13 validation (checkpoint 04): source raster 7423 × 7522,
+texture 7422 × 3711, source sampling 200.05 / 405.44 PPI in x/y before the
+single final downsample. World Layout scale changes are tested in both axes;
+undersized inputs fail, and source/scaled allocations have 100 MP limits.
+Font/stroke scaling and final-coordinate label safety use the correct source
+and texture pixel scales. The isolated map benchmark takes 162.44 seconds
+with the same map-image hash as the full build; Municipal Map remains 41.36 MB.
+
 ## BG-007: Generic tourism objects outrank the Leipzig city label
 
 - **Related task:** Task 5 (reopened).
@@ -152,3 +160,31 @@ produces an inspected checkpoint without breaching the documented resource budge
 **Done when:** deterministic mixed-name fixtures retain the right city and
 landmark identities regardless of input ordering, and a new real checkpoint
 anchors Leipzig to its actual city node (or explicitly reports safe omission).
+
+2026-09-13 validation (checkpoint 04): place nodes outrank same-named tourism
+objects; actual historic landmarks/attractions outrank signs and stops, with
+stable source-ID/geometry tie breaks. Mixed-name fixtures pass in both input
+orders. The real default build selects city node `n21687149` at map centre
+(3711.5, 3761), and explicitly omits its label for feature collision. Visible
+and omitted labels retain source IDs/tags; visible labels also record final
+texture bounding boxes. Labels outside a scaled/cropped map are not reported
+as rendered. The six-view gallery and PDF page were inspected.
+
+## BG-008: Browser gore meshes are flat across each gore
+
+- **Related task:** Task 14 (reopened).
+- **Evidence:** the exported strip has 120 vertical segments but only one
+  segment across the gore. Both edge vertices lie on the unit sphere, while
+  their equatorial midpoint has radius 0.9641789 in the default preset — an
+  inward error of 5.37 mm at a 300 mm globe diameter. `docs/globe.js` uses
+  this geometry directly; checking the seam vertices alone misses the defect.
+- **Required fix:** subdivide across the gore as well as along it, mapping
+  every interior point through the authoritative paper-to-sphere transform
+  with corresponding gore-image UVs. Keep cut/seam/overlap alignment and both
+  presets intact. Regenerate the browser manifests and verify the actual view
+  when browser tooling is available.
+
+**Done when:** tests check triangle interiors, not just boundary vertices, for
+4-, 12- and 24-gore configurations; maximum radial error stays below 0.001 of
+the sphere radius (subpixel at an 800-pixel globe diameter), while UVs and
+adjacent seam positions match the printed gore geometry.

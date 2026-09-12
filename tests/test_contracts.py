@@ -432,10 +432,15 @@ def test_generate_globe_texture_uses_rendered_map_and_rotates_for_seam_offset(
         "paths": {"map_file": "leipzig-map.png"},
     }
     source_map = tmp_path / "rendered-map.png"
-    image = Image.new("RGB", (1200, 600), color=(255, 255, 255))
+    from leipzig_globe.rendering import texture_dimensions
+
+    width, height = texture_dimensions(config)
+    image = Image.new("RGB", (width, height), color=(255, 255, 255))
     draw = ImageDraw.Draw(image)
-    draw.rectangle((300, 150, 900, 450), fill=(28, 60, 90))
-    draw.line((0, 300, 1200, 300), fill=(50, 50, 50), width=8)
+    draw.rectangle(
+        (width / 4, height / 4, width * 3 / 4, height * 3 / 4), fill=(28, 60, 90)
+    )
+    draw.line((0, height / 2, width, height / 2), fill=(50, 50, 50), width=8)
     image.save(source_map)
 
     texture_path = tmp_path / "leipzig-texture.png"

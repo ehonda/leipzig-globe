@@ -1,5 +1,6 @@
 """Repeatable, offline BG-004 acceptance check on a populated source cache."""
 
+import argparse
 import json
 import platform
 import time
@@ -11,8 +12,12 @@ from leipzig_globe.pipeline import render_clean_map
 
 
 def main():
-    config = load_config()
-    output = Path(config["paths"]["output_dir"])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config-path", type=Path)
+    parser.add_argument("--output-dir", type=Path, default=Path("output/map-benchmark"))
+    args = parser.parse_args()
+    config = load_config(args.config_path)
+    output = args.output_dir
     output.mkdir(parents=True, exist_ok=True)
     cache = Path(config["layout"]["source_cache_dir"])
     started = time.perf_counter()
@@ -23,13 +28,14 @@ def main():
         curated_landmarks=config["layout"]["curated_landmarks"],
     )
     print(json.dumps(result, default=str, indent=2), flush=True)
-    render_clean_map(
+    rendered = render_clean_map(
         config, output / "leipzig-map.png", municipal_map=result["output_path"]
     )
     result.update(
         seconds_to_map=time.perf_counter() - started,
         platform=platform.platform(),
         python=platform.python_version(),
+        sampling=rendered["layout"]["sampling"],
     )
     (output / "map-benchmark.json").write_text(
         json.dumps(result, default=str, indent=2), encoding="utf-8"

@@ -7,8 +7,9 @@
 - [x] BG-003: Offline data stages are disconnected from `build`
 - [x] BG-004: Municipal Map derivation does not finish in a practical time (real full builds reach the map below five minutes; intermediates below 100 MB)
 - [x] BG-005: Fresh source acquisition is not pinned to reproducible releases (two real clean acquisitions verified)
-- [ ] BG-006: Source-map raster is upscaled below the declared effective PPI
-- [ ] BG-007: Generic tourism objects outrank the Leipzig city label
+- [x] BG-006: Source-map raster is upscaled below the declared effective PPI (both-axis source sampling verified; checkpoint 04)
+- [x] BG-007: Generic tourism objects outrank the Leipzig city label (semantic selection, stable source IDs, real city node verified)
+- [ ] BG-008: Browser gore meshes are flat across each gore
 
 ## Notes
 
