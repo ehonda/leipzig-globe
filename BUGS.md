@@ -86,7 +86,7 @@ benchmark output.
 - Tasks 7–9 contain placeholders, despite callable functions: four-point gore outlines, no spherical resampling, a PDF raster loader given SVG paths, calibration lengths in points rather than millimetres, and six identical flat previews.
 
 These rendering/printing audit findings are repaired in checkpoint 02. The
-following acquisition finding remains open.
+acquisition finding below was subsequently repaired in checkpoint 03.
 
 ## BG-005: Fresh source acquisition is not pinned to reproducible releases
 
@@ -109,3 +109,46 @@ following acquisition finding remains open.
 the same verified inputs, changed upstream bytes fail clearly, and the existing
 checkpoint cache remains usable offline. Tests must cover malformed manifests,
 checksum mismatches and changed source URLs as well as successful acquisition.
+
+2026-09-13 validation: two independent clean downloads took 128.178 and
+120.575 seconds. Both produced the same 267,843,019-byte September PBF and
+522,791-byte official boundary, matching the tracked lock and identical cache
+manifests. Original August inputs remain unchanged and their existing full
+build validates offline. The boundary mirror preserves exact source bytes
+at commit `9047147d20aca1d1a46d5b372fc6d1ac018b208f`; official-host Python
+downloads repeatedly reset, although a curl header request succeeds.
+
+## BG-006: Source-map raster is upscaled below the declared effective PPI
+
+- **Related task:** Task 6 (reopened).
+- **Evidence:** the default checkpoint 02 source map is 3,662 × 3,711 pixels,
+  then stretched horizontally to 7,422 × 3,711. Its horizontal source detail
+  is about 99 PPI, not 200 PPI across a 300 mm globe's circumference.
+- **Required fix:** budget the metric-aspect-ratio source raster for the final
+  sampling density in both axes, including World Layout scaling. Preserve
+  physical label/stroke sizes and seam/pole safety calculations when changing
+  source resolution. Avoid an intermediate downsample followed by enlargement.
+  Bound allocation and report effective source sampling, not just PNG DPI tags.
+
+**Done when:** regression tests verify neither axis is upsampled in the supported
+layout, scale changes retain the configured sampling density, and a real build
+produces an inspected checkpoint without breaching the documented resource budget.
+
+## BG-007: Generic tourism objects outrank the Leipzig city label
+
+- **Related task:** Task 5 (reopened).
+- **Evidence:** checkpoint 03 places the Leipzig label near map pixel
+  (2119, 895), while its city node and equatorial centre are (1831, 1855.5).
+  The selected OSM node `n670225761` is `tourism=information`, about 6.6 km
+  north-east of the actual `place=city` node `n21687149`.
+- **Root cause:** every tourism value gets a better name-candidate rank than
+  `place=city`. The ranking intended to distinguish landmarks from bus stops
+  instead selects a same-named information object over the city itself.
+- **Required fix:** choose name candidates according to entity semantics:
+  geographic place labels must prefer their place nodes, while actual curated
+  landmarks must still beat same-named transport stops or information signs.
+  Record selected source IDs/tags in label metadata so this can be audited.
+
+**Done when:** deterministic mixed-name fixtures retain the right city and
+landmark identities regardless of input ordering, and a new real checkpoint
+anchors Leipzig to its actual city node (or explicitly reports safe omission).

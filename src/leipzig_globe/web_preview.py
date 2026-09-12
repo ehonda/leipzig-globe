@@ -33,7 +33,10 @@ def _write_webp(source: Path, destination: Path, *, max_width: int, max_height: 
 
 
 def _resample(points: list[list[float]], segments: int) -> list[list[float]]:
-    return [points[round(index * (len(points) - 1) / segments)] for index in range(segments + 1)]
+    return [
+        points[round(index * (len(points) - 1) / segments)]
+        for index in range(segments + 1)
+    ]
 
 
 def _spherical_point(
@@ -49,10 +52,9 @@ def _spherical_point(
     if abs(taper) < 1e-12:
         longitude_fraction = (int(gore["longitude_slot"]) + 0.5) / globe["gore_count"]
     else:
-        longitude_fraction = (
-            (int(gore["longitude_slot"]) + 0.5) / globe["gore_count"]
-            + x_mm / (math.pi * globe["diameter_mm"] * taper)
-        )
+        longitude_fraction = (int(gore["longitude_slot"]) + 0.5) / globe[
+            "gore_count"
+        ] + x_mm / (math.pi * globe["diameter_mm"] * taper)
     longitude = 2 * math.pi * longitude_fraction
     cos_latitude = math.cos(latitude)
     return [
@@ -70,7 +72,10 @@ def _texture_uv(point: list[float], gore: dict[str, Any]) -> list[float]:
 
 
 def _strip_mesh(
-    left: list[list[float]], right: list[list[float]], gore: dict[str, Any], config: dict[str, Any]
+    left: list[list[float]],
+    right: list[list[float]],
+    gore: dict[str, Any],
+    config: dict[str, Any],
 ) -> dict[str, list[float] | list[int]]:
     positions: list[float] = []
     uvs: list[float] = []
@@ -152,7 +157,9 @@ def _write_preset_index(
         entries.values(), key=lambda entry: (entry["id"] != "default", entry["label"])
     )
     index_path.write_text(
-        json.dumps({"schema_version": 1, "presets": presets}, ensure_ascii=False, indent=2),
+        json.dumps(
+            {"schema_version": 1, "presets": presets}, ensure_ascii=False, indent=2
+        ),
         encoding="utf-8",
     )
     return index_path

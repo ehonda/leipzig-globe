@@ -18,12 +18,14 @@
     },
     {
       "source_name": "leipzig-municipal-boundary",
-      "url": "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.1_Dez1_Allgemeine_Verwaltung/12_Statistik_und_Wahlen/Geodaten/Stadtbezirke_Leipzig_UTM33N.json",
+      "url": "https://raw.githubusercontent.com/ehonda/leipzig-globe/9047147d20aca1d1a46d5b372fc6d1ac018b208f/data/sources/leipzig-municipal-boundary.geojson",
       "file_name": "leipzig-municipal-boundary.geojson",
       "sha256": "ececabb21fca470031a9bd69d2a8c80da0c52fbdf67aa33f593f8d42baa90d5c",
       "metadata": {
         "source_version": "Stadtbezirke_Leipzig_UTM33N; sha256:ececabb21fca470031a9bd69d2a8c80da0c52fbdf67aa33f593f8d42baa90d5c",
         "source_type": "geojson",
+        "original_url": "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.1_Dez1_Allgemeine_Verwaltung/12_Statistik_und_Wahlen/Geodaten/Stadtbezirke_Leipzig_UTM33N.json",
+        "mirror_modifications": "none; exact official source bytes",
         "resource_issued": "2023-04-19",
         "size_bytes": 522791,
         "license": "Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)",

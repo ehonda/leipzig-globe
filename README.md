@@ -120,9 +120,32 @@ test paper fit, glue behavior and label legibility before the full assembly.
 Builds are offline and verify the cached source manifest checksums before
 processing. The Build Report records sources, all generated artifact hashes,
 label omissions, physical dimensions, page count and extraction timings.
-`validate` checks these files without rebuilding. **Fresh-cache acquisition
-is not yet release-pinned**; [BG-005](BUGS.md) tracks this remaining defect.
-Keep the current `.cache/` and its manifest to reproduce these checkpoints.
+`validate` checks these files without rebuilding, including when a parent
+output directory contains independent preset builds.
+
+Fresh acquisition uses [config/source-lock.json](config/source-lock.json):
+the dated Geofabrik Saxony extract for 2026-09-01 and an unchanged official
+Leipzig boundary snapshot, with expected SHA-256 checksums and license metadata.
+The boundary download is commit-addressed; its original official URL and
+attribution remain recorded in the lock and [snapshot notes](data/sources/README.md).
+Changed downloads fail before replacing any accepted file. Downloads are
+streamed with a 400 MB per-file cap and failed partial files are removed.
+
+The default cache is `.cache/sources-2026-09-01`. Preserve `.cache/` and its
+original manifest for older checkpoints; use `--config-path config/legacy-cache.yaml`
+to rebuild those inputs offline. An earlier copy at `.cache/pinned-2026-09`
+also contains August inputs: the directory name alone does not establish provenance.
+Changed source URLs or versions require a distinct cache, never relabeling old bytes.
+
+To repeat the real two-clean-cache acceptance check (about 537 MB download),
+choose two **empty or absent** directories:
+
+```powershell
+uv run scripts/verify_source_acquisition.py --first .cache/audit-new-1 --second .cache/audit-new-2
+```
+
+This records checksums, byte sizes, durations, identical manifests and unchanged
+legacy inputs in `output/source-acquisition.json`. The script never clears caches.
 
 On the documented Windows environment, real-source builds reach the map in
 about one to two minutes, with Municipal Map GeoJSON well below 100 MB. Run:

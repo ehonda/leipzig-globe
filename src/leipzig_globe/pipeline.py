@@ -203,7 +203,11 @@ def validate_output_directory(output_dir):
     if not root.is_dir():
         raise FileNotFoundError(f"Output directory not found: {root}")
     reports = []
-    for path in root.rglob("*.json"):
+    # A parent build may contain independent preset builds. Prefer its own
+    # canonical report; nested reports must not make that build ambiguous.
+    canonical = root / "build-report.json"
+    candidates = [canonical] if canonical.is_file() else root.rglob("*.json")
+    for path in candidates:
         with path.open(encoding="utf-8") as handle:
             if "artifact_sha256" in handle.read(20000):
                 reports.append(path)

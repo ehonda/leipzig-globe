@@ -160,3 +160,50 @@ Keep `.gitattributes` binary rules for PDFs/images: Windows `core.autocrlf`
 otherwise tries to treat some PDF headers as text and may corrupt later
 stream bytes or cross-reference offsets on checkout. The committed sample
 was checked byte-for-byte against the inspected local PDF.
+
+### 2026-09-13 — Reproducible sources and resumed preview work
+
+The September source lock is now verified by two real clean acquisitions
+(128.178 s and 120.575 s; identical source bytes and cache manifests).
+`scripts/verify_source_acquisition.py` replaces the unverified bootstrap
+downloader; it refuses nonempty destinations, checks the old cache before
+and after, and writes repeatable acceptance evidence. Production downloads
+stream into temporary files, enforce a 400 MB cap, and only replace files
+after matching the expected SHA-256. Schema errors, conflicting checksums,
+source-identity changes, interrupted transfers and changed bytes have tests.
+
+The official boundary host responds to curl HEAD but repeatedly resets Python
+GET requests. `data/sources/` archives the exact 522,791 official bytes with
+license attribution, no geometry edits and no Git newline conversion. The
+lock uses the immutable raw GitHub URL at commit `9047147`, while retaining
+the official source URL and DL-DE/BY-2.0 evidence. The PBF is the dated
+Geofabrik `sachsen-260901.osm.pbf`, not `latest`.
+
+Default fetch/build cache is `.cache/sources-2026-09-01`. Both `.cache/` and
+the user-created `.cache/pinned-2026-09` hold August inputs and were preserved;
+the latter's directory name is misleading. `config/legacy-cache.yaml` keeps
+the old inputs buildable. Never silently relabel or replace these manifests.
+
+The user's GitHub Pages viewer and two presets were preserved. A parent
+`output/` directory can contain preset build directories; validation now
+prefers the parent's canonical report instead of rejecting nested reports.
+The original build and the 215 mm preset both validate with 50 artifacts.
+The browser-control tool failed before connection with missing `sandboxPolicy`
+metadata, so this session has not visually verified the live site.
+
+BG-006 reopens Task 6: the default 3,662-pixel source-map width is stretched
+to 7,422, so output dimensions alone do not prove effective 200 PPI. Fix
+source-raster density while preserving metric geometry, physical label sizes,
+and safety checks; record actual sampling density and a new visual checkpoint.
+
+Checkpoint 03 saves the September-source gallery and exact two-gore PDF:
+98.57 s to map / 160.96 s total, 60,934 retained features, 41.36 MB Municipal
+Map, 19.99 MB temporary export. Full build is `output/pinned-2026-09-01`;
+compact evidence is `demos/03-pinned-sources`. About 38 GiB remained free.
+This is a source-acquisition checkpoint and deliberately retains BG-006.
+
+Visual inspection of checkpoint 03 also exposed BG-007: `Leipzig` labels
+the tourism-information node `n670225761`, not city node `n21687149`.
+The blanket tourism-first candidate ranking is wrong for geographic places.
+Task 5 is reopened; fix semantic identity selection, persist source IDs in
+label metadata, and test mixed-name city/landmark/sign/stop fixtures.

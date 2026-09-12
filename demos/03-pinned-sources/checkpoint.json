@@ -1,0 +1,12 @@
+{
+  "source_output": "output\\pinned-2026-09-01",
+  "checkpoint": "03-pinned-sources",
+  "images_are_downsampled": true,
+  "sample_pdf_pages": [
+    7,
+    8
+  ],
+  "sample_pdf_print_at": "100% / actual size",
+  "full_build_report": "build-report.json",
+  "physical_test": "Awaiting human printing, measurement and assembly."
+}

@@ -35,7 +35,7 @@ layout:
     - Völkerschlachtdenkmal
     - Thomaskirche
     - Gewandhaus
-  source_cache_dir: .cache/pinned-2026-09
+  source_cache_dir: .cache/sources-2026-09-01
   show_railways: true
   gore_centerlines: false
   gore_numbering: true

@@ -16,8 +16,12 @@ DEFAULT_OSM_PBF_URL = (
 )
 DEFAULT_LEIPZIG_BOUNDARY_URL = "https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.1_Dez1_Allgemeine_Verwaltung/12_Statistik_und_Wahlen/Geodaten/Stadtbezirke_Leipzig_UTM33N.json"
 DEFAULT_SOURCE_LOCK = Path(__file__).resolve().parents[2] / "config/source-lock.json"
-DEFAULT_CACHE_DIR = ".cache/pinned-2026-09"
+DEFAULT_CACHE_DIR = ".cache/sources-2026-09-01"
 MAX_DOWNLOAD_BYTES = 400_000_000
+
+
+class ManifestError(ValueError):
+    """External JSON fails the source-manifest schema (not a caller type error)."""
 
 
 @dataclass
@@ -65,8 +69,18 @@ def _validate_manifest(manifest: SourceManifest) -> None:
         raise ValueError(
             f"Invalid SHA-256 checksum for {manifest.file_name}; expected a pinned 64-digit digest."
         )
+    if (
+        manifest.sha256 is not None
+        and manifest.checksum is not None
+        and (
+            not isinstance(manifest.sha256, str)
+            or not isinstance(manifest.checksum, str)
+            or manifest.sha256.lower() != manifest.checksum.lower()
+        )
+    ):
+        raise ManifestError("Invalid source manifest: conflicting SHA-256 checksums.")
     if not isinstance(manifest.metadata, dict):
-        raise ValueError("Invalid source manifest: metadata must be an object.")
+        raise ManifestError("Invalid source manifest: metadata must be an object.")
 
 
 def compute_sha256(path: str | Path) -> str:
@@ -93,14 +107,16 @@ def _read_manifests(path: Path) -> dict[str, SourceManifest]:
     except (json.JSONDecodeError, UnicodeError) as exc:
         raise ValueError(f"Malformed source manifest: {path}") from exc
     if not isinstance(payload, dict):
-        raise ValueError(f"Malformed source manifest: {path} must contain an object.")
+        raise ManifestError(
+            f"Malformed source manifest: {path} must contain an object."
+        )
     entries = [payload] if "source_name" in payload else payload.get("sources")
     if not isinstance(entries, list) or not entries:
         raise ValueError(f"Malformed source manifest: {path} has no source entries.")
     manifests = {}
     for entry in entries:
         if not isinstance(entry, dict):
-            raise ValueError(f"Malformed source entry in {path}")
+            raise ManifestError(f"Malformed source entry in {path}")
         try:
             manifest = SourceManifest(
                 source_name=entry["source_name"],

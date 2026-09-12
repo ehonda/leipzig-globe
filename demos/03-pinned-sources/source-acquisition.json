@@ -1,0 +1,42 @@
+{
+  "recorded_at_utc": "2026-09-12T22:13:10.273177+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "source_lock_sha256": "44ae2b0f03c974ddc686918a690e8d889d30f0ad3579c48018a3c6573f54987f",
+  "acquisitions": [
+    {
+      "cache": ".cache/acquisition-audit-1",
+      "seconds": 128.178,
+      "manifest_sha256": "018216b1f3bfbb208078f6dce11978d9b0284137b9517413f82e4d0d6cbcc65d",
+      "sources": {
+        "sachsen-latest.osm.pbf": {
+          "sha256": "39b9fde1e1857c474e8e0115c996864e14a8b6d2da39ae13332758af2f569e81",
+          "bytes": 267843019
+        },
+        "leipzig-municipal-boundary.geojson": {
+          "sha256": "ececabb21fca470031a9bd69d2a8c80da0c52fbdf67aa33f593f8d42baa90d5c",
+          "bytes": 522791
+        }
+      }
+    },
+    {
+      "cache": ".cache/acquisition-audit-2",
+      "seconds": 120.575,
+      "manifest_sha256": "018216b1f3bfbb208078f6dce11978d9b0284137b9517413f82e4d0d6cbcc65d",
+      "sources": {
+        "sachsen-latest.osm.pbf": {
+          "sha256": "39b9fde1e1857c474e8e0115c996864e14a8b6d2da39ae13332758af2f569e81",
+          "bytes": 267843019
+        },
+        "leipzig-municipal-boundary.geojson": {
+          "sha256": "ececabb21fca470031a9bd69d2a8c80da0c52fbdf67aa33f593f8d42baa90d5c",
+          "bytes": 522791
+        }
+      }
+    }
+  ],
+  "identical_inputs_and_manifests": true,
+  "unchanged_verified_legacy_sources": {
+    "sachsen-latest.osm.pbf": "302422e1e323d07fdf63bda0d032b11a5c81edb90099431dd832dd3420384884",
+    "leipzig-municipal-boundary.geojson": "ececabb21fca470031a9bd69d2a8c80da0c52fbdf67aa33f593f8d42baa90d5c"
+  }
+}

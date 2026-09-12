@@ -2,6 +2,19 @@
 
 ## Next Focus
 
+**2026-09-13 resume:** BG-005 is verified using two real clean downloads of
+the dated September PBF and byte-preserved official boundary mirror at commit
+`9047147`. Use `.cache/sources-2026-09-01`; the old `.cache/` and copied
+`.cache/pinned-2026-09` are unchanged August inputs. The user's Pages viewer
+and presets are preserved, and nested preset outputs no longer confuse
+parent-build validation. Next: BG-006 (source raster is 3,662 pixels wide
+before upscaling to 7,422, so effective horizontal PPI is only about 99).
+See the new bug acceptance criteria before closing Task 6 again. Physical
+testing still requires the user, and the final sphere size is unknown.
+Checkpoint 03 visual inspection also found BG-007: a same-named information
+sign outranks the actual Leipzig city node. Task 5 is reopened too; use the
+source IDs and mixed-name regression requirements in `BUGS.md`.
+
 **Latest checkpoint (2026-09-10):** the complete real offline build now takes
 97.55 seconds, with 64.01 seconds to the map and a 41.33 MB Municipal Map
 (60,891 features). BG-001–004 are fixed and regression-tested. The tracked

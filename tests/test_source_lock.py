@@ -144,6 +144,8 @@ def test_malformed_cache_manifests_fail_without_being_replaced(tmp_path, payload
         {"file_name": "..\\escape"},
         {"sha256": "bad"},
         {"url": None},
+        {"metadata": []},
+        {"checksum": "0" * 64},
     ],
 )
 def test_invalid_manifest_fields_are_rejected(tmp_path, change):
@@ -170,3 +172,19 @@ def test_tracked_lock_contains_two_pinned_attributed_sources():
         assert len(source.sha256) == 64
         assert source.metadata["source_version"]
         assert source.metadata["license_url"].startswith("https://")
+
+
+def test_invalid_source_lock_metadata_fails(tmp_path):
+    sources = [source.as_dict() for source in load_source_lock()]
+    sources[0]["metadata"].pop("license_url")
+    path = tmp_path / "lock.json"
+    path.write_text(json.dumps({"version": 1, "sources": sources}))
+    with pytest.raises(ValueError, match="lacks license_url"):
+        load_source_lock(path)
+
+
+def test_default_cache_agrees_with_build_config():
+    from leipzig_globe.config import load_config
+    from leipzig_globe.fetcher import DEFAULT_CACHE_DIR
+
+    assert load_config()["layout"]["source_cache_dir"] == DEFAULT_CACHE_DIR

@@ -235,7 +235,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         config=config,
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert manifest_path == tmp_path / "site-assets" / "default" / "preview-manifest.json"
+    assert (
+        manifest_path == tmp_path / "site-assets" / "default" / "preview-manifest.json"
+    )
     assert manifest["preset_id"] == "default"
     assert manifest["gore_count"] == 12
     assert manifest["pole_safety_zone_mm"] == config["layout"]["pole_safety_zone_mm"]
@@ -259,7 +261,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         }
     )
     alternate_gores = build_gore_set(
-        gores[0].parent.parent / "texture.png", tmp_path / "alternate-gores", alternate_config
+        gores[0].parent.parent / "texture.png",
+        tmp_path / "alternate-gores",
+        alternate_config,
     )
     alternate_manifest = export_web_preview(
         gores[0].parent.parent / "texture.png",
@@ -268,7 +272,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         config=alternate_config,
         preset_id="globe-215mm-high-density",
     )
-    presets = json.loads((tmp_path / "site-assets" / "presets.json").read_text(encoding="utf-8"))
+    presets = json.loads(
+        (tmp_path / "site-assets" / "presets.json").read_text(encoding="utf-8")
+    )
     assert alternate_manifest.is_file()
     assert presets["presets"] == [
         {
@@ -332,6 +338,10 @@ def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):
     }
     output = tmp_path / "output"
     artifacts = build_artifacts(config, output)
+    assert validate_output_directory(output)["status"] == "valid"
+    nested = output / "another-preset"
+    nested.mkdir()
+    shutil.copyfile(artifacts["report"], nested / "build-report.json")
     assert validate_output_directory(output)["status"] == "valid"
     municipal = gpd.read_file(artifacts["municipal_map"])
     assert len(municipal[municipal["kind"] == "district"]) == 2

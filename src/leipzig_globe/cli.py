@@ -98,7 +98,7 @@ def export_web_preview_assets(
     ] = "default",
 ) -> None:
     try:
-        report = (build_dir / "build-report.json")
+        report = build_dir / "build-report.json"
         if not report.is_file():
             raise FileNotFoundError(f"Build Report not found: {report}")
         build = json.loads(report.read_text(encoding="utf-8"))
