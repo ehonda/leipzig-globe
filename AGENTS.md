@@ -4,6 +4,12 @@ Use `uv` for all Python-related work. Create and manage the environment,
 install dependencies, run tools, tests, and the application through `uv`;
 do not invoke `pip` or a bare Python interpreter directly.
 
+The real-data pipeline requires the external `osmium` executable. On Windows,
+install the Conda-forge `osmium-tool` package and add
+`%LOCALAPPDATA%\\osmium-tool\\Library\\bin` to the persistent user `PATH`.
+Open a new terminal after changing `PATH`; commands in this repository should
+then invoke `osmium` directly without prepending a temporary path override.
+
 `IMPLEMENTATION_TASKS.md` is the authoritative implementation backlog.
 `TASK_TRACKER.md` records completion state.
 `MEMORY.md` is the lightweight project memory for recurring decisions, toolchain quirks, and edge-case rationale that do not yet warrant a formal ADR.

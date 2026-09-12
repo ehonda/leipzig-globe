@@ -57,13 +57,9 @@ Why this matters:
 
 ### 2026-08-23 — Windows `osmium` invocation and performance investigation
 
-For the current PowerShell session, make the Conda-forge executable available
-before running a real build:
-
-```powershell
-$env:PATH = "$env:LOCALAPPDATA\osmium-tool\Library\bin;$env:PATH"
-uv run leipzig-globe build --output-dir output
-```
+The Conda-forge executable directory is part of the persistent user `PATH`.
+Open a new terminal after installing it or changing `PATH`; real builds can
+then run `uv run leipzig-globe build --output-dir output` directly.
 
 In Python, use the configured command name `osmium` after checking it with
 `shutil.which`; do not pass the absolute path returned by `which` to

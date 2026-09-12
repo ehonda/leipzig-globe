@@ -42,7 +42,6 @@ To regenerate and publish the viewer with an override, use a separate build
 directory, then replace the tracked static preview assets:
 
 ```powershell
-$env:PATH = "$env:LOCALAPPDATA\osmium-tool\Library\bin;$env:PATH"
 uv run leipzig-globe build --config-path config/globe-215mm-high-density.yaml --output-dir output/globe-215mm-high-density
 uv run leipzig-globe validate --output-dir output/globe-215mm-high-density
 uv run leipzig-globe export-web-preview --build-dir output/globe-215mm-high-density --site-dir docs/assets --preset-id globe-215mm-high-density
@@ -129,7 +128,6 @@ On the documented Windows environment, real-source builds reach the map in
 about one to two minutes, with Municipal Map GeoJSON well below 100 MB. Run:
 
 ```powershell
-$env:PATH = "$env:LOCALAPPDATA\osmium-tool\Library\bin;$env:PATH"
 uv run scripts/benchmark_map.py
 uv run pytest -q
 uv run --with pymupdf scripts/save_checkpoint.py my-checkpoint
