@@ -13,11 +13,11 @@
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
-- [x] 12. Add automated validation (119 local tests pass; hosted offline-fixture workflow configured)
+- [x] 12. Add automated validation (128 hosted tests pass; local rendering and browser checks pass)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
 - [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
-- [ ] 15. Compare exterior styles (terrain, Continent Leipzig, fog of war) in the 215 mm high-density Pages preview — local builds, cross-variant invariants and Edge checks pass; deployment verification pending.
+- [x] 15. Compare exterior styles (terrain, Continent Leipzig, fog of war) in the 215 mm high-density Pages preview — full builds, cross-variant invariants, Edge checks and deployed assets verified.
 - [ ] 16. Increase map detail — deferred by user.
 - [ ] 17. Tune labels — deferred by user.
 - [ ] 18. Review/expand landmarks, including Völkerschlachtdenkmal and the football stadium — deferred by user.
@@ -30,6 +30,10 @@
   canonical wrap and pole checks pass. Edge checks cover the three styles,
   both modes, five overlays, camera/reset, mouse/touch controls, and rapid
   switching without moving the camera. See `demos/06-exterior-variants/`.
+- Hosted verification for `60c5146`: [128 passing tests](https://github.com/ehonda/leipzig-globe/actions/runs/34786971603)
+  and [successful Pages deployment](https://github.com/ehonda/leipzig-globe/actions/runs/34786971606).
+  `demos/06-exterior-variants/deployment-check.json` verifies the exact live
+  revision, three-option index and 16 published asset hashes.
 
 - Task 13 is a required human-action milestone and cannot be completed autonomously.
 - [PHYSICAL_TEST.md](PHYSICAL_TEST.md) provides the pending measurement and assembly record; blank fields are not completion evidence.

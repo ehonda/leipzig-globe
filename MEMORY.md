@@ -349,3 +349,10 @@ The outline and fog were visually refined after the initial local builds;
 their texture, gore, PDF and preview stages were refreshed and revalidated
 without changing source rasters. Reports record that additional elapsed time.
 Fresh Pages builds produce the final styles directly from the committed code.
+
+Feature commit `60c5146` deployed successfully: hosted Tests run `34786971603`
+passes all 128 tests in 37.22 seconds; Pages run `34786971606` rebuilt and
+published all three styles. `deployment-check.json` in checkpoint 06 verifies
+the exact revision, selector settings and 16 live asset hashes. The subsequent
+completion record is a documentation-only `[skip ci]` commit; live `build.json`
+intentionally identifies the tested runtime commit `60c5146`.

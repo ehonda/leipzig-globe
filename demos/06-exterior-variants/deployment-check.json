@@ -1,0 +1,40 @@
+{
+  "revision": "60c5146d25c94df424046c6e4ff79ebbc55f0f1a",
+  "url": "https://ehonda.github.io/leipzig-globe/",
+  "verified_at_utc": "2026-09-13T22:37:59.578909+00:00",
+  "files": {
+    "index.html": "8b3295ef923a4e11aa26edc671706331f5ae73d46de26af613ca212d745fbdc9",
+    "globe.js": "de17795b52ee05abd4320d39cbec90c3e1959377fd86f65b50987e96d258cbc5",
+    "style.css": "9cc4528724aac860c40971a59b52d84ef99f0c0ff3530d7db0222b4963dec397",
+    "assets/presets.json": "fa7e3d059a9e569207f651fe8ff2327076931d5a7895eb95dcb3c41b6aa4afc6",
+    "assets/terrain/preview-manifest.json": "4825f013d6f7fe2966d589f0cc50048e25e706ed4d24b1abd342ce86fd366280",
+    "assets/terrain/texture.webp": "6078f8122174d7026f706f5c4b005254a73d60e8c2afe615dcdfcd0995b22349",
+    "assets/terrain/build-report.json": "89264e68bd6e70482e1c7d2977474c8fc3a454c8a3f3050bc2992537af2a68c9",
+    "assets/terrain/gores/gore-01.webp": "2cf05c99e8f4bef14f491b10c7ec4bf20fa2b6908cdb443980d3ad4b6dbe6d40",
+    "assets/ocean/preview-manifest.json": "bd4ac092478212fa77bc3789380a61e543e7414c25c7a7fca34eba363193df75",
+    "assets/ocean/texture.webp": "9d335e2572e82f8d33da8be41e7e71606df33277a59b90a2babe66a334017668",
+    "assets/ocean/build-report.json": "47e31b692cd776508eb481cb43dc70e2c3293786b66e48fa54b94bbd9ab345bd",
+    "assets/ocean/gores/gore-01.webp": "04f3528747cb425a7723c91d1d898b16d90d96da173cf3922188b6e251851555",
+    "assets/fog/preview-manifest.json": "8fbf81cb3898da75bccbda1e1b8d62acc18f084215f56b61931c0a48b18e5cd6",
+    "assets/fog/texture.webp": "84e3923efa755b357a721d6a36d6a9cfa1ee34b182b1e84aba7cce117736225f",
+    "assets/fog/build-report.json": "fc1a76bd19883d7e12f304e24e76aa387911a352bdffd236376ae02fdc5ede69",
+    "assets/fog/gores/gore-01.webp": "0593f554aa8f74ae30d5beda432677abc13c2844af082886ddd170210ba9aab8"
+  },
+  "variants": {
+    "terrain": {
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "vertices_per_gore": 1452
+    },
+    "ocean": {
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "vertices_per_gore": 1452
+    },
+    "fog": {
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "vertices_per_gore": 1452
+    }
+  }
+}
