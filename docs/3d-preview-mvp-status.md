@@ -1,11 +1,16 @@
 # 3D Preview MVP Status
 
+The current Pages build compares three exterior styles at **215 mm / 300 PPI /
+high label density**. Historical preset checkpoints below describe earlier states.
+
 ## Implemented
 
 - Static GitHub Pages-compatible viewer in `docs/`, with only relative asset URLs.
 - Finished Globe mode: the generated equirectangular texture is rendered on an interactive sphere.
 - Gore Assembly mode: one mesh per generated gore, textured from downsampled production gore PNGs.
-- Preset selector populated from Python-exported configurations, allowing multiple independently generated globe variants in the same static site.
+- Exterior selector populated from Python-exported configurations: surrounding terrain,
+  Continent Leipzig, and fog of war, all using the 215 mm / 300 PPI / high-label-density reference.
+- Switching exterior styles keeps the current camera, preview mode and overlays.
 - Drag rotation, wheel/pinch zoom, auto-rotation, and responsive control layout.
 - Deterministic Front, Back, North, South, and Reset camera controls.
 - Independent nominal-seam, physical-cut-edge, overlap, equator, and pole safety-zone overlays.
@@ -13,6 +18,9 @@
 - Automated export contract coverage, including the first gore's equatorial seam coordinates.
 
 ## Intentionally Deferred
+
+- More map detail, label tuning and landmark expansion (Tasks 16–18). The
+  Völkerschlachtdenkmal omission and football stadium candidate are tracked there.
 
 - Exploded gore view and adjustable explosion distance.
 - Gore picking, highlighting, and metadata display.

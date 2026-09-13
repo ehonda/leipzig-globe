@@ -1,4 +1,4 @@
-"""Build both Pages presets from current code; never publish stale tracked assets.
+"""Build the three 215 mm high-density exterior variants from current code.
 
 Run through uv. Output directories must be new so a failed run cannot reuse an
 old manifest. Only pinned source downloads are cached between hosted builds.
@@ -44,12 +44,10 @@ def main():
     source_cache = Path(load_config()["layout"]["source_cache_dir"])
     fetch_data_sources(source_cache, load_source_lock())
     reports = {}
-    for preset, config_path in (
-        ("default", None),
-        ("globe-215mm-high-density", "config/globe-215mm-high-density.yaml"),
-    ):
-        print(f"Building Pages preset {preset}", flush=True)
-        config = load_config(config_path)
+    for preset in ("terrain", "ocean", "fog"):
+        print(f"Building Pages variant {preset}", flush=True)
+        config = load_config("config/globe-215mm-high-density.yaml")
+        config["layout"]["exterior"] = preset
         root = args.output_dir / preset
         artifacts = build_artifacts(config, root)
         validate_output_directory(root)

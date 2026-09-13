@@ -31,7 +31,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--site", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=Path("demos/05-curved-gores"))
+    parser.add_argument("--output", type=Path, default=Path("output/browser-check"))
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     handler = functools.partial(QuietHandler, directory=str(args.site.resolve()))
@@ -65,11 +65,14 @@ def main():
                 page.wait_for_timeout(600)
                 return hashlib.sha256(canvas.screenshot()).hexdigest()
 
-            for preset in ("default", "globe-215mm-high-density"):
-                page.get_by_label("Preset", exact=True).select_option(preset)
+            variant_frames = []
+            for preset in ("terrain", "ocean", "fog"):
+                page.get_by_label("Outside Leipzig", exact=True).select_option(preset)
                 expect(page.locator("#status")).to_be_hidden(timeout=60000)
+                expect(canvas).to_have_attribute("data-variant", preset)
                 page.get_by_role("button", name="Finished globe", exact=True).click()
                 finished = frame()
+                variant_frames.append(finished)
                 page.screenshot(path=str(args.output / f"{preset}-finished.png"))
                 page.get_by_role("button", name="Gore assembly", exact=True).click()
                 expect(
@@ -125,12 +128,30 @@ def main():
                 page.get_by_label("Auto rotate", exact=True).uncheck()
                 page.get_by_role("button", name="Reset", exact=True).click()
                 checks.append(preset)
+            assert (
+                len(set(variant_frames)) == 3
+            ), "Exterior variants must change the visible globe"
+            # Keep the current view/mode while comparing styles, including rapid changes.
+            page.get_by_role("button", name="Back", exact=True).click()
+            page.get_by_role("button", name="Gore assembly", exact=True).click()
+            before_switching = frame()
+            for preset in ("ocean", "terrain", "fog"):
+                page.get_by_label("Outside Leipzig", exact=True).select_option(preset)
+            expect(page.locator("#status")).to_be_hidden(timeout=60000)
+            expect(canvas).to_have_attribute("data-variant", "fog")
+            assert frame() == before_switching, "Switching variants moved the camera"
+            expect(page.get_by_role("button", name="Gore assembly")).to_have_attribute(
+                "aria-pressed", "true"
+            )
+            page.screenshot(path=str(args.output / "fog-back.png"))
             page.close()
             page = browser.new_page(
                 viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True
             )
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.goto(f"http://127.0.0.1:{server.server_port}/")
+            expect(page.locator("#status")).to_be_hidden(timeout=60000)
+            page.get_by_label("Outside Leipzig", exact=True).select_option("ocean")
             expect(page.locator("#status")).to_be_hidden(timeout=60000)
             canvas = page.locator("#globe-canvas")
             box = canvas.bounding_box()
@@ -184,6 +205,8 @@ def main():
                     "browser": "Installed Edge, headless",
                     "presets": checks,
                     "checks": [
+                        "three distinct exterior variants",
+                        "rapid switching preserves camera and mode",
                         "both modes",
                         "five overlays",
                         "four camera views",
@@ -201,7 +224,7 @@ def main():
             ),
             encoding="utf-8",
         )
-        print("Browser checks passed for both presets.")
+        print("Browser checks passed for all three exterior variants.")
     finally:
         server.shutdown()
         server.server_close()

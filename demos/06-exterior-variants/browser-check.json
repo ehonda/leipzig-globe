@@ -1,0 +1,23 @@
+{
+  "browser": "Installed Edge, headless",
+  "presets": [
+    "terrain",
+    "ocean",
+    "fog"
+  ],
+  "checks": [
+    "three distinct exterior variants",
+    "rapid switching preserves camera and mode",
+    "both modes",
+    "five overlays",
+    "four camera views",
+    "reset",
+    "drag",
+    "wheel zoom",
+    "auto rotation",
+    "mobile layout",
+    "touch drag",
+    "pinch zoom"
+  ],
+  "errors": []
+}

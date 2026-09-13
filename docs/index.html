@@ -21,6 +21,7 @@
       <header class="masthead">
         <p class="eyebrow">Leipzig Globe</p>
         <h1>3D Preview</h1>
+        <p class="reference">215 mm · 300 PPI · High label density</p>
       </header>
 
       <section class="stage" aria-label="Interactive globe">
@@ -30,9 +31,9 @@
 
       <section class="controls" aria-label="Preview controls">
         <div class="control-group preset-group">
-          <label class="control-label" for="preset">Preset</label>
-          <select id="preset" disabled>
-            <option value="">Loading presets...</option>
+          <label class="control-label" for="preset">Outside Leipzig</label>
+          <select id="preset" aria-describedby="variant-description" disabled>
+            <option value="">Loading variants...</option>
           </select>
         </div>
 
@@ -64,6 +65,8 @@
           </div>
         </div>
       </section>
+      <p id="variant-description" class="variant-description" aria-live="polite"></p>
+      <footer class="attribution">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Municipal boundary: Stadt Leipzig, Amt für Statistik und Wahlen (<a href="https://www.govdata.de/dl-de/by-2-0">DL-DE/BY-2.0</a>)</footer>
     </main>
   </body>
 </html>

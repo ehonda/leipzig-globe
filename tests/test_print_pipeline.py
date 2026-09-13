@@ -327,6 +327,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         {
             "id": "default",
             "label": "300 mm - medium labels",
+            "exterior": "blank",
+            "description": "The municipal map on its original paper background.",
+            "ppi": config["globe"]["ppi"],
             "manifest": "default/preview-manifest.json",
             "diameter_mm": 300.0,
             "gore_count": 12,
@@ -335,6 +338,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
         {
             "id": "globe-215mm-high-density",
             "label": "215 mm - high labels",
+            "exterior": "blank",
+            "description": "The municipal map on its original paper background.",
+            "ppi": 20,
             "manifest": "globe-215mm-high-density/preview-manifest.json",
             "diameter_mm": 215.0,
             "gore_count": 12,
@@ -343,7 +349,8 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
     ]
 
 
-def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):
+@pytest.mark.parametrize("exterior", ["blank", "terrain", "ocean", "fog"])
+def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch, exterior):
     if shutil.which("osmium") is None:
         pytest.skip("osmium-tool required; CI installs it")
     cache = tmp_path / "cache"
@@ -381,6 +388,7 @@ def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):
         "layout": {
             "source_cache_dir": str(cache),
             "curated_landmarks": ["Testdenkmal ÄÖÜ"],
+            "exterior": exterior,
         },
     }
     output = tmp_path / "output"
@@ -395,6 +403,11 @@ def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch):
     assert "Testdenkmal ÄÖÜ" in set(municipal["name"])
     report = json.loads(artifacts["report"].read_text(encoding="utf-8"))
     assert report["physical"]["tile_count"] == 12
+    if exterior != "blank":
+        assert artifacts["municipal_mask"].name in report["artifact_sha256"]
+    if exterior == "terrain":
+        assert artifacts["context_map"].name in report["artifact_sha256"]
+        assert report["performance"]["context"]["feature_count"] > 0
     assert min(report["physical"]["map_sampling"]["source_effective_ppi"]) >= 20
     unchanged_report = artifacts["report"].read_text(encoding="utf-8")
     report["physical"]["map_sampling"]["source_pixels"][0] -= 1

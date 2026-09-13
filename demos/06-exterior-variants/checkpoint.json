@@ -1,0 +1,124 @@
+{
+  "source_build": "output\\exterior-build",
+  "variants": {
+    "terrain": {
+      "validated_artifacts": 53,
+      "texture_sha256": "ba35e5cfc40c6f3898aa5e8c55816927030fce853f1282aa0936f8e7f7d4fb9b",
+      "physical": {
+        "diameter_mm": 215.0,
+        "circumference_mm": 675.4424205218055,
+        "pole_to_pole_mm": 337.72121026090275,
+        "texture_pixels": [
+          7978,
+          3989
+        ],
+        "map_sampling": {
+          "source_pixels": [
+            7979,
+            8086
+          ],
+          "scaled_map_pixels": [
+            7978,
+            3989
+          ],
+          "texture_pixels": [
+            7978,
+            3989
+          ],
+          "source_pixels_per_output_pixel": [
+            1.0001253446979192,
+            2.027074454750564
+          ],
+          "source_effective_ppi": [
+            300.0501506011899,
+            608.1477673295454
+          ],
+          "source_pixel_budget": 100000000
+        },
+        "tile_count": 12
+      }
+    },
+    "ocean": {
+      "validated_artifacts": 51,
+      "texture_sha256": "3274cb5d43d8652ac18d9fa0fd54c784a8a8551b205bfe6e4227fbe03188520b",
+      "physical": {
+        "diameter_mm": 215.0,
+        "circumference_mm": 675.4424205218055,
+        "pole_to_pole_mm": 337.72121026090275,
+        "texture_pixels": [
+          7978,
+          3989
+        ],
+        "map_sampling": {
+          "source_pixels": [
+            7979,
+            8086
+          ],
+          "scaled_map_pixels": [
+            7978,
+            3989
+          ],
+          "texture_pixels": [
+            7978,
+            3989
+          ],
+          "source_pixels_per_output_pixel": [
+            1.0001253446979192,
+            2.027074454750564
+          ],
+          "source_effective_ppi": [
+            300.0501506011899,
+            608.1477673295454
+          ],
+          "source_pixel_budget": 100000000
+        },
+        "tile_count": 12
+      }
+    },
+    "fog": {
+      "validated_artifacts": 51,
+      "texture_sha256": "15f67c18a83b3244b24cf009f996ea8f2366645896d8c5bc501a16bfc2a3a4e0",
+      "physical": {
+        "diameter_mm": 215.0,
+        "circumference_mm": 675.4424205218055,
+        "pole_to_pole_mm": 337.72121026090275,
+        "texture_pixels": [
+          7978,
+          3989
+        ],
+        "map_sampling": {
+          "source_pixels": [
+            7979,
+            8086
+          ],
+          "scaled_map_pixels": [
+            7978,
+            3989
+          ],
+          "texture_pixels": [
+            7978,
+            3989
+          ],
+          "source_pixels_per_output_pixel": [
+            1.0001253446979192,
+            2.027074454750564
+          ],
+          "source_effective_ppi": [
+            300.0501506011899,
+            608.1477673295454
+          ],
+          "source_pixel_budget": 100000000
+        },
+        "tile_count": 12
+      }
+    }
+  },
+  "verified": [
+    "identical municipal data, raster, masks and labels",
+    "identical gore geometry",
+    "all city interior pixels preserved",
+    "exact wrap and pole continuity",
+    "full artifact validation"
+  ],
+  "physical_test": "Pending human printing, measurement and fit."
+}

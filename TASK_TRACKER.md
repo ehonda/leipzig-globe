@@ -17,7 +17,19 @@
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
 - [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
+- [ ] 15. Compare exterior styles (terrain, Continent Leipzig, fog of war) in the 215 mm high-density Pages preview — local builds, cross-variant invariants and Edge checks pass; deployment verification pending.
+- [ ] 16. Increase map detail — deferred by user.
+- [ ] 17. Tune labels — deferred by user.
+- [ ] 18. Review/expand landmarks, including Völkerschlachtdenkmal and the football stadium — deferred by user.
+
 ## Notes
+
+- Checkpoint 06 records all three 215 mm / 300 PPI exterior styles. Terrain
+  validates 53 artifacts; ocean and fog validate 51 each. Shared city data,
+  rasters, masks, labels, gore geometry and all city interior pixels agree;
+  canonical wrap and pole checks pass. Edge checks cover the three styles,
+  both modes, five overlays, camera/reset, mouse/touch controls, and rapid
+  switching without moving the camera. See `demos/06-exterior-variants/`.
 
 - Task 13 is a required human-action milestone and cannot be completed autonomously.
 - [PHYSICAL_TEST.md](PHYSICAL_TEST.md) provides the pending measurement and assembly record; blank fields are not completion evidence.

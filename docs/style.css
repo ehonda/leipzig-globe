@@ -129,6 +129,16 @@ h1 {
   margin-top: 0.85rem;
 }
 
+.reference, .variant-description, .attribution {
+  color: #425454;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.attribution { font-size: 0.75rem; }
+.attribution a { color: inherit; }
+select { max-width: 100%; }
+
 .control-group {
   display: flex;
   align-items: center;

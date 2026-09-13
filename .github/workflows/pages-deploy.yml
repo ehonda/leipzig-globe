@@ -39,7 +39,7 @@ jobs:
         with:
           path: .cache/sources-2026-09-01
           key: pages-sources-${{ runner.os }}-${{ hashFiles('config/source-lock.json') }}
-      - name: Rebuild and validate both presets
+      - name: Rebuild and validate the three exterior variants
         run: uv run scripts/build_pages.py
       - name: Refuse to publish a superseded commit
         run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"

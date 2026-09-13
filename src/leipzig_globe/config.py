@@ -40,6 +40,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "world_layout_scale_y": 1.0,
         "gore_order": "clockwise",
         "label_density": "medium",
+        "exterior": "blank",
         "curated_landmarks": [
             "Leipzig",
             "Mitte",
@@ -270,6 +271,9 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
             "Invalid layout settings: label_density must be 'low', 'medium', or 'high'."
         )
     layout["label_density"] = label_density
+
+    if layout["exterior"] not in {"blank", "terrain", "ocean", "fog"}:
+        raise ValueError("layout.exterior must be blank, terrain, ocean, or fog.")
 
     margin = layout["print_margin_mm"]
     if not 8 <= margin <= 40:

@@ -361,10 +361,24 @@ def render_clean_map(config, output_path, municipal_map=None):
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path, dpi=(cfg["globe"]["ppi"], cfg["globe"]["ppi"]))
+    if cfg["layout"]["exterior"] != "blank":
+        boundary = shapely.union_all(
+            [
+                geom
+                for row, geom in zip(records, projected, strict=True)
+                if row.get("kind") in {"district", "land"}
+            ]
+        )
+        if boundary.is_empty:
+            raise ValueError("Exterior variants require municipal boundary polygons.")
+        mask = Image.new("L", image.size, 0)
+        _paint(mask, boundary, 255)
+        mask.save(path.with_suffix(".boundary.png"))
     metadata = {
         "center_metric": list(center),
         "center_pixel": [width / 2, height / 2],
         "bounds_metric": bounds.tolist(),
+        "span_metric": [span_x, span_y],
         "crs": WORKING_CRS,
         "sampling": {
             "source_pixels": [width, height],
@@ -424,6 +438,10 @@ def generate_globe_texture(config, output_path, *, source_map=None):
         )
     texture = Image.new("RGB", (width, height), tuple(cfg["style"]["background"]))
     texture.paste(base, ((width - scaled_width) // 2, (height - scaled_height) // 2))
+    if cfg["layout"]["exterior"] != "blank":
+        from .exterior import compose_exterior
+
+        texture = compose_exterior(texture, source, cfg)
     texture = ImageChops.offset(
         texture, round(cfg["globe"]["seam_offset_deg"] / 360 * width), 0
     )

@@ -188,3 +188,47 @@ as the baseline for a complete physical build.
 **Done when:** a completed build can export all browser assets, the static
 viewer loads both modes from only those assets, and the export has automated
 geometry coverage.
+
+## 15. Compare treatments outside the municipal boundary
+
+- Build three exterior styles: real surrounding OSM geography with a visible
+  municipal outline and smooth wrap/poles; ocean around "Continent Leipzig";
+  and unexplored terrain represented by fog of war.
+- Preserve municipal clipping, all city areas, map placement, label selection,
+  source sampling density, and physical gore geometry across variants.
+- Keep surrounding features in a separate bounded dataset with source provenance;
+  never substitute invented geography for real context.
+- Generate canonical textures and matching gores, expose a style selector in
+  Pages for the 215 mm / 300 PPI / high-label-density reference only, and retain
+  camera and preview mode when switching styles.
+- Validate city preservation, contextual feature placement, wrap/pole continuity,
+  full builds and browser operation. Record a visual checkpoint.
+
+**Done when:** all three styles can be compared in the deployed Pages preview,
+with validated matching print artifacts and recorded visual evidence.
+
+## 16. Increase map detail (deferred)
+
+- Review additional feature classes and visual detail at the 215 mm print scale.
+- Compare readability, density and build cost before selecting changes.
+
+**Done when:** agreed detail improvements have visual and print-scale validation.
+Do not implement during the exterior-style experiment.
+
+## 17. Tune label selection and placement (deferred)
+
+- Review visible and omitted labels, priorities, collisions and seam/pole safety.
+- Agree which labels matter before adjusting selection or placement rules.
+
+**Done when:** the agreed label set is rendered or omissions are explained with
+source identity and placement evidence. Do not implement during Task 15.
+
+## 18. Review and expand landmarks (deferred)
+
+- Investigate why the configured Völkerschlachtdenkmal is absent from the preview;
+  use the build's omission report to distinguish missing data from unsafe placement.
+- Consider the football stadium and research other candidate Leipzig landmarks.
+- Agree candidates and validate feature identity, symbol/label rendering and fit.
+
+**Done when:** agreed landmarks are visible and verified against their real
+locations. Do not implement during Task 15.

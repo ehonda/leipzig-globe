@@ -103,3 +103,22 @@ error is bounded by 0.04185 mm at the reference diameter, below 0.001 radius.
 `before-300mm-gores.png` preserves the earlier visibly faceted browser view;
 the new `default-gores.png` shows the repaired circular silhouette at 215 mm.
 Browser screenshots are inspection evidence, not print sources.
+
+## 06 — Outside Leipzig: terrain, ocean and fog
+
+`06-exterior-variants/` compares the three exterior treatments at 215 mm / 300 PPI /
+high label density. `comparison.jpg` shows front, back, north and south for each;
+the individual texture images are downsampled inspection copies. Browser screenshots
+record both modes and overlays, with interaction results in `browser-check.json`.
+`mobile.png` is captured after the pinch/zoom test, rather than at the initial view.
+
+Each style has its own full Build Report. `checkpoint.json` records artifact
+validation, identical municipal data/raster/mask/labels and gore geometry, preservation
+of city interior pixels, and exact canonical wrap/pole continuity. Full local builds
+are in `output/exterior-build/{terrain,ocean,fog}`; the regenerated local site is
+`output/exterior-site/`. Terrain includes a separate 78,807-feature context dataset
+from the pinned September PBF. The Municipal Map remains clipped to Leipzig.
+
+This experiment changes the exterior artwork only. More detail, label tuning and
+landmark expansion are deferred in Tasks 16–18. The physical test remains pending;
+checkpoint 05 remains the existing 215 mm test-print sample.

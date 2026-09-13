@@ -152,16 +152,25 @@ def _validate_preset_id(preset_id: str) -> str:
 
 
 def _preset_entry(preset_id: str, config: dict[str, Any]) -> dict[str, Any]:
+    from .exterior import EXTERIORS
+
     globe = config["globe"]
     layout = config["layout"]
     diameter = globe["diameter_mm"]
     return {
         "id": preset_id,
-        "label": f"{diameter:g} mm - {layout['label_density']} labels",
+        "label": (
+            f"{diameter:g} mm - {layout['label_density']} labels"
+            if layout["exterior"] == "blank"
+            else EXTERIORS[layout["exterior"]][0]
+        ),
+        "description": EXTERIORS[layout["exterior"]][1],
+        "exterior": layout["exterior"],
         "manifest": f"{preset_id}/preview-manifest.json",
         "diameter_mm": diameter,
         "gore_count": globe["gore_count"],
         "label_density": layout["label_density"],
+        "ppi": globe["ppi"],
     }
 
 
@@ -177,7 +186,13 @@ def _write_preset_index(
                 entries[entry["id"]] = entry
     entries[preset_id] = _preset_entry(preset_id, config)
     presets = sorted(
-        entries.values(), key=lambda entry: (entry["id"] != "default", entry["label"])
+        entries.values(),
+        key=lambda entry: (
+            {"terrain": 0, "ocean": 1, "fog": 2, "blank": 3}.get(
+                entry.get("exterior"), 4
+            ),
+            entry["id"],
+        ),
     )
     index_path.write_text(
         json.dumps(
@@ -235,6 +250,7 @@ def export_web_preview(
     preview_manifest = {
         "schema_version": 1,
         "preset_id": preset,
+        "exterior": cfg["layout"]["exterior"],
         "city": cfg["city"],
         "texture": "texture.webp",
         "diameter_mm": cfg["globe"]["diameter_mm"],

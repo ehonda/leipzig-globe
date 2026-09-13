@@ -27,6 +27,7 @@ layout:
   world_layout_scale_y: 1.0
   gore_order: clockwise
   label_density: medium
+  exterior: blank
   curated_landmarks:
     - Leipzig
     - Mitte

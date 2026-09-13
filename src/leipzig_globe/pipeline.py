@@ -13,6 +13,7 @@ from typing import Any
 from PIL import Image
 
 from .config import load_config, validate_config
+from .exterior import build_context_map
 from .fetcher import compute_sha256, load_source_manifests, verify_manifest
 from .municipal_map import derive_municipal_map_from_sources
 from .preview import VIEWPOINTS, generate_preview_set
@@ -144,6 +145,19 @@ def build_artifacts(
     municipal_path = Path(municipal["output_path"])
     map_path = work / cfg["paths"]["map_file"]
     rendered = render_clean_map(cfg, map_path, municipal_map=municipal_path)
+    exterior_paths = {}
+    context_metrics = None
+    if cfg["layout"]["exterior"] != "blank":
+        exterior_paths["municipal_mask"] = map_path.with_suffix(".boundary.png")
+    if cfg["layout"]["exterior"] == "terrain":
+        context_path = work / "context-map.geojson"
+        context_metrics = build_context_map(
+            sources["osm_pbf"], map_path, context_path, cfg
+        )
+        exterior_paths.update(
+            context_map=context_path,
+            context_raster=map_path.with_suffix(".context.png"),
+        )
     performance = dict(municipal.get("performance", {}))
     performance.update(
         seconds_to_map=time.perf_counter() - started,
@@ -151,6 +165,8 @@ def build_artifacts(
         municipal_bytes=municipal_path.stat().st_size,
         municipal_tag_counts=municipal.get("tag_counts", {}),
     )
+    if context_metrics is not None:
+        performance["context"] = context_metrics
     texture = work / cfg["paths"]["texture_file"]
     generate_globe_texture(cfg, texture, source_map=map_path)
     gore_dir = work / cfg["paths"]["gore_dir"]
@@ -163,6 +179,7 @@ def build_artifacts(
         texture, work / cfg["paths"]["preview_dir"], config=cfg, provenance=provenance
     )
     paths = {
+        **exterior_paths,
         "municipal_map": municipal_path,
         "map": map_path,
         "texture": texture,

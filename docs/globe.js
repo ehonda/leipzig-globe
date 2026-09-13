@@ -294,6 +294,8 @@ async function loadPreset(entry) {
     poleZoneGroup.add(latitudeRing(poleLatitude, 0xd37b59));
     poleZoneGroup.add(latitudeRing(-poleLatitude, 0xd37b59));
     setMode(activeMode);
+    document.querySelector("#variant-description").textContent = entry.description || "";
+    canvas.dataset.variant = entry.id;
     setStatus("");
   } catch (error) {
     if (request !== loadSequence) return;

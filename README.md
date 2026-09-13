@@ -18,7 +18,7 @@ features are tracked in [docs/3d-preview-mvp-status.md](docs/3d-preview-mvp-stat
 The checked-in [config/default.yaml](config/default.yaml) is the baseline. For
 an alternate globe, create a small YAML override instead of changing that file.
 Overrides are merged with the defaults, so they need contain only values that
-should differ. The viewer's alternate preset is
+should differ. The hosted viewer uses only the 215 mm high-density reference in
 [config/globe-215mm-high-density.yaml](config/globe-215mm-high-density.yaml):
 
 ```yaml
@@ -28,6 +28,7 @@ globe:
 
 layout:
   label_density: high
+  exterior: ocean
 ```
 
 Useful settings include `globe.diameter_mm`, `globe.ppi`,
@@ -37,6 +38,15 @@ Useful settings include `globe.diameter_mm`, `globe.ppi`,
 `show_railways`. Physical texture dimensions, gore geometry, and PDF tiling
 are recalculated from the selected configuration. The validation step rejects
 settings outside the supported physical and rendering limits.
+
+`layout.exterior` selects `blank` (the CLI default), `terrain`, `ocean`, or `fog`.
+The Pages selector compares **Surrounding terrain**, **Continent Leipzig**, and
+**Fog of war**, all at 215 mm / 300 PPI / high label density. Switching keeps
+the current camera and mode. Terrain uses real OSM roads, water and green space
+within the existing municipal viewport, with a plum municipal outline and a
+smooth fade at the texture wrap and poles. It is a cartographic map, not an
+elevation model. Ocean and fog are decorative backgrounds outside the official
+boundary. Leipzig's position, extent and label choices are shared by all three.
 
 To inspect an override locally before publishing, use a separate build
 directory and refresh the tracked preview snapshots:
@@ -51,13 +61,13 @@ git push origin main
 ```
 
 The GitHub Actions workflow in [.github/workflows/pages-deploy.yml](.github/workflows/pages-deploy.yml)
-deploys `docs/` after every push to `main`. GitHub Pages is configured to use
+rebuilds the site after every push to `main`. GitHub Pages is configured to use
 that workflow, so no separate Pages action is needed after the push. The live
 viewer is https://ehonda.github.io/leipzig-globe/. To offer multiple choices in
 the selector, export each completed build to the same `docs/assets` directory
 with a distinct `--preset-id`; the exporter updates `docs/assets/presets.json`.
 
-The workflow now runs checks, rebuilds **both** configured presets from the
+The workflow runs checks, rebuilds **all three exterior variants** from the
 pinned sources with the pushed code, validates them, and publishes a fresh
 `output/pages-site/`. Only source downloads are cached; tracked `docs/assets/`
 are local inspection snapshots. To add a hosted preset, also add its configuration
@@ -69,6 +79,8 @@ This follows GitHub's [custom Pages workflow](https://docs.github.com/en/pages/g
 
 To exercise the same build locally, run `uv run scripts/build_pages.py` with
 new output directories (use `--output-dir` and `--site-dir` on subsequent runs).
+Run `uv run --with playwright scripts/check_browser.py --site output/pages-site`
+to verify the three variants in installed Edge; screenshots go to `output/browser-check`.
 
 See the tracked [visual checkpoints](demos/README.md), especially
 [the globe gallery](demos/02-real-globe/globe-views.jpg) and

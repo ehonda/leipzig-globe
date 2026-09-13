@@ -304,3 +304,48 @@ damped rotation deltas when restoring a saved pose. Flush one update with dampin
 and auto-rotation disabled before applying camera shortcuts, then restore those
 settings. This fixes the repeated-view check without weakening its assertion.
 All 119 tests, Ruff and Black pass. Physical test/fit acceptance is still pending.
+
+### 2026-09-14 — Exterior style experiment
+
+`layout.exterior` supports `blank` (the CLI default), `terrain`, `ocean`, and
+`fog`. Pages builds only the latter three with the 215 mm / 300 PPI / high-label
+reference. Diameter/density alternatives are no longer offered in the viewer.
+The selector preserves camera, mode and overlay state.
+
+Keep `municipal-map.geojson` clipped to the official boundary. Rendering writes
+an explicit municipal mask and metric viewport metadata for exterior variants;
+terrain uses a separate `context-map.geojson` extracted from the same pinned PBF
+within that rectangle. Context has no labels and never changes the city viewport,
+source sampling scale or label candidates. It uses the existing road, water and
+green-space classes, not elevation data. Context extraction retains the 100 MB
+export limit and records its bounds, counts and timings in the report.
+
+Exterior artwork is composited into the canonical texture before seam rotation,
+so print gores, static views and both browser modes use the same design. Terrain
+fades across the outer 8% of each map axis to a common ground colour; the plum
+municipal outline fades there too. Widening the outline without that fade caused
+a low-resolution polar artifact caught by the exact-edge regression test.
+Ocean and fog use deterministic spherical fields plus an exterior coastal/fog
+fringe. Fields agree across longitude wrap and become constant at each pole.
+Cropping the municipality at texture edges is rejected for these variants.
+
+The city raster stays identical across styles. The geometric mask preserves all
+municipal interiors, holes and detached areas; existing labels extending beyond
+the boundary retain their ink without copying rectangular paper backgrounds.
+`scripts/save_exterior_checkpoint.py` validates shared city data/raster/labels,
+gore geometry, city pixels and canonical wrap/poles, then saves a comparison.
+
+More map detail, label tuning, the Völkerschlachtdenkmal omission and candidate
+landmarks such as the football stadium are explicitly deferred in Tasks 16–18.
+Physical printing and fit remain the human-only Task 13.
+
+Completed local builds are `output/exterior-build/{terrain,ocean,fog}` and the
+site is `output/exterior-site/`. Checkpoint 06 records 53 / 51 / 51 validated
+artifacts, the cross-variant checks and successful Edge desktop/touch tests.
+Terrain's context has 78,807 features / 50.56 MB. All three source maps are
+7979 × 8086 and canonical textures 7978 × 3989; all print sets use 12 A4 pages.
+The tracked `docs/assets/` snapshot now contains only these three variants.
+The outline and fog were visually refined after the initial local builds;
+their texture, gore, PDF and preview stages were refreshed and revalidated
+without changing source rasters. Reports record that additional elapsed time.
+Fresh Pages builds produce the final styles directly from the committed code.
