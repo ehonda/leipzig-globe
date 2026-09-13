@@ -217,6 +217,50 @@ def test_page_coverage_recalculates_for_other_globes(diameter, count):
         assert max(tile["x_mm"] + tile["width_mm"] for tile in pieces) >= width
 
 
+def test_equator_tile_mode_splits_symmetrically_with_configured_overlap():
+    gore_height = 296.0004
+    tiles = page_tiles(12, 56.3334, gore_height, 10, 10, "equator")
+    pieces = [tile for tile in tiles if 0 in tile["gores"]]
+
+    assert len(pieces) == 2
+    assert pieces[0]["y_mm"] == 0
+    assert pieces[0]["y_mm"] + pieces[0]["height_mm"] == pytest.approx(
+        gore_height / 2 + 5
+    )
+    assert pieces[1]["y_mm"] == pytest.approx(gore_height / 2 - 5)
+    assert pieces[1]["y_mm"] + pieces[1]["height_mm"] == pytest.approx(gore_height)
+    assert pieces[0]["y_mm"] + pieces[0]["height_mm"] - pieces[1][
+        "y_mm"
+    ] == pytest.approx(10)
+
+
+def test_equator_tile_mode_keeps_fitting_gore_on_one_page():
+    tiles = page_tiles(1, 60, 200, 10, 10, "equator")
+
+    assert [(tile["y_mm"], tile["height_mm"]) for tile in tiles] == [(0, 200)]
+
+
+def test_equator_tile_mode_rejects_gore_halves_too_tall_for_a4():
+    with pytest.raises(ValueError, match="Equator split does not fit"):
+        page_tiles(1, 60, 550, 10, 10, "equator")
+
+
+def test_pdf_uses_configured_equator_tile_mode(printed_fixture, tmp_path):
+    config, _, gores, _ = printed_fixture
+    config["layout"]["vertical_tile_mode"] = "equator"
+
+    pdf = build_pdf(gores, tmp_path / "equator-print.pdf", config)
+    manifest = json.loads(pdf.with_suffix(".tiles.json").read_text())
+    pieces = [tile for tile in manifest["tiles"] if 0 in tile["gores"]]
+
+    assert manifest["vertical_tile_mode"] == "equator"
+    assert len(pieces) == 2
+    assert pieces[0]["y_mm"] == 0
+    assert pieces[1]["y_mm"] == pytest.approx(
+        manifest["gore_height_mm"] / 2 - config["layout"]["tile_overlap_mm"] / 2
+    )
+
+
 def test_six_previews_are_different_spherical_views(printed_fixture, tmp_path):
     _, _, gores, _ = printed_fixture
     texture = gores[0].parent.parent / "texture.png"

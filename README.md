@@ -107,7 +107,10 @@ two vertical tiles, with 10 mm page overlap.
 Change `globe.diameter_mm` in `config/default.yaml` or supply a partial YAML
 override with `--config-path`. All physical dimensions and page tiles are
 recalculated. If you measure the globe's equatorial circumference, divide it
-by π to obtain the diameter. The final physical globe size is not yet known.
+by π to obtain the diameter. Set `layout.vertical_tile_mode: equator` to centre
+the page-tile overlap on the equator whenever a Gore needs two pages. Gores
+that fit on one page remain whole; generation stops with a size-specific error
+if a half-Gore plus half the overlap cannot fit the printable A4 height.
 
 Print at **100% / actual size** and measure the 100 mm calibration line. Join
 page tiles using matching crosses, then cut along the solid gore outline;

@@ -9,7 +9,7 @@
 - [x] 5. Render the clean Leipzig map (semantic label selection and selected source IDs verified; BG-007 repaired)
 - [x] 6. Create the 2:1 Globe Texture (true both-axis source sampling, single downsample, allocation guards; BG-006 repaired)
 - [x] 7. Generate SVG Gores (sinusoidal sampling, physical dimensions, overlap, outlines and alignment marks)
-- [x] 8. Assemble the tiled A4 print PDF (calculated two-row layout; dimensions and drawing operators checked)
+- [x] 8. Assemble the tiled A4 print PDF (calculated/equator-split layouts; dimensions and drawing operators checked)
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
@@ -33,3 +33,6 @@
   city-node identity (safely omitted for feature collision), and an inspected
   exact-size print sample. Isolated real map benchmark: 162.44 seconds,
   41.36 MB Municipal Map. Physical fit remains untested.
+- 2026-09-13: the 184.62 mm old-ball and 215 mm target presets use equator-centred
+  page splits. Each two-page Gore shares the configured 10 mm overlap equally
+  around the equator; unsupported larger sizes fail instead of splitting unevenly.

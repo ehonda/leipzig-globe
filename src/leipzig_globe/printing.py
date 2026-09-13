@@ -171,7 +171,14 @@ def build_gore_set(texture_path, output_dir, config):
     return files
 
 
-def page_tiles(gore_count, gore_width, gore_height, margin, overlap):
+def page_tiles(
+    gore_count,
+    gore_width,
+    gore_height,
+    margin,
+    overlap,
+    vertical_tile_mode="automatic",
+):
     usable_width, usable_height = 210 - 2 * margin, 297 - 2 * margin
     gap = 4
     across = math.floor((usable_width + gap) / (gore_width + gap))
@@ -185,21 +192,49 @@ def page_tiles(gore_count, gore_width, gore_height, margin, overlap):
         ]
     else:
         groups = [(index, 0) for index in range(0, gore_count, across)]
-    rows = (
-        math.ceil(max(0, gore_height - usable_height) / (usable_height - overlap)) + 1
-    )
+    if gore_height <= usable_height:
+        vertical_tiles = [(0.0, gore_height)]
+    elif vertical_tile_mode == "equator":
+        half_height = gore_height / 2
+        tile_height = half_height + overlap / 2
+        if tile_height > usable_height:
+            maximum_height = 2 * usable_height - overlap
+            raise ValueError(
+                "Equator split does not fit the printable A4 height: "
+                f"gore height is {gore_height:.2f} mm, but this mode supports at "
+                f"most {maximum_height:.2f} mm with the configured margin and overlap."
+            )
+        vertical_tiles = [
+            (0.0, tile_height),
+            (half_height - overlap / 2, tile_height),
+        ]
+    else:
+        rows = (
+            math.ceil(max(0, gore_height - usable_height) / (usable_height - overlap))
+            + 1
+        )
+        vertical_tiles = [
+            (
+                row * (usable_height - overlap),
+                min(
+                    usable_height,
+                    gore_height - row * (usable_height - overlap),
+                ),
+            )
+            for row in range(rows)
+        ]
     tiles = []
     for first, column in groups:
-        for row in range(rows):
+        for row, (y_mm, tile_height) in enumerate(vertical_tiles):
             tiles.append(
                 {
                     "page": len(tiles) + 1,
                     "row": row,
                     "column": column,
-                    "y_mm": row * (usable_height - overlap),
+                    "y_mm": y_mm,
                     "x_mm": column * (usable_width - overlap),
                     "width_mm": usable_width,
-                    "height_mm": usable_height,
+                    "height_mm": tile_height,
                     "gores": list(
                         range(first, min(gore_count, first + max(1, across)))
                     ),
@@ -214,7 +249,8 @@ def build_pdf(gore_files, output_path, config=None):
     info = [json.loads(path.with_suffix(".json").read_text()) for path in files]
     width, height = info[0]["width_mm"], info[0]["height_mm"]
     margin, overlap = cfg["layout"]["print_margin_mm"], cfg["layout"]["tile_overlap_mm"]
-    tiles = page_tiles(len(files), width, height, margin, overlap)
+    vertical_tile_mode = cfg["layout"]["vertical_tile_mode"]
+    tiles = page_tiles(len(files), width, height, margin, overlap, vertical_tile_mode)
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(path), pagesize=A4, pageCompression=1, invariant=1)
@@ -235,7 +271,10 @@ def build_pdf(gore_files, output_path, config=None):
         c.saveState()
         clip = c.beginPath()
         clip.rect(
-            margin * mm, margin * mm, tile["width_mm"] * mm, tile["height_mm"] * mm
+            margin * mm,
+            (297 - margin - tile["height_mm"]) * mm,
+            tile["width_mm"] * mm,
+            tile["height_mm"] * mm,
         )
         c.clipPath(clip, stroke=0)
         for position, index in enumerate(tile["gores"]):
@@ -348,6 +387,7 @@ def build_pdf(gore_files, output_path, config=None):
                 "tiles": tiles,
                 "gore_width_mm": width,
                 "gore_height_mm": height,
+                "vertical_tile_mode": vertical_tile_mode,
                 "print_scale": 1.0,
                 "calibration_mm": 100,
             },

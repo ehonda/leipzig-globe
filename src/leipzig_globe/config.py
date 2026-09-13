@@ -31,6 +31,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "layout": {
         "tile_overlap_mm": 10,
+        "vertical_tile_mode": "automatic",
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,
         "seam_offset_deg": 15,
@@ -201,6 +202,14 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
     layout["tile_overlap_mm"] = _validate_non_negative_number(
         "layout.tile_overlap_mm", layout.get("tile_overlap_mm")
     )
+    vertical_tile_mode = str(
+        layout.get("vertical_tile_mode", DEFAULT_CONFIG["layout"]["vertical_tile_mode"])
+    ).lower()
+    if vertical_tile_mode not in {"automatic", "equator"}:
+        raise ValueError(
+            "Invalid layout settings: vertical_tile_mode must be 'automatic' or 'equator'."
+        )
+    layout["vertical_tile_mode"] = vertical_tile_mode
     layout["print_margin_mm"] = _validate_non_negative_number(
         "layout.print_margin_mm", layout.get("print_margin_mm")
     )

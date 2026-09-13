@@ -4,3 +4,4 @@ globe:
 
 layout:
   label_density: high
+  vertical_tile_mode: equator

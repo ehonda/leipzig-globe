@@ -18,6 +18,7 @@ style:
   label: [70, 71, 73]
 layout:
   tile_overlap_mm: 10
+  vertical_tile_mode: automatic
   print_margin_mm: 10
   pole_safety_zone_mm: 20
   seam_offset_deg: 15

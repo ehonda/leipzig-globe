@@ -104,6 +104,9 @@ edges, and the calculated equatorial widths match the configured circumference.
   Confirmed 2026-09-10: pole-to-pole length is half the circumference, so a
   300 mm globe needs 471.24 mm Gores and two portrait A4 Page Tiles vertically.
   Recalculate the layout for other diameters, margins, and overlaps.
+- Support an optional equator split for Gores that need two pages. Centre the
+  configured page overlap on the equator, keep Gores that fit on one page whole,
+  and reject sizes whose half-Gores do not fit the printable page height.
 - Include page identifiers, tile registration marks, a 100 mm calibration line,
   cut lines, Gore identifiers, and OSM attribution in each page's outer margin.
 - Prevent automatic fitting or rescaling in the PDF metadata and instructions.

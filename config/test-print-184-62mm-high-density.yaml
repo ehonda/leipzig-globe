@@ -1,0 +1,8 @@
+globe:
+  # Measured from the old ball's 580 mm equatorial circumference.
+  diameter_mm: 184.62
+  ppi: 300
+
+layout:
+  label_density: high
+  vertical_tile_mode: equator

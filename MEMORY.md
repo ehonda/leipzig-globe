@@ -139,6 +139,11 @@ assembly overlap is measured at the equator and tapers with latitude.
 SVG dimensions and the PDF use millimetres; ReportLab lengths are converted
 to points explicitly. Calibration is checked from PDF drawing operators,
 not just from its text label. Page and gore registration marks are separate.
+For physical assembly, `layout.vertical_tile_mode: equator` keeps a Gore whole
+when it fits one page and otherwise makes two tiles whose overlap is centred on
+the equator. The 184.62 mm old-ball and 215 mm target presets use this mode. It
+must fail when a half-Gore plus half the tile overlap exceeds printable A4 height;
+do not silently fall back to an uneven or multi-row split.
 
 Previews use analytic ray/sphere intersections and filtered texture sampling,
 which gives an exact spherical surface without mesh faceting. They are never

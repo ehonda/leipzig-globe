@@ -41,6 +41,7 @@ def test_default_config_sets_expected_mvp_values():
     assert config["globe"]["assembly_overlap_mm"] == 2
     assert config["layout"]["seam_offset_deg"] == 15
     assert config["layout"]["tile_overlap_mm"] == 10
+    assert config["layout"]["vertical_tile_mode"] == "automatic"
     assert config["paths"]["texture_file"] == "leipzig-texture.png"
     assert default_config_path().exists()
 
@@ -51,9 +52,24 @@ def test_215mm_high_density_preset_inherits_default_geometry():
     assert config["globe"]["diameter_mm"] == 215
     assert config["globe"]["ppi"] == 300
     assert config["layout"]["label_density"] == "high"
+    assert config["layout"]["vertical_tile_mode"] == "equator"
     assert config["globe"]["gore_count"] == 12
     assert config["globe"]["assembly_overlap_mm"] == 2
     assert config["layout"]["seam_offset_deg"] == 15
+
+
+def test_184_62mm_test_print_preset_uses_equator_split():
+    config = load_config("config/test-print-184-62mm-high-density.yaml")
+
+    assert config["globe"]["diameter_mm"] == 184.62
+    assert config["globe"]["ppi"] == 300
+    assert config["layout"]["label_density"] == "high"
+    assert config["layout"]["vertical_tile_mode"] == "equator"
+
+
+def test_vertical_tile_mode_rejects_unknown_values():
+    with pytest.raises(ValueError, match="vertical_tile_mode"):
+        validate_config({"layout": {"vertical_tile_mode": "thirds"}})
 
 
 def test_invalid_configuration_raises_actionable_error():
