@@ -35,11 +35,12 @@ def test_source_sampling_meets_both_axes_after_world_scaling(ratio, sx, sy):
     assert width * height <= 100_000_000
 
 
-def test_default_source_is_not_half_resolution():
-    cfg = validate_config({})
+@pytest.mark.parametrize("diameter,minimum", [(215, (5320, 2660)), (300, (7422, 3711))])
+def test_reference_and_legacy_source_are_not_half_resolution(diameter, minimum):
+    cfg = validate_config({"globe": {"diameter_mm": diameter}})
     width, height = source_map_dimensions(cfg, 3662 / 3711)
-    assert width >= 7422
-    assert height >= 3711
+    assert width >= minimum[0]
+    assert height >= minimum[1]
     assert width * height <= 100_000_000
 
 
@@ -66,7 +67,7 @@ def test_source_budget_fails_before_image_allocation(tmp_path, monkeypatch):
 
     monkeypatch.setattr("leipzig_globe.rendering.Image.new", no_allocation)
     with pytest.raises(ValueError, match="source-map budget"):
-        render_clean_map({}, tmp_path / "map.png", data)
+        render_clean_map({"globe": {"diameter_mm": 300}}, tmp_path / "map.png", data)
 
 
 def test_texture_rejects_undersized_map(tmp_path):

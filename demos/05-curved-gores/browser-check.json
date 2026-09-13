@@ -1,0 +1,20 @@
+{
+  "browser": "Installed Edge, headless",
+  "presets": [
+    "default",
+    "globe-215mm-high-density"
+  ],
+  "checks": [
+    "both modes",
+    "five overlays",
+    "four camera views",
+    "reset",
+    "drag",
+    "wheel zoom",
+    "auto rotation",
+    "mobile layout",
+    "touch drag",
+    "pinch zoom"
+  ],
+  "errors": []
+}

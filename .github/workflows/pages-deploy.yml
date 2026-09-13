@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,12 +25,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Osmium
+        run: sudo apt-get update && sudo apt-get install -y osmium-tool
+      - run: uv sync --locked
+      - name: Verify implementation before publishing
+        run: |
+          uv run ruff check .
+          uv run black --check src tests scripts
+          uv run pytest -q
+      - name: Cache pinned source downloads
+        uses: actions/cache@v4
+        with:
+          path: .cache/sources-2026-09-01
+          key: pages-sources-${{ runner.os }}-${{ hashFiles('config/source-lock.json') }}
+      - name: Rebuild and validate both presets
+        run: uv run scripts/build_pages.py
+      - name: Refuse to publish a superseded commit
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: output/pages-site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

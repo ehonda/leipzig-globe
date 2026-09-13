@@ -133,7 +133,8 @@ def test_labels_come_from_source_points_and_zentrum_is_at_equator(tmp_path):
 
 @pytest.fixture
 def printed_fixture(tmp_path):
-    config = validate_config({"globe": {"ppi": 20}})
+    # Keep the original 300 mm print regression independent of reference size.
+    config = validate_config({"globe": {"diameter_mm": 300, "ppi": 20}})
     width, height = texture_dimensions(config)
     yy, xx = np.indices((height, width))
     texture = np.stack(
@@ -291,8 +292,9 @@ def test_web_preview_export_uses_printed_gore_geometry(printed_fixture, tmp_path
     first = manifest["gores"][0]
     assert first["id"] == "Gore 01"
     assert (manifest_path.parent / first["texture"]).is_file()
-    assert len(first["mesh"]["indices"]) == 6 * 120
-    midpoint = 2 * (120 // 2) * 3
+    stride = len(first["mesh"]["positions"]) // (121 * 3)
+    assert stride > 2
+    midpoint = stride * (120 // 2) * 3
     left_equator = first["mesh"]["positions"][midpoint : midpoint + 3]
     assert left_equator == pytest.approx([0, 0, 1], abs=1e-8)
     seam_midpoint = (120 // 2) * 3

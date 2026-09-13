@@ -36,12 +36,12 @@ def test_default_config_sets_expected_mvp_values():
 
     assert config["version"] == 1
     assert config["city"] == "Leipzig"
-    assert config["globe"]["diameter_mm"] == 300
+    assert config["globe"]["diameter_mm"] == 215
     assert config["globe"]["gore_count"] == 12
     assert config["globe"]["assembly_overlap_mm"] == 2
     assert config["layout"]["seam_offset_deg"] == 15
     assert config["layout"]["tile_overlap_mm"] == 10
-    assert config["layout"]["vertical_tile_mode"] == "automatic"
+    assert config["layout"]["vertical_tile_mode"] == "equator"
     assert config["paths"]["texture_file"] == "leipzig-texture.png"
     assert default_config_path().exists()
 

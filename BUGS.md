@@ -188,3 +188,26 @@ as rendered. The six-view gallery and PDF page were inspected.
 4-, 12- and 24-gore configurations; maximum radial error stays below 0.001 of
 the sphere radius (subpixel at an 800-pixel globe diameter), while UVs and
 adjacent seam positions match the printed gore geometry.
+
+2026-09-13 validation (checkpoint 05): segments span at most 3 degrees across
+each strip. Tests cover 4/12/24 gores, both orders, and 0/2/10 mm overlap, including
+UV inversion and adjacent seams. Conservative triangle-plane distances bound
+the entire surface, including unsampled interiors, to less than 0.001 radius.
+The 215 mm reference bound is 0.04185 mm. Both regenerated presets and overlays
+were inspected in Edge; screenshots and browser interaction results are tracked.
+
+## BG-009: Camera shortcuts retain orbit inertia
+
+- **Related task:** Task 14.
+- **Evidence:** browser regression checks returned different canvas pixels after
+  Reset following auto-rotation. OrbitControls restores the saved position but
+  its next update still applies pending damped rotation.
+- **Required fix:** clear pending motion before applying an exact camera view,
+  retaining the user's damping and auto-rotation settings afterward.
+
+**Done when:** Reset returns to the original canvas view after manual/automatic
+rotation, and the four camera shortcuts remain distinct and deterministic.
+
+2026-09-13 validation: one update with damping and auto-rotation temporarily
+disabled clears pending motion before applying the view. Both presets pass the
+browser pixel checks for Reset, camera views, mouse drag/wheel and auto-rotation.

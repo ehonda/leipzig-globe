@@ -5,9 +5,10 @@ has been inferred from the renderer, PDF validation or 3D preview.
 
 ## Choose the correct sample
 
-The tracked [checkpoint 04 sample](demos/04-corrected-rendering/test-print-two-gores.pdf)
-contains two adjacent gores on two A4 pages for a **300 mm diameter** sphere.
-It is not a fit template for a 215 mm sphere or any other diameter.
+The tracked [checkpoint 05 sample](demos/05-curved-gores/test-print-two-gores.pdf)
+contains two adjacent gores on two A4 pages for the confirmed **215 mm diameter**
+final sphere. Its 10 mm page overlap is centred on the equator. Earlier
+checkpoint 04 samples are 300 mm and must not be used to judge this globe's fit.
 
 Measure the sphere's equatorial circumference in millimetres. Diameter is
 circumference divided by π. Set `globe.diameter_mm` to the measured diameter

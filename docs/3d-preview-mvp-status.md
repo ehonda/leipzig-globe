@@ -20,7 +20,7 @@
 - URL-controlled camera/debug presets.
 - Screenshot or image export.
 - Separate canonical-texture sampling mode within Gore Assembly; the MVP uses the actual generated gore images directly.
-- Automated browser visual-regression coverage.
+- Cross-browser automated visual-regression coverage (the Edge inspection script is opt-in).
 
 ## Regenerate Preview Assets
 
@@ -30,7 +30,7 @@ After a successful full build, run:
 uv run leipzig-globe export-web-preview --build-dir output --site-dir docs/assets --preset-id default
 ```
 
-For additional choices, export each validated build to the same `docs/assets/` directory with a distinct `--preset-id`, such as `globe-215mm-high-density`. The generated `presets.json` drives the selector. Commit the generated `docs/assets/` files with the static viewer when publishing through GitHub Pages. The tracked GitHub Actions workflow deploys `docs/` on every push to `main`; configuration and publishing instructions are in the repository README.
+For local choices, export each validated build to the same `docs/assets/` directory with a distinct `--preset-id`, such as `globe-215mm-high-density`. The generated `presets.json` drives the selector. For hosted choices, also add the configuration to `scripts/build_pages.py`: Pages rebuilds and validates every listed preset from current code before deploying `output/pages-site/`. Tracked assets are inspection snapshots. See the repository README for publishing and `build.json` provenance.
 
 ## Checkpoint 04 asset refresh
 
@@ -46,7 +46,21 @@ Live browser interaction is not newly verified by this asset refresh: the
 browser-control tool failed before connection in this session. Existing
 geometry/export unit tests are not a substitute for browser verification.
 
-Known open defect: **BG-008**. Gore Assembly has only one mesh segment across
-each gore, making a faceted rather than sufficiently spherical surface (5.37 mm
-inward at the default equator). Finished Globe and the printed gores use separate
-geometry and are not affected. Task 14 is reopened pending cross-gore subdivision.
+Checkpoint 04 exposed **BG-008**: Gore Assembly had one mesh segment across each
+gore, producing an inward equatorial error of 5.37 mm at its 300 mm diameter.
+
+## Checkpoint 05 — curved gores and 215 mm reference
+
+BG-008 is repaired. Whole-triangle surface-error bounds, vertex UVs, seams,
+overlaps and winding are tested for 4/12/24 gores and both gore orders. The new
+215 mm reference surface error is below 0.04185 mm (0.000389283 radius).
+The two presets now both use 215 mm, at 200 PPI / medium and 300 PPI / high density.
+
+Installed Edge successfully loaded and exercised both modes and presets,
+all five overlays, four camera views, Reset, mouse drag/wheel, auto-rotation,
+touch drag, pinch zoom and the mobile control layout. The Reset check found
+BG-009; camera shortcuts now clear pending inertia before setting their pose.
+Run `uv run --with playwright scripts/check_browser.py --site output/pages-site`
+after a complete Pages build. Screenshots and the result are in
+`demos/05-curved-gores/`; `mobile.png` records the zoomed view after the pinch test.
+In-app browser access remains unavailable due to its connection metadata error.

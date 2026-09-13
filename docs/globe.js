@@ -56,6 +56,13 @@ const presets = new Map();
 let activeMode = "finished";
 let presetIndexUrl;
 let loadSequence = 0;
+const revision = new URL(import.meta.url).searchParams.get("v");
+
+function versionedUrl(path, base) {
+  const url = new URL(path, base);
+  if (revision) url.searchParams.set("v", revision);
+  return url;
+}
 
 function setStatus(message) {
   status.textContent = message;
@@ -180,19 +187,28 @@ function setMode(mode) {
 }
 
 function setView(view) {
+  // Flush pending orbit inertia before choosing an exact camera pose.
+  // OrbitControls.reset() restores position but retains its damped deltas.
+  const damping = controls.enableDamping;
+  const autoRotate = controls.autoRotate;
+  controls.enableDamping = false;
+  controls.autoRotate = false;
+  controls.update();
   if (view === "reset") {
     controls.reset();
-    return;
+  } else {
+    const positions = {
+      front: [0, 0, 3.1],
+      back: [0, 0, -3.1],
+      north: [0, 3.1, 0],
+      south: [0, -3.1, 0],
+    };
+    camera.position.fromArray(positions[view]);
+    controls.target.set(0, 0, 0);
+    controls.update();
   }
-  const positions = {
-    front: [0, 0, 3.1],
-    back: [0, 0, -3.1],
-    north: [0, 3.1, 0],
-    south: [0, -3.1, 0],
-  };
-  camera.position.fromArray(positions[view]);
-  controls.target.set(0, 0, 0);
-  controls.update();
+  controls.enableDamping = damping;
+  controls.autoRotate = autoRotate;
 }
 
 function connectControls() {
@@ -230,11 +246,11 @@ async function loadPreset(entry) {
   const request = ++loadSequence;
   setStatus(`Loading ${entry.label}...`);
   try {
-    const manifestUrl = new URL(entry.manifest, presetIndexUrl);
+    const manifestUrl = versionedUrl(entry.manifest, presetIndexUrl);
     const response = await fetch(manifestUrl);
     if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`);
     const manifest = await response.json();
-    const assetUrl = (path) => new URL(path, manifestUrl).href;
+    const assetUrl = (path) => versionedUrl(path, manifestUrl).href;
     const finishedTexture = await loadTexture(assetUrl(manifest.texture));
     const goreTextures = await Promise.all(
       manifest.gores.map((gore) => loadTexture(assetUrl(gore.texture))),
@@ -288,7 +304,7 @@ async function loadPreset(entry) {
 
 async function initialize() {
   try {
-    presetIndexUrl = new URL("assets/presets.json", import.meta.url);
+    presetIndexUrl = versionedUrl("assets/presets.json", import.meta.url);
     const response = await fetch(presetIndexUrl);
     if (!response.ok) throw new Error(`Preset request failed: ${response.status}`);
     const index = await response.json();

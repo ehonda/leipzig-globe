@@ -3,9 +3,9 @@
   "presets": [
     {
       "id": "default",
-      "label": "300 mm - medium labels",
+      "label": "215 mm - medium labels",
       "manifest": "default/preview-manifest.json",
-      "diameter_mm": 300.0,
+      "diameter_mm": 215.0,
       "gore_count": 12,
       "label_density": "medium"
     },

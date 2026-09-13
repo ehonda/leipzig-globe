@@ -13,9 +13,9 @@
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
-- [x] 12. Add automated validation (94 local tests pass; hosted offline-fixture workflow configured)
+- [x] 12. Add automated validation (119 local tests pass; hosted offline-fixture workflow configured)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
-- [ ] 14. Add the basic interactive 3D preview (reopened: gore meshes have flat cross-gore faces; BG-008)
+- [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
 ## Notes
 
@@ -23,7 +23,7 @@
 - [PHYSICAL_TEST.md](PHYSICAL_TEST.md) provides the pending measurement and assembly record; blank fields are not completion evidence.
 - Remaining tasks are being implemented sequentially and committed as they are completed.
 - 2026-09-10 audit found that the original 29 passing tests did not establish specification compliance. The quadrilateral gores, broken PDF loader, flat previews and hard-coded labels have been replaced. Checkpoints under `demos/` preserve the before/after evidence.
-- The physical sample is `demos/02-real-globe/test-print-two-gores.pdf` for a **300 mm** globe. Confirm the actual globe size and regenerate before judging fit; do not scale the PDF in the print dialog.
+- The current physical sample is `demos/05-curved-gores/test-print-two-gores.pdf` for the confirmed **215 mm** final globe. Print at actual size; earlier samples are 300 mm.
 - Hosted validation: [CI run 34529763078](https://github.com/ehonda/leipzig-globe/actions/runs/34529763078), commit `05382e0`, completed successfully on 2026-09-10.
 - 2026-09-13: checkpoint 03 records two real clean source acquisitions and a
   validated September build. Parent and nested 215 mm legacy builds also
@@ -36,3 +36,9 @@
 - 2026-09-13: the 184.62 mm old-ball and 215 mm target presets use equator-centred
   page splits. Each two-page Gore shares the configured 10 mm overlap equally
   around the equator; unsupported larger sizes fail instead of splitting unevenly.
+- Checkpoint 05: both defaults now use the confirmed 215 mm diameter and
+  equator-centred split. Both full builds validate 50 artifacts. Browser checks
+  in installed Edge verify both modes/presets, overlays, camera/reset, mouse
+  rotation/zoom, auto-rotation, touch drag/pinch and mobile control layout.
+  The reset check found and repaired retained camera inertia (BG-009).
+  Pages now tests, rebuilds and validates both presets on every main push.

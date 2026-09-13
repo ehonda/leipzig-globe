@@ -38,8 +38,8 @@ Useful settings include `globe.diameter_mm`, `globe.ppi`,
 are recalculated from the selected configuration. The validation step rejects
 settings outside the supported physical and rendering limits.
 
-To regenerate and publish the viewer with an override, use a separate build
-directory, then replace the tracked static preview assets:
+To inspect an override locally before publishing, use a separate build
+directory and refresh the tracked preview snapshots:
 
 ```powershell
 uv run leipzig-globe build --config-path config/globe-215mm-high-density.yaml --output-dir output/globe-215mm-high-density
@@ -56,6 +56,19 @@ that workflow, so no separate Pages action is needed after the push. The live
 viewer is https://ehonda.github.io/leipzig-globe/. To offer multiple choices in
 the selector, export each completed build to the same `docs/assets` directory
 with a distinct `--preset-id`; the exporter updates `docs/assets/presets.json`.
+
+The workflow now runs checks, rebuilds **both** configured presets from the
+pinned sources with the pushed code, validates them, and publishes a fresh
+`output/pages-site/`. Only source downloads are cached; tracked `docs/assets/`
+are local inspection snapshots. To add a hosted preset, also add its configuration
+to `scripts/build_pages.py`. A failed check/build prevents publication.
+`build.json` on the live site records the deployed commit, full build-report
+links and file hashes. Asset URLs carry that commit to avoid stale cached meshes
+or textures. Refresh an already open tab after deployment; it does not hot reload.
+This follows GitHub's [custom Pages workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+To exercise the same build locally, run `uv run scripts/build_pages.py` with
+new output directories (use `--output-dir` and `--site-dir` on subsequent runs).
 
 See the tracked [visual checkpoints](demos/README.md), especially
 [the globe gallery](demos/02-real-globe/globe-views.jpg) and
@@ -98,11 +111,12 @@ It is useful for checking:
 
 ## Size and printing
 
-The default is **300 mm diameter**, 12 gores, 200 PPI. The texture is
-7422 × 3711 pixels. Each gore spans 471.24 mm pole to pole and 78.54 mm across
+The confirmed final reference is **215 mm diameter**, 12 gores, 200 PPI. The texture is
+5320 × 2660 pixels. Each gore spans 337.72 mm pole to pole and 56.29 mm across
 the equator before its 2 mm assembly overlap. That overlap tapers toward the
 poles. The default PDF has 12 portrait A4 pages: two gores per pair of pages,
-two vertical tiles, with 10 mm page overlap.
+two vertical tiles, with 10 mm page overlap centred on the equator. The high-density
+preset keeps the same 215 mm diameter at 300 PPI with high label density.
 
 Change `globe.diameter_mm` in `config/default.yaml` or supply a partial YAML
 override with `--config-path`. All physical dimensions and page tiles are
@@ -171,7 +185,8 @@ toolchain details and `TASK_TRACKER.md` for remaining work.
 The metric source raster is sized for the final World Layout in **both** axes,
 then downsampled once. Texture generation rejects undersized inputs rather
 than declaring an enlarged image to be high-resolution. At the default size,
-the source is 7423 × 7522 pixels and the texture remains 7422 × 3711.
+the texture is 5320 × 2660 pixels; the source's metric aspect ratio determines
+its larger dimensions, recorded in the Build Report.
 The source and scaled intermediate each have a 100-megapixel allocation cap;
 large diameter/PPI/layout combinations may require reducing PPI or layout scale.
 The report's `physical.map_sampling` records the actual sampling dimensions
@@ -180,7 +195,7 @@ and source-detail PPI; `validate` compares those dimensions with the files.
 Label metadata records selected source IDs and tags, including for omissions.
 Geographic place nodes take priority over same-named signs, while historic
 landmarks and actual attractions beat transport stops or information boards.
-The correct Leipzig city node is `n21687149`. In the default corrected build,
+The correct Leipzig city node is `n21687149`. In the 300 mm checkpoint 04 build,
 its label is omitted for feature collision instead of being placed at a
 same-named information sign. This is a reported cartographic omission, not a
 license to move the label to an unrelated place.

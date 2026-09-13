@@ -9,7 +9,8 @@
 - [x] BG-005: Fresh source acquisition is not pinned to reproducible releases (two real clean acquisitions verified)
 - [x] BG-006: Source-map raster is upscaled below the declared effective PPI (both-axis source sampling verified; checkpoint 04)
 - [x] BG-007: Generic tourism objects outrank the Leipzig city label (semantic selection, stable source IDs, real city node verified)
-- [ ] BG-008: Browser gore meshes are flat across each gore
+- [x] BG-008: Browser gore meshes are flat across each gore (whole-triangle error bound, UV/seam tests and inspected Edge views)
+- [x] BG-009: Camera shortcuts retain orbit inertia (repeatable browser Reset verified after auto-rotation)
 
 ## Notes
 

@@ -15,6 +15,7 @@ from .config import validate_config
 FINISHED_TEXTURE_WIDTH = 2048
 GORE_TEXTURE_HEIGHT = 1600
 GORE_VERTICAL_SEGMENTS = 120
+GORE_MAX_LONGITUDE_STEP = math.radians(3)
 PRESET_ID_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 
@@ -80,13 +81,35 @@ def _strip_mesh(
     positions: list[float] = []
     uvs: list[float] = []
     indices: list[int] = []
+    # Paper width shrinks with latitude; recover the angular span before
+    # subdividing. This also handles the narrower overlap strip and wide gores.
+    radius = config["globe"]["diameter_mm"] / 2
+    spans = []
+    for a, b in zip(left, right, strict=True):
+        taper = math.sin(math.pi * (a[1] - gore["inset_mm"]) / gore["pole_to_pole_mm"])
+        if abs(taper) > 1e-12:
+            spans.append(abs(b[0] - a[0]) / (radius * taper))
+    segments = max(1, math.ceil(max(spans, default=0) / GORE_MAX_LONGITUDE_STEP))
+    stride = segments + 1
     for left_point, right_point in zip(left, right, strict=True):
-        for point in (left_point, right_point):
+        for column in range(stride):
+            fraction = column / segments
+            point = [a + (b - a) * fraction for a, b in zip(left_point, right_point)]
             positions.extend(_spherical_point(point, gore, config))
             uvs.extend(_texture_uv(point, gore))
-    for index in range(len(left) - 1):
-        start = index * 2
-        indices.extend((start, start + 2, start + 1, start + 1, start + 2, start + 3))
+    for row in range(len(left) - 1):
+        for column in range(segments):
+            start = row * stride + column
+            indices.extend(
+                (
+                    start,
+                    start + stride,
+                    start + 1,
+                    start + 1,
+                    start + stride,
+                    start + stride + 1,
+                )
+            )
     return {"positions": positions, "uvs": uvs, "indices": indices}
 
 

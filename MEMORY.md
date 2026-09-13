@@ -257,3 +257,50 @@ gores and test triangle interiors, UVs and seams across multiple gore counts.
 This affects browser Gore Assembly, not the sinusoidal printed gores or the
 analytic static previews. The old edge-coordinate test alone did not prove
 spherical surface accuracy.
+
+### 2026-09-13 — Confirmed 215 mm reference, curved browser gores and Pages builds
+
+The user confirmed **215 mm as the final globe diameter**, not just an alternate
+preset. Both Python and YAML defaults now use 215 mm and equator-centred page
+splits; default density remains 200 PPI / medium labels. The existing high-density
+preset keeps 300 PPI / high labels. Historical 300 mm build reports and samples
+remain historical; do not scale them in the print dialog for the new sphere.
+
+BG-008 now subdivides each strip to at most 3 degrees of longitude per segment.
+All interior vertices use the existing paper-to-sphere and paper-to-UV mappings.
+Tests cover 4/12/24 gores, clockwise/counterclockwise order, 0/2/10 mm overlaps,
+both globe sizes, triangle centroids/edges, conservative whole-triangle plane
+distance, outward winding, UV inversion, neighbor seams and overlap boundaries.
+The reference export has 1,452 vertices / 2,640 triangles per gore and a radial
+error bound of 0.000389283 radius, or 0.04185 mm at 215 mm diameter.
+
+Checkpoint 05's full builds are in `output/pages-build/default` and
+`output/pages-build/globe-215mm-high-density`. Both validate 50 artifacts.
+Default: 5321 × 5392 source, 5320 × 2660 texture, 93.63 seconds to map /
+127.96 seconds total. High-density: 7979 × 8086 source, 7978 × 3989 texture,
+76.35 seconds to map / 115.62 seconds total. Both use 12 exact-size A4 pages.
+`demos/05-curved-gores/` contains the 215 mm print sample and build evidence.
+
+Pages had successfully deployed fixes `1eb3cbf` and interim equator-split commit
+`9140427`, but only uploaded tracked assets. It now runs checks and
+`scripts/build_pages.py` on each main push, regenerates and validates both presets,
+and uploads a fresh `output/pages-site/`. Cache only pinned inputs, not derived
+outputs. `build.json` identifies the deployed revision, reports and file hashes;
+revision query parameters cover JS/CSS, manifests and textures. An older rerun
+cannot publish after main advances. Refresh open tabs after deployment. The
+build script requires new output directories and preserves previous builds.
+
+In-app browser access still fails before execution with missing `sandboxPolicy`.
+Installed Edge works through `uv run --with playwright scripts/check_browser.py`.
+Windows registers `.js` as `text/plain`, so a plain Python HTTP server silently
+breaks module loading. The check script serves JavaScript as `text/javascript`
+and binds only to loopback. Inspect polar overlays from North/South; at the
+equatorial camera the safety rings are hidden behind the sphere's limb.
+
+The Edge checks pass for both presets, all five overlays, camera/reset,
+mouse drag/wheel, auto-rotation, touch drag/pinch and mobile controls.
+BG-009 was found by exact canvas comparison after Reset: OrbitControls retains
+damped rotation deltas when restoring a saved pose. Flush one update with damping
+and auto-rotation disabled before applying camera shortcuts, then restore those
+settings. This fixes the repeated-view check without weakening its assertion.
+All 119 tests, Ruff and Black pass. Physical test/fit acceptance is still pending.

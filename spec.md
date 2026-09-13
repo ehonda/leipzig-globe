@@ -131,7 +131,7 @@ Generate a print-ready PDF for a configurable physical globe diameter.
 Configuration:
 
 ```yaml
-globe_diameter_mm: 300
+globe_diameter_mm: 215
 gore_count: 12
 paper_size: A4
 overlap_mm: 2
@@ -214,7 +214,7 @@ Keep visual and physical parameters in a config file, e.g.:
 
 ```yaml
 globe:
-  diameter_mm: 300
+  diameter_mm: 215
   gore_count: 12
   overlap_mm: 2
 
@@ -238,7 +238,7 @@ The first usable version should:
 2. render a clean city map
 3. transform it into a 2:1 spherical texture
 4. generate 12 correctly shaped gores
-5. size them for a 300 mm globe
+5. size them for the confirmed 215 mm final globe
 6. produce a tiled A4 PDF
 7. include cut lines, overlap, numbering, and calibration marks
 8. generate a visual globe preview

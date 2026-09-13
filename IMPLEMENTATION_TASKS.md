@@ -1,7 +1,8 @@
 # Leipzig Globe MVP Implementation Tasks
 
 This backlog implements the confirmed Leipzig-only MVP. It assumes a default
-300 mm globe but derives all dimensions and page layouts from configuration.
+215 mm globe (confirmed final size on 2026-09-13) but derives all dimensions
+and page layouts from configuration.
 
 ## 1. Bootstrap the `uv` Python project
 
@@ -18,7 +19,7 @@ an initially empty test suite.
 
 ## 2. Define configuration and artifact contracts
 
-- Add a versioned default YAML configuration for a 300 mm, 12-gore, A4 build.
+- Add a versioned default YAML configuration for a 215 mm, 12-gore, A4 build.
 - Model globe diameter, gore count, assembly overlap, seam offset, PPI,
   non-uniform World Layout scale, pole safety zone, print margins, and tile
   overlap as validated settings.
@@ -104,6 +105,8 @@ edges, and the calculated equatorial widths match the configured circumference.
   Confirmed 2026-09-10: pole-to-pole length is half the circumference, so a
   300 mm globe needs 471.24 mm Gores and two portrait A4 Page Tiles vertically.
   Recalculate the layout for other diameters, margins, and overlaps.
+  The confirmed 215 mm reference uses 337.72 mm Gores, also two per pair of A4
+  pages, with the page overlap centred on the equator.
 - Support an optional equator split for Gores that need two pages. Centre the
   configured page overlap on the equator, keep Gores that fit on one page whole,
   and reject sizes whose half-Gores do not fit the printable page height.

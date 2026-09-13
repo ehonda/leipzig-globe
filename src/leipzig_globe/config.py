@@ -12,7 +12,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "version": 1,
     "city": "Leipzig",
     "globe": {
-        "diameter_mm": 300,
+        "diameter_mm": 215,
         "gore_count": 12,
         "assembly_overlap_mm": 2,
         "seam_offset_deg": 15,
@@ -31,7 +31,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "layout": {
         "tile_overlap_mm": 10,
-        "vertical_tile_mode": "automatic",
+        "vertical_tile_mode": "equator",
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,
         "seam_offset_deg": 15,

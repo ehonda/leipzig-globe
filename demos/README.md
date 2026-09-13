@@ -87,3 +87,19 @@ Municipal Map is 41.36 MB and the temporary export 19.99 MB in both runs.
 detail in both axes; 173.85 seconds to map / 337.94 seconds total. The preset's
 full build remains in `output/corrected-215mm`; both presets' reduced browser
 assets are published under `docs/assets/`. Older build directories are preserved.
+
+## 05 — Curved browser gores and the confirmed 215 mm reference
+
+`05-curved-gores/` records the new 215 mm / 200 PPI default with medium labels,
+equator-centred page splits and a 5320 × 2660 texture. Its full validated build
+is in `output/pages-build/default`; the regenerated 300 PPI high-density preset
+is in `output/pages-build/globe-215mm-high-density` and has its own tracked report.
+The print page and six-view gallery have been visually inspected. The exact-size
+two-page sample contains adjacent Gores 07 and 08 for the final 215 mm sphere.
+Physical printing, measurement and fit acceptance remain pending.
+
+The browser mesh now includes interior cross-gore vertices. Its maximum inward
+error is bounded by 0.04185 mm at the reference diameter, below 0.001 radius.
+`before-300mm-gores.png` preserves the earlier visibly faceted browser view;
+the new `default-gores.png` shows the repaired circular silhouette at 215 mm.
+Browser screenshots are inspection evidence, not print sources.
