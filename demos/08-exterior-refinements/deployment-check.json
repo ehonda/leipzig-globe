@@ -1,0 +1,23 @@
+{
+  "revision": "69567a2f7d4cbf5936f2608d8b36c286748d1b19",
+  "url": "https://ehonda.github.io/leipzig-globe/",
+  "verified_at_utc": "2026-09-13T23:33:44.132185+00:00",
+  "files": {
+    "index.html": "9de416d9dce87d5b8941294ab95430a8a2b6a14053902da4b6d069abdcd637f5",
+    "globe.js": "de17795b52ee05abd4320d39cbec90c3e1959377fd86f65b50987e96d258cbc5",
+    "style.css": "9cc4528724aac860c40971a59b52d84ef99f0c0ff3530d7db0222b4963dec397",
+    "assets/presets.json": "847de9287fb5c6b306e4aed0448d13a09b7896749e830a23f8d791ccb78fd552",
+    "assets/terrain/preview-manifest.json": "4825f013d6f7fe2966d589f0cc50048e25e706ed4d24b1abd342ce86fd366280",
+    "assets/terrain/texture.webp": "5ac5a790bc17f7ebb1abc59a3ac4c02674d0f74683b875c3467b62464f4d7807",
+    "assets/terrain/build-report.json": "1af945fba4ea5f68e1e0c33a5c9be808c9899fa48a78f77258e326ad6d349ecc",
+    "assets/terrain/gores/gore-01.webp": "7eebd8f579b5d2898a47d8a23fae8c0a24e1720e1162e49f4d1473f582035b2c",
+    "assets/ocean/preview-manifest.json": "bd4ac092478212fa77bc3789380a61e543e7414c25c7a7fca34eba363193df75",
+    "assets/ocean/texture.webp": "7e6eac8ebe9d21daf1923e75864dac68cd163acd17cdb9923a932977b85f8e7d",
+    "assets/ocean/build-report.json": "f3a52679f9c1b177578beb387127f710e06381ae1e3d70767a1a630ed086e7fe",
+    "assets/ocean/gores/gore-01.webp": "3fa8c2f6379508fd0c22493e51cc437d06c3c21795d6ecce8230b368e21ebfa0",
+    "assets/fog/preview-manifest.json": "8fbf81cb3898da75bccbda1e1b8d62acc18f084215f56b61931c0a48b18e5cd6",
+    "assets/fog/texture.webp": "41190a261e9b2cbee0cd02539f9738762dd60bed42300b7117baed8d49ac1ed0",
+    "assets/fog/build-report.json": "ee8904f7e8313150d13400ef948f010470c9c5913326020396e95c6bf9d02c2a",
+    "assets/fog/gores/gore-01.webp": "468963d719aa7c057fe970c01d1d77949782020ea1a8b2323586ca3c7ee45780"
+  }
+}

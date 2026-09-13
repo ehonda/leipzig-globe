@@ -29,3 +29,13 @@ Hosted Pages rebuilds from its exact committed revision, recorded separately in
 
 Physical printing and fit remain pending human work. Detail, label and landmark
 improvements remain deferred.
+
+## Published verification
+
+Runtime commit `69567a2f7d4cbf5936f2608d8b36c286748d1b19` passed
+[hosted Tests](https://github.com/ehonda/leipzig-globe/actions/runs/34789789687)
+(130 tests in 30.04 seconds, Ruff and Black) and the
+[Pages rebuild/deployment](https://github.com/ehonda/leipzig-globe/actions/runs/34789789716).
+`deployment-check.json` verifies the live revision and 16 published file hashes:
+HTML/JS/CSS, the style index, and each style's manifest, finished texture, report
+and first gore texture. Refresh an existing Pages tab to load this revision.
