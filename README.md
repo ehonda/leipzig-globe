@@ -43,10 +43,12 @@ settings outside the supported physical and rendering limits.
 The Pages selector compares **Surrounding terrain**, **Continent Leipzig**, and
 **Fog of war**, all at 215 mm / 300 PPI / high label density. Switching keeps
 the current camera and mode. Terrain uses real OSM roads, water and green space
-within the existing municipal viewport, with a plum municipal outline and a
-smooth fade at the texture wrap and poles. It is a cartographic map, not an
-elevation model. Ocean and fog are decorative backgrounds outside the official
-boundary. Leipzig's position, extent and label choices are shared by all three.
+within the existing municipal viewport, with a violet municipal border, pale halo
+and a smooth fade at the texture wrap and poles. It is a cartographic map, not an
+elevation model. Ocean uses blue shallows and a pale shore that opens at lake and
+river crossings. Fog uses soft sage-grey mist fading from warm paper tones.
+These two backgrounds are decorative. Leipzig's position, extent and label
+choices are shared by all three.
 
 To inspect an override locally before publishing, use a separate build
 directory and refresh the tracked preview snapshots:

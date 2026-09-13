@@ -203,6 +203,10 @@ geometry coverage.
   camera and preview mode when switching styles.
 - Validate city preservation, contextual feature placement, wrap/pole continuity,
   full builds and browser operation. Record a visual checkpoint.
+- Refinement requested 2026-09-14: distinguish the terrain boundary from transport
+  lines with a violet border and light halo; soften the ocean coast while opening
+  the pale shoreline at water crossings; harmonize fog with the map's paper and
+  sage palette. Rebuild and verify all three styles before publishing.
 
 **Done when:** all three styles can be compared in the deployed Pages preview,
 with validated matching print artifacts and recorded visual evidence.

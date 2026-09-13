@@ -24,6 +24,13 @@
 
 ## Notes
 
+- Checkpoint 08 refines the exterior styles with a violet border and halo,
+  water-aware ocean shore and pale sage-grey fog. All 134 tests in the local
+  working tree, Ruff, Black, full artifact/city/wrap/pole checks and Edge desktop/
+  touch interactions pass. City source artifacts match checkpoint 06 byte for
+  byte. Local builds include the separate calibration edits; see
+  `demos/08-exterior-refinements/README.md` for that provenance distinction.
+
 - Checkpoint 06 records all three 215 mm / 300 PPI exterior styles. Terrain
   validates 53 artifacts; ocean and fog validate 51 each. Shared city data,
   rasters, masks, labels, gore geometry and all city interior pixels agree;

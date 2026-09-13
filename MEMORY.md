@@ -356,3 +356,17 @@ published all three styles. `deployment-check.json` in checkpoint 06 verifies
 the exact revision, selector settings and 16 live asset hashes. The subsequent
 completion record is a documentation-only `[skip ci]` commit; live `build.json`
 intentionally identifies the tested runtime commit `60c5146`.
+
+### 2026-09-14 — Exterior palette and boundary refinement
+
+Terrain's municipal border uses violet ink with a pale outer halo; widths are
+specified in physical millimetres and only exterior pixels are painted. Preserve
+the wrap/pole fade when changing the border so it cannot produce a polar seam.
+
+Ocean uses layered blue shallows and a narrow pale land shore. Its styling mask
+detects the configured water ink in bounded row blocks before downsampling;
+this lets visible lake/river crossings open into the ocean without a pale bar.
+It is decorative styling, not a reconstruction of geography beyond the city.
+Fog uses broader sage-grey clouds and a wide warm-paper fringe. All three keep
+the municipal raster, label placement and geometry intact. Checkpoint 08 retains
+the new comparison; checkpoint 06 remains the earlier design for reference.

@@ -23,17 +23,17 @@ EXTERIORS = {
     "terrain": (
         "Surrounding terrain",
         (
-            "Real surrounding roads, water and green space. A plum outline marks Leipzig; "
+            "Real surrounding roads, water and green space. A violet border with a pale halo marks Leipzig; "
             "geography fades into muted ground at the wrap and poles."
         ),
     ),
     "ocean": (
         "Continent Leipzig",
-        "Leipzig becomes an island continent, with a pale coastal shelf and blue ocean.",
+        "Leipzig becomes an island continent, with soft shallows and a pale shoreline that opens at lakes and rivers.",
     ),
     "fog": (
         "Fog of war",
-        "Unexplored country disappears into rolling slate-coloured fog beyond Leipzig.",
+        "Unexplored country disappears into soft sage-grey mist, fading from the map's warm paper tones.",
     ),
 }
 
@@ -138,18 +138,15 @@ def spherical_background(size, kind):
             field = 0.5 + 0.22 * np.sin(3 * x + 2 * z) * np.cos(3 * y - z)
             low, high = np.array([65, 117, 147]), np.array([86, 141, 164])
         elif kind == "fog":
-            field = 0.5 + 0.20 * np.sin(8 * x + 3 * z + np.sin(5 * y)) * np.cos(
-                6 * y - 4 * z
+            field = 0.5 + 0.24 * np.sin(5 * x + 3 * z + np.sin(4 * y)) * np.cos(
+                4 * y - 3 * z
             )
             field += (
-                0.10
-                * np.sin(19 * x + 3 * np.sin(11 * y) + 7 * z)
-                * np.cos(17 * y - 9 * z + 2 * np.sin(8 * x))
+                0.08
+                * np.sin(13 * x + 2 * np.sin(7 * y) + 5 * z)
+                * np.cos(11 * y - 6 * z + 2 * np.sin(5 * x))
             )
-            field += (
-                0.025 * np.sin(43 * x + 7 * np.sin(5 * y)) * np.cos(37 * y + 11 * z)
-            )
-            low, high = np.array([68, 81, 94]), np.array([153, 165, 169])
+            low, high = np.array([191, 203, 190]), np.array([244, 240, 229])
         else:
             field = np.zeros_like(x)
             low = high = np.array([218, 222, 207])
@@ -169,6 +166,33 @@ def _placed(source, size, scaled, mode, fill):
     result = Image.new(mode, size, fill)
     result.paste(resized, ((size[0] - scaled[0]) // 2, (size[1] - scaled[1]) // 2))
     return result
+
+
+def _coastal_land_mask(city, mask, water_color):
+    """Use visible map-water ink to open the decorative shore at water crossings.
+
+    This is a styling mask, not new geography. Read at full resolution before
+    reducing so narrow water and antialiased lake edges contribute coverage.
+    Roads and labels over water remain part of the unchanged municipal raster.
+    """
+    water = Image.new("L", city.size)
+    for top in range(0, city.height, 64):
+        box = (0, top, city.width, min(top + 64, city.height))
+        pixels = np.asarray(city.crop(box)).astype(np.int16)
+        difference = np.max(np.abs(pixels - np.asarray(water_color)), axis=2)
+        coverage = np.rint(255 * (1 - _smooth((difference - 8) / 24)))
+        water.paste(Image.fromarray(coverage.astype(np.uint8)), box)
+    water = ImageChops.multiply(water, mask)
+    small_size = (
+        min(city.width, 1600),
+        max(1, round(city.height * min(city.width, 1600) / city.width)),
+    )
+    small = mask.resize(small_size, Image.Resampling.LANCZOS)
+    water = water.resize(small_size, Image.Resampling.LANCZOS)
+    # Give water openings a little breathing room so a river mouth does not
+    # acquire a pale bar from the land on either side.
+    water = water.filter(ImageFilter.MaxFilter(5))
+    return ImageChops.subtract(small, water)
 
 
 def compose_exterior(city, source_map, config):
@@ -214,19 +238,20 @@ def compose_exterior(city, source_map, config):
             np.rint(255 * wy[:, None] * wx[None, :]).astype(np.uint8)
         )
         background = Image.composite(context, background, fade)
-        # Only the outer half of the outline is painted, leaving city detail intact.
-        rim = ImageChops.subtract(mask.filter(ImageFilter.MaxFilter(5)), mask)
-        rim = ImageChops.multiply(rim, fade)
-        background.paste((114, 82, 103), mask=rim)
+        # Physical widths keep the border legible at both preview and print
+        # density. The light casing separates violet ink from roads and rails.
+        for millimetres, color in ((1.05, (250, 245, 237)), (0.65, (156, 75, 137))):
+            radius = max(1, round(millimetres * config["globe"]["ppi"] / 25.4))
+            rim = ImageChops.subtract(
+                mask.filter(ImageFilter.MaxFilter(2 * radius + 1)), mask
+            )
+            background.paste(color, mask=ImageChops.multiply(rim, fade))
     else:
         # Work at bounded resolution for a wide, soft coastal shelf / fog fringe.
         small = mask.resize(
             (min(width, 1600), max(1, round(height * min(width, 1600) / width))),
             Image.Resampling.LANCZOS,
         )
-        fringe = small.filter(ImageFilter.GaussianBlur(max(1, small.width * 0.008)))
-        fringe = fringe.resize(city.size, Image.Resampling.BILINEAR)
-        fringe = fringe.point(lambda value: min(255, value * 2))
         x = np.linspace(0, 1, width, dtype=np.float32)
         y = np.linspace(0, 1, height, dtype=np.float32)
         fade = Image.fromarray(
@@ -236,10 +261,28 @@ def compose_exterior(city, source_map, config):
                 * _smooth(np.minimum(x, 1 - x) / 0.03)[None, :]
             ).astype(np.uint8)
         )
-        fringe = ImageChops.multiply(fringe, fade)
-        background.paste(
-            (156, 194, 204) if kind == "ocean" else (191, 199, 195), mask=fringe
-        )
+
+        def wash(coverage, radius, color):
+            fringe = coverage.filter(
+                ImageFilter.GaussianBlur(max(0.6, small.width * radius))
+            )
+            fringe = fringe.point(lambda value: min(255, value * 2))
+            fringe = fringe.resize(city.size, Image.Resampling.BILINEAR)
+            background.paste(color, mask=ImageChops.multiply(fringe, fade))
+
+        if kind == "ocean":
+            # The broad shelf shares the map's water colour. A narrower pale
+            # wash follows land only, allowing cut-off lakes to meet the sea
+            # without a fabricated beach across their water.
+            water_color = tuple(config["style"]["water"])
+            land = _coastal_land_mask(city, mask, water_color)
+            wash(small, 0.016, water_color)
+            wash(land, 0.0035, (181, 209, 210))
+            wash(land, 0.0009, (230, 232, 217))
+        else:
+            # Broad, quiet paper mist softens angular administrative edges;
+            # the low-contrast spherical field remains visible farther out.
+            wash(small, 0.026, tuple(config["style"]["land"]))
     result = Image.composite(city, background, mask)
     # Label candidates can sit just outside the municipal polygon. Preserve their
     # actual ink (not rectangular paper boxes), using the original label metadata.

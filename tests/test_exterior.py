@@ -103,6 +103,63 @@ def test_fog_is_deterministic_and_nonuniform():
     assert a[40:-40, :, 0].std() > 5
 
 
+@pytest.mark.parametrize("water", [[132, 178, 198], [110, 160, 180]])
+def test_ocean_shore_opens_at_boundary_water_and_preserves_inland_lake(tmp_path, water):
+    frame = gpd.GeoDataFrame(
+        {"kind": ["district", "water", "water"]},
+        geometry=[
+            Polygon(
+                [
+                    (0, 0),
+                    (100, 0),
+                    (100, 20),
+                    (70, 20),
+                    (70, 80),
+                    (100, 80),
+                    (100, 100),
+                    (0, 100),
+                ]
+            ),
+            box(50, 40, 70, 60),
+            box(30, 30, 45, 45),
+        ],
+        crs=32633,
+    )
+    config = validate_config(
+        {
+            "globe": {"ppi": 60, "seam_offset_deg": 0},
+            "style": {"water": water},
+            "layout": {"exterior": "ocean", "curated_landmarks": []},
+        }
+    )
+    source = tmp_path / "map.png"
+    render_clean_map(config, source, frame)
+    output = generate_globe_texture(config, tmp_path / "ocean.png", source_map=source)
+    metadata = json.loads(source.with_suffix(".json").read_text())
+    cx, cy = metadata["center_metric"]
+    sx, sy = metadata["span_metric"]
+    with Image.open(output) as image:
+
+        def at(x, y):
+            return np.array(
+                image.getpixel(
+                    (
+                        round((x - cx) / sx * image.width + image.width / 2),
+                        round(image.height / 2 - (y - cy) / sy * image.height),
+                    )
+                )
+            )
+
+        np.testing.assert_array_equal(at(37, 37), water)
+        np.testing.assert_array_equal(at(60, 50), water)
+        # Immediately beyond the boundary, lake water must meet blue shallows,
+        # while land receives the pale shore. No beach across the lake mouth.
+        mouth = at(70.1, 50)
+        shore = at(70.1, 30)
+        assert np.linalg.norm(mouth - water) < 25
+        assert shore.mean() > mouth.mean() + 20
+
+
 def test_reject_unknown_exterior():
     with pytest.raises(ValueError, match="layout.exterior"):
         validate_config({"layout": {"exterior": "dragons-typo"}})

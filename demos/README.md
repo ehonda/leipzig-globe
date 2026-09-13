@@ -122,3 +122,11 @@ from the pinned September PBF. The Municipal Map remains clipped to Leipzig.
 This experiment changes the exterior artwork only. More detail, label tuning and
 landmark expansion are deferred in Tasks 16–18. The physical test remains pending;
 checkpoint 05 remains the existing 215 mm test-print sample.
+
+## 08 — Refined exterior styles
+
+`08-exterior-refinements/` records the violet municipal border and pale halo,
+layered ocean shallows with water-aware shore openings, and soft sage-grey fog.
+It includes the four-view comparison, compact textures, full build reports and
+browser evidence. The city raster, labels and geometry remain unchanged from
+checkpoint 06. See its README for the local build's parallel calibration context.
