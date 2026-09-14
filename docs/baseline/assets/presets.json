@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "presets": [
+    {
+      "id": "terrain",
+      "label": "Surrounding terrain",
+      "description": "Real surrounding roads, water and green space. A violet border with a pale halo marks Leipzig; geography fades into muted ground at the wrap and poles.",
+      "exterior": "terrain",
+      "manifest": "terrain/preview-manifest.json",
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "label_density": "high",
+      "ppi": 300.0
+    },
+    {
+      "id": "ocean",
+      "label": "Continent Leipzig",
+      "description": "Leipzig becomes an island continent, with soft shallows and a pale shoreline that opens at lakes and rivers.",
+      "exterior": "ocean",
+      "manifest": "ocean/preview-manifest.json",
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "label_density": "high",
+      "ppi": 300.0
+    },
+    {
+      "id": "fog",
+      "label": "Fog of war",
+      "description": "Unexplored country disappears into soft sage-grey mist, fading from the map's warm paper tones.",
+      "exterior": "fog",
+      "manifest": "fog/preview-manifest.json",
+      "diameter_mm": 215.0,
+      "gore_count": 12,
+      "label_density": "high",
+      "ppi": 300.0
+    }
+  ]
+}

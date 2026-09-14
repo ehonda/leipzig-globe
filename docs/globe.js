@@ -4,6 +4,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 const canvas = document.querySelector("#globe-canvas");
 const status = document.querySelector("#status");
 const presetSelect = document.querySelector("#preset");
+const versionSelect = document.querySelector("#version");
+const versions = new Map();
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -212,6 +214,7 @@ function setView(view) {
 }
 
 function connectControls() {
+  versionSelect.addEventListener("change", () => loadVersion());
   presetSelect.addEventListener("change", () => {
     loadPreset(presets.get(presetSelect.value));
   });
@@ -244,6 +247,8 @@ function connectControls() {
 async function loadPreset(entry) {
   if (!entry) return;
   const request = ++loadSequence;
+  const selectedVersion = versionSelect.value;
+  const textures = [];
   setStatus(`Loading ${entry.label}...`);
   try {
     const manifestUrl = versionedUrl(entry.manifest, presetIndexUrl);
@@ -251,10 +256,16 @@ async function loadPreset(entry) {
     if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`);
     const manifest = await response.json();
     const assetUrl = (path) => versionedUrl(path, manifestUrl).href;
-    const finishedTexture = await loadTexture(assetUrl(manifest.texture));
-    const goreTextures = await Promise.all(
-      manifest.gores.map((gore) => loadTexture(assetUrl(gore.texture))),
+    const results = await Promise.allSettled(
+      [manifest.texture, ...manifest.gores.map((gore) => gore.texture)].map(async (path) => {
+        const texture = await loadTexture(assetUrl(path));
+        textures.push(texture);
+        return texture;
+      }),
     );
+    const failure = results.find((result) => result.status === "rejected");
+    if (failure) throw failure.reason;
+    const [finishedTexture, ...goreTextures] = results.map((result) => result.value);
     if (request !== loadSequence) {
       finishedTexture.dispose();
       for (const texture of goreTextures) texture.dispose();
@@ -296,23 +307,43 @@ async function loadPreset(entry) {
     setMode(activeMode);
     document.querySelector("#variant-description").textContent = entry.description || "";
     canvas.dataset.variant = entry.id;
+    canvas.dataset.version = selectedVersion;
+    const version = versions.get(selectedVersion);
+    const description = document.querySelector("#version-description");
+    description.replaceChildren(document.createTextNode(`${version.description} `));
+    if (/^[a-f0-9]{40}$/.test(version.revision)) {
+      const link = document.createElement("a");
+      link.href = `https://github.com/ehonda/leipzig-globe/commit/${version.revision}`;
+      link.textContent = version.revision.slice(0, 7);
+      description.append(link);
+    }
     setStatus("");
   } catch (error) {
+    for (const texture of textures) texture.dispose();
     if (request !== loadSequence) return;
     console.error(error);
-    setStatus("Preview assets are unavailable.");
+    setStatus("Selected preview unavailable. The previous view is still shown; choose a version to retry.");
   }
 }
 
-async function initialize() {
+async function loadVersion() {
+  const request = ++loadSequence;
+  const selectedVersion = versionSelect.value;
+  const previousPreset = presetSelect.value;
+  setStatus("Loading version...");
+  presetSelect.disabled = true;
   try {
-    presetIndexUrl = versionedUrl("assets/presets.json", import.meta.url);
-    const response = await fetch(presetIndexUrl);
+    const indexUrl = versionedUrl(versions.get(selectedVersion).index, import.meta.url);
+    const response = await fetch(indexUrl);
     if (!response.ok) throw new Error(`Preset request failed: ${response.status}`);
     const index = await response.json();
+    if (request !== loadSequence) return;
     if (!Array.isArray(index.presets) || index.presets.length === 0) {
       throw new Error("The preview has no exported presets.");
     }
+    presets.clear();
+    presetSelect.replaceChildren();
+    presetIndexUrl = indexUrl;
     for (const entry of index.presets) {
       if (!entry.id || !entry.label || !entry.manifest) continue;
       presets.set(entry.id, entry);
@@ -321,10 +352,29 @@ async function initialize() {
     if (presets.size === 0) throw new Error("The preview has no valid presets.");
     presetSelect.replaceChildren(...[...presetSelect.options].filter((option) => option.value));
     presetSelect.disabled = false;
+    if (presets.has(previousPreset)) presetSelect.value = previousPreset;
     await loadPreset(presets.get(presetSelect.value));
   } catch (error) {
+    if (request !== loadSequence) return;
     console.error(error);
     setStatus("Preview presets are unavailable.");
+  }
+}
+
+async function initialize() {
+  try {
+    const response = await fetch(versionedUrl("versions.json", import.meta.url));
+    if (!response.ok) throw new Error(`Version request failed: ${response.status}`);
+    const index = await response.json();
+    for (const entry of index.versions) {
+      versions.set(entry.id, entry);
+      versionSelect.add(new Option(entry.label, entry.id));
+    }
+    versionSelect.disabled = false;
+    await loadVersion();
+  } catch (error) {
+    console.error(error);
+    setStatus("Preview versions are unavailable. Reload to retry.");
   }
 }
 

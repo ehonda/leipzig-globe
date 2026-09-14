@@ -83,7 +83,16 @@ def render_context_map(context, source_map, config):
 
     geometries = shapely.transform(frame.geometry.array, project)
     layers = {
-        kind: [] for kind in ("park", "water", "rail", "secondary_road", "major_road")
+        kind: []
+        for kind in (
+            "park",
+            "sport",
+            "water",
+            "path",
+            "rail",
+            "secondary_road",
+            "major_road",
+        )
     }
     for row, geometry in zip(frame.to_dict("records"), geometries, strict=True):
         kind = feature_kind(row)
@@ -97,7 +106,13 @@ def render_context_map(context, source_map, config):
         * height
         / metadata["sampling"]["texture_pixels"][1]
     )
-    strokes = {"water": 0.16, "rail": 0.12, "secondary_road": 0.13, "major_road": 0.32}
+    strokes = {
+        "water": 0.16,
+        "path": 0.09,
+        "rail": 0.12,
+        "secondary_road": 0.13,
+        "major_road": 0.32,
+    }
     for kind, items in layers.items():
         if kind == "rail" and not config["layout"]["show_railways"]:
             continue

@@ -6,3 +6,5 @@
 *.webp binary
 # Preserve the exact bytes and checksum of the official boundary snapshot.
 data/sources/*.geojson -text
+# The comparison snapshot is immutable and verified by byte hashes on all OSes.
+docs/baseline/** -text

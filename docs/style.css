@@ -52,6 +52,7 @@ select:disabled {
 }
 
 button:focus-visible,
+select:focus-visible,
 input:focus-visible {
   outline: 3px solid #d6a542;
   outline-offset: 2px;
@@ -167,6 +168,9 @@ select { max-width: 100%; }
   background: #123c40;
   color: #ffffff;
 }
+
+.version-group { grid-column: 1 / -1; }
+.version-group select { min-width: 0; }
 
 .toggles {
   grid-column: 1 / -1;

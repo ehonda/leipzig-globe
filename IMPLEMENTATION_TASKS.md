@@ -211,23 +211,27 @@ geometry coverage.
 **Done when:** all three styles can be compared in the deployed Pages preview,
 with validated matching print artifacts and recorded visual evidence.
 
-## 16. Increase map detail (deferred)
+## 16. Increase map detail
 
 - Review additional feature classes and visual detail at the 215 mm print scale.
 - Compare readability, density and build cost before selecting changes.
 
 **Done when:** agreed detail improvements have visual and print-scale validation.
-Do not implement during the exterior-style experiment.
+Authorized 2026-09-14: subdued walking/cycling paths, tracks/steps and sports
+grounds; retain the 215 mm reference and bounded extraction. Record paired
+print-scale crops and build cost against the last exterior refinement.
 
-## 17. Tune label selection and placement (deferred)
+## 17. Tune label selection and placement
 
 - Review visible and omitted labels, priorities, collisions and seam/pole safety.
 - Agree which labels matter before adjusting selection or placement rules.
 
 **Done when:** the agreed label set is rendered or omissions are explained with
-source identity and placement evidence. Do not implement during Task 15.
+source identity and placement evidence. Authorized 2026-09-14: retain the
+configured place/landmark set, compensate text for unequal world-layout axes,
+try wrapped labels and nearby placements, and preserve seam/pole/collision safety.
 
-## 18. Review and expand landmarks (deferred)
+## 18. Review and expand landmarks
 
 - Investigate why the configured Völkerschlachtdenkmal is absent from the preview;
   use the build's omission report to distinguish missing data from unsafe placement.
@@ -235,4 +239,7 @@ source identity and placement evidence. Do not implement during Task 15.
 - Agree candidates and validate feature identity, symbol/label rendering and fit.
 
 **Done when:** agreed landmarks are visible and verified against their real
-locations. Do not implement during Task 15.
+locations. Authorized 2026-09-14: add Red Bull Arena, Nikolaikirche and Neues
+Rathaus alongside the existing landmarks, with source-anchored symbols and
+auditable placement/omission evidence. Compare before/current in Pages using
+one frozen recent baseline with bounded assets and no historical rebuilds.

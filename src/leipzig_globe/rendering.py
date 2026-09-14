@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,7 @@ def _label_identity(row):
             "building",
             "highway",
             "railway",
+            "leisure",
         )
         if isinstance(row.get(key), str) and row[key]
     }
@@ -69,6 +71,7 @@ def _label_identity(row):
         or tags.get("tourism")
         in {"attraction", "museum", "artwork", "gallery", "viewpoint"}
         or tags.get("amenity") in {"place_of_worship", "theatre", "concert_hall"}
+        or tags.get("leisure") == "stadium"
     ):
         rank = 1
     elif tags.get("kind") == "district":
@@ -113,6 +116,10 @@ def feature_kind(row: dict) -> str:
         return "park"
     if row.get("railway") in {"rail", "tram", "light_rail", "narrow_gauge"}:
         return "rail"
+    if row.get("leisure") in {"pitch", "stadium", "sports_centre"}:
+        return "sport"
+    if row.get("highway") in {"footway", "cycleway", "path", "track", "steps"}:
+        return "path"
     if row.get("highway") in {
         "motorway",
         "motorway_link",
@@ -221,7 +228,9 @@ def render_clean_map(config, output_path, municipal_map=None):
         "land": [],
         "district": [],
         "park": [],
+        "sport": [],
         "water": [],
+        "path": [],
         "rail": [],
         "secondary_road": [],
         "major_road": [],
@@ -229,7 +238,13 @@ def render_clean_map(config, output_path, municipal_map=None):
     }
     for row, geom in zip(records, projected, strict=True):
         layers.setdefault(feature_kind(row), []).append((row, geom))
-    strokes = {"water": 0.16, "rail": 0.12, "secondary_road": 0.13, "major_road": 0.32}
+    strokes = {
+        "water": 0.16,
+        "rail": 0.12,
+        "path": 0.09,
+        "secondary_road": 0.13,
+        "major_road": 0.32,
+    }
     collision_features = []
     for kind, features in layers.items():
         if (
@@ -263,11 +278,19 @@ def render_clean_map(config, output_path, municipal_map=None):
             entity_rank, identity, tie_break = _label_identity(row)
             priority = (
                 0 if is_curated else 1 if row.get("kind") == "district" else 2,
+                curated.index(name) if is_curated else 0,
                 entity_rank,
                 name,
                 tie_break,
             )
             point = geom.representative_point()
+            identity["anchor_metric"] = [
+                (point.x - width / 2) * span_x / width + center[0],
+                center[1] - (point.y - height / 2) * span_y / height,
+            ]
+            identity["is_landmark"] = (
+                is_curated and entity_rank in {1, 3} and not district
+            )
             candidate = (priority, point.x, point.y, identity)
             if name not in candidates or priority < candidates[name][0]:
                 candidates[name] = candidate
@@ -278,11 +301,26 @@ def render_clean_map(config, output_path, municipal_map=None):
     ]
     density = {"low": 20, "medium": 45, "high": 80}[cfg["layout"]["label_density"]]
     font_path = Path(matplotlib.get_data_path()) / "fonts/ttf/DejaVuSans.ttf"
-    font = ImageFont.truetype(
-        str(font_path), round(max(8, 2.5 * texture_px_mm) * sampling_scale)
-    )
     draw = ImageDraw.Draw(image)
+    symbols = []
+    for name, (_, x, y, identity) in sorted(candidates.items()):
+        if not identity["is_landmark"]:
+            continue
+        rx = 0.45 * texture_px_mm * width / scaled_width
+        ry = 0.45 * texture_px_mm * height / scaled_height
+        symbol_bounds = [x - rx, y - ry, x + rx, y + ry]
+        draw.ellipse(
+            symbol_bounds,
+            fill=palette["landmark"],
+            outline=palette["background"],
+            width=max(1, round(0.1 * px_mm)),
+        )
+        symbols.append(
+            {"label": name, "bbox": symbol_bounds, "anchor_px": [x, y], **identity}
+        )
+    symbol_tree = shapely.STRtree([shapely.box(*item["bbox"]) for item in symbols])
     visible = []
+    leaders = []
     seam_shift = round(cfg["globe"]["seam_offset_deg"] / 360 * texture_width)
     seam_step = texture_width / cfg["globe"]["gore_count"]
     seam_margin = cfg["layout"]["gore_seam_margin_mm"] * texture_px_mm
@@ -294,19 +332,79 @@ def render_clean_map(config, output_path, municipal_map=None):
             omitted.append({"label": name, "reason": "label_density", **identity})
             continue
         reason = "feature_collision"
+        rejections = Counter()
+        texts = [name]
+        compound_breaks = {
+            "Völkerschlachtdenkmal": "Völkerschlacht-\ndenkmal",
+            "Thomaskirche": "Thomas-\nkirche",
+            "Nikolaikirche": "Nikolai-\nkirche",
+            "Gewandhaus": "Gewand-\nhaus",
+        }
+        if name in compound_breaks:
+            texts.append(compound_breaks[name])
+        elif " " in name:
+            words = name.split()
+            split = min(
+                range(1, len(words)),
+                key=lambda i: abs(len(" ".join(words[:i])) - len(" ".join(words[i:]))),
+            )
+            texts.append(" ".join(words[:split]) + "\n" + " ".join(words[split:]))
+        # Cancel the world's unequal axis scaling for text only. Geography keeps
+        # its established placement; printed glyphs retain their natural aspect.
+        sprites = []
+        for font_mm, text in ((size, text) for size in (2.5, 2.0) for text in texts):
+            font = ImageFont.truetype(
+                str(font_path), round(max(8, font_mm * texture_px_mm) * sampling_scale)
+            )
+            ink_box = draw.multiline_textbbox(
+                (0, 0),
+                text,
+                font=font,
+                stroke_width=max(1, round(0.25 * px_mm)),
+                spacing=round(0.4 * px_mm),
+                align="center",
+            )
+            sprite = Image.new(
+                "RGBA",
+                (
+                    math.ceil(ink_box[2] - ink_box[0]) + 2,
+                    math.ceil(ink_box[3] - ink_box[1]) + 2,
+                ),
+            )
+            ImageDraw.Draw(sprite).multiline_text(
+                (1 - ink_box[0], 1 - ink_box[1]),
+                text,
+                font=font,
+                fill=palette["label"],
+                stroke_width=max(1, round(0.25 * px_mm)),
+                stroke_fill=palette["background"],
+                spacing=round(0.4 * px_mm),
+                align="center",
+            )
+            aspect = (width / scaled_width) / (height / scaled_height)
+            sprite = sprite.crop(sprite.getbbox())
+            sprite = sprite.resize(
+                (max(1, round(sprite.width * aspect)), sprite.height),
+                Image.Resampling.LANCZOS,
+            )
+            sprites.append((text, sprite, font_mm))
+        increments = (
+            [step / 2 for step in range(-16, 17)] if name in curated else range(-8, 9)
+        )
         offsets = sorted(
-            ((dx, dy) for dx in range(-8, 9, 2) for dy in range(-8, 9, 2)),
+            ((dx, dy) for dx in increments for dy in increments),
             key=lambda p: (p[0] ** 2 + p[1] ** 2, p),
         )
-        for dx, dy in offsets:
+        for text, sprite, font_mm, dx, dy in (
+            (text, sprite, font_mm, dx, dy)
+            for text, sprite, font_mm in sprites
+            for dx, dy in offsets
+        ):
             pos = (x + dx * px_mm, y + dy * px_mm)
-            bbox = draw.textbbox(
-                pos,
-                name,
-                font=font,
-                anchor="mm",
-                stroke_width=max(1, round(0.25 * px_mm)),
+            left, top = round(pos[0] - sprite.width / 2), round(
+                pos[1] - sprite.height / 2
             )
+            bbox = (left, top, left + sprite.width, top + sprite.height)
             # Safety is evaluated in the final, scaled world placement.
             tx0, tx1 = (
                 bbox[i] / width * scaled_width + placement_x + seam_shift
@@ -315,37 +413,60 @@ def render_clean_map(config, output_path, municipal_map=None):
             ty0, ty1 = (bbox[i] / height * scaled_height + placement_y for i in (1, 3))
             if ty0 < pole_margin or ty1 > texture_height - pole_margin:
                 reason = "pole_safety_zone"
+                rejections[reason] += 1
                 continue
             if tx0 - seam_shift < 0 or tx1 - seam_shift > texture_width:
                 reason = "world_layout_crop"
+                rejections[reason] += 1
                 continue
             if math.floor((tx0 - seam_margin) / seam_step) != math.floor(
                 (tx1 + seam_margin) / seam_step
             ):
                 reason = "gore_seam"
+                rejections[reason] += 1
                 continue
             box = shapely.box(*bbox)
             if bbox[0] < 0 or bbox[2] > width or bbox[1] < 0 or bbox[3] > height:
                 reason = "map_edge"
+                rejections[reason] += 1
                 continue
             if any(box.intersects(shapely.box(*prior["bbox"])) for prior in visible):
                 reason = "label_collision"
+                rejections[reason] += 1
+                continue
+            if len(symbol_tree.query(box, predicate="intersects")) or any(
+                box.intersects(line) for line in leaders
+            ):
+                reason = "symbol_collision"
+                rejections[reason] += 1
                 continue
             if len(tree.query(box, predicate="intersects")):
                 reason = "feature_collision"
+                rejections[reason] += 1
                 continue
-            draw.text(
-                pos,
-                name,
-                font=font,
-                fill=palette["label"],
-                anchor="mm",
-                stroke_width=max(1, round(0.25 * px_mm)),
-                stroke_fill=palette["background"],
-            )
+            leader = None
+            if identity["is_landmark"]:
+                end = [min(max(x, bbox[0]), bbox[2]), min(max(y, bbox[1]), bbox[3])]
+                leader = shapely.LineString([(x, y), end])
+                if any(
+                    leader.intersects(shapely.box(*prior["bbox"])) for prior in visible
+                ):
+                    reason = "leader_collision"
+                    rejections[reason] += 1
+                    continue
+                draw.line(
+                    [(x, y), tuple(end)],
+                    fill=palette["landmark"],
+                    width=max(1, round(0.1 * px_mm)),
+                )
+                leaders.append(leader)
+            image.paste(sprite, (left, top), sprite)
             visible.append(
                 {
                     "label": name,
+                    "text": text,
+                    "font_mm": font_mm,
+                    "leader_px": list(leader.coords) if leader is not None else None,
                     "bbox": list(bbox),
                     "anchor_px": [x, y],
                     "position_px": list(pos),
@@ -356,7 +477,13 @@ def render_clean_map(config, output_path, municipal_map=None):
             break
         else:
             omitted.append(
-                {"label": name, "reason": reason, "anchor_px": [x, y], **identity}
+                {
+                    "label": name,
+                    "reason": max(rejections, key=rejections.get),
+                    "rejected_positions": dict(rejections),
+                    "anchor_px": [x, y],
+                    **identity,
+                }
             )
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -403,6 +530,7 @@ def render_clean_map(config, output_path, municipal_map=None):
             "source_pixel_budget": MAX_SOURCE_PIXELS,
         },
         "rendered_labels": visible,
+        "landmark_symbols": symbols,
         "omitted_labels": omitted,
     }
     path.with_suffix(".json").write_text(

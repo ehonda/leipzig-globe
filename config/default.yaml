@@ -29,14 +29,17 @@ layout:
   label_density: medium
   exterior: blank
   curated_landmarks:
+    - Völkerschlachtdenkmal
+    - Red Bull Arena
+    - Thomaskirche
+    - Gewandhaus
+    - Nikolaikirche
+    - Neues Rathaus
     - Leipzig
     - Mitte
     - Connewitz
     - Schönefeld
     - Plagwitz
-    - Völkerschlachtdenkmal
-    - Thomaskirche
-    - Gewandhaus
   source_cache_dir: .cache/sources-2026-09-01
   show_railways: true
   gore_centerlines: false

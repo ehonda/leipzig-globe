@@ -1,0 +1,6 @@
+{
+  "versions": [
+    {"id": "current", "label": "Current · more detail & labels", "index": "assets/presets.json", "revision": "working-tree", "description": "Paths, sports grounds, natural-width labels and additional landmarks."},
+    {"id": "before", "label": "Before · 69567a2", "index": "baseline/assets/presets.json", "revision": "69567a2f7d4cbf5936f2608d8b36c286748d1b19", "description": "14 September baseline, before the detail and label improvements."}
+  ]
+}

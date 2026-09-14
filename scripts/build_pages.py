@@ -17,6 +17,22 @@ from leipzig_globe.pipeline import build_artifacts, validate_output_directory
 from leipzig_globe.web_preview import export_web_preview
 
 
+def copy_baseline(source, destination):
+    snapshot = json.loads((source / "snapshot.json").read_text(encoding="utf-8"))
+    files = {
+        path.relative_to(source).as_posix(): path
+        for path in (source / "assets").rglob("*")
+        if path.is_file()
+    }
+    if sum(path.stat().st_size for path in files.values()) > 16_000_000:
+        raise ValueError("The fixed comparison baseline exceeds its 16 MB budget.")
+    if {name: compute_sha256(path) for name, path in files.items()} != snapshot[
+        "sha256"
+    ]:
+        raise ValueError("Frozen baseline files differ from their recorded hashes.")
+    shutil.copytree(source, destination)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("output/pages-build"))
@@ -40,6 +56,13 @@ def main():
     for name in ("style.css", "globe.js"):
         html = html.replace(f'"{name}"', f'"{name}?v={args.revision}"')
     index.write_text(html, encoding="utf-8")
+    # One immutable, reduced preview snapshot. Never rebuild historical commits.
+    copy_baseline(Path("docs/baseline"), args.site_dir / "baseline")
+    versions = json.loads(Path("docs/versions.json").read_text(encoding="utf-8"))
+    versions["versions"][0]["revision"] = args.revision
+    (args.site_dir / "versions.json").write_text(
+        json.dumps(versions, indent=2), encoding="utf-8"
+    )
 
     source_cache = Path(load_config()["layout"]["source_cache_dir"])
     fetch_data_sources(source_cache, load_source_lock())

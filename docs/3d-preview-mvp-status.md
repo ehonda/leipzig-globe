@@ -11,6 +11,8 @@ high label density**. Historical preset checkpoints below describe earlier state
 - Exterior selector populated from Python-exported configurations: surrounding terrain,
   Continent Leipzig, and fog of war, all using the 215 mm / 300 PPI / high-label-density reference.
 - Switching exterior styles keeps the current camera, preview mode and overlays.
+- Before/current version selection preserves the same state. Before is frozen
+  at `69567a2`; only current artwork is rebuilt. See [comparison design](preview-improvements.md).
 - Drag rotation, wheel/pinch zoom, auto-rotation, and responsive control layout.
 - Deterministic Front, Back, North, South, and Reset camera controls.
 - Independent nominal-seam, physical-cut-edge, overlap, equator, and pole safety-zone overlays.
@@ -18,9 +20,6 @@ high label density**. Historical preset checkpoints below describe earlier state
 - Automated export contract coverage, including the first gore's equatorial seam coordinates.
 
 ## Intentionally Deferred
-
-- More map detail, label tuning and landmark expansion (Tasks 16–18). The
-  Völkerschlachtdenkmal omission and football stadium candidate are tracked there.
 
 - Exploded gore view and adjustable explosion distance.
 - Gore picking, highlighting, and metadata display.

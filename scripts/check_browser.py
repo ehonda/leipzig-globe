@@ -144,6 +144,56 @@ def main():
                 "aria-pressed", "true"
             )
             page.screenshot(path=str(args.output / "fog-back.png"))
+            # Versions must switch artwork without moving a settled custom pose.
+            for preset in ("terrain", "ocean", "fog"):
+                page.get_by_label("Outside Leipzig", exact=True).select_option(preset)
+                expect(page.locator("#status")).to_be_hidden(timeout=60000)
+                page.get_by_role("button", name="Front", exact=True).click()
+                for mode in ("Finished globe", "Gore assembly"):
+                    page.get_by_role("button", name=mode, exact=True).click()
+                    page.get_by_label("Equator", exact=True).check()
+                    current = frame()
+                    page.get_by_label("Version", exact=True).select_option("before")
+                    expect(canvas).to_have_attribute(
+                        "data-version", "before", timeout=60000
+                    )
+                    expect(page.locator("#status")).to_be_hidden()
+                    assert frame() != current, "Before/current artwork did not change"
+                    expect(
+                        page.get_by_label("Outside Leipzig", exact=True)
+                    ).to_have_value(preset)
+                    expect(
+                        page.get_by_role("button", name=mode, exact=True)
+                    ).to_have_attribute("aria-pressed", "true")
+                    expect(page.get_by_label("Equator", exact=True)).to_be_checked()
+                    if mode == "Finished globe":
+                        page.screenshot(path=str(args.output / f"{preset}-before.png"))
+                    for version in ("current", "before", "current"):
+                        page.get_by_label("Version", exact=True).select_option(version)
+                    expect(canvas).to_have_attribute(
+                        "data-version", "current", timeout=60000
+                    )
+                    expect(page.locator("#status")).to_be_hidden()
+                    assert (
+                        frame() == current
+                    ), "Version switching moved the camera or lost overlays"
+                    page.get_by_label("Equator", exact=True).uncheck()
+            # A failed historical fetch must leave the visible version truthful,
+            # retain the old canvas and allow a successful retry.
+            unchanged = frame()
+            page.route(
+                "**/baseline/assets/presets.json*",
+                lambda route: route.fulfill(status=503, body="unavailable"),
+            )
+            page.get_by_label("Version", exact=True).select_option("before")
+            expect(page.locator("#status")).to_have_text(
+                "Preview presets are unavailable."
+            )
+            expect(canvas).to_have_attribute("data-version", "current")
+            assert frame() == unchanged
+            page.unroute("**/baseline/assets/presets.json*")
+            page.get_by_label("Version", exact=True).select_option("current")
+            expect(page.locator("#status")).to_be_hidden(timeout=60000)
             page.close()
             page = browser.new_page(
                 viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True
@@ -197,6 +247,9 @@ def main():
             frame()
             page.screenshot(path=str(args.output / "mobile.png"), full_page=True)
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            page.get_by_label("Version", exact=True).select_option("before")
+            expect(canvas).to_have_attribute("data-version", "before", timeout=60000)
+            assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             browser.close()
         assert not errors, errors
         (args.output / "browser-check.json").write_text(
@@ -207,6 +260,9 @@ def main():
                     "checks": [
                         "three distinct exterior variants",
                         "rapid switching preserves camera and mode",
+                        "before/current changes all styles in both modes and preserves camera and overlays",
+                        "failed baseline request preserves current preview and can be retried",
+                        "mobile version selection",
                         "both modes",
                         "five overlays",
                         "four camera views",
