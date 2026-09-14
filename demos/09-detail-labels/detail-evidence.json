@@ -1,0 +1,1383 @@
+{
+  "baseline_revision": "69567a2f7d4cbf5936f2608d8b36c286748d1b19",
+  "before": {
+    "build": "output\\exterior-refined-build\\terrain",
+    "texture_sha256": "82f195e8f4eba1bdf6c33967096f738299607c2d8a6bfd63af905d9babf4c395",
+    "visible_labels": 25,
+    "performance": {
+      "extract": {
+        "seconds": 28.600045599974692,
+        "bytes": 18511178,
+        "objects": {
+          "changesets": 0,
+          "nodes": 1361684,
+          "ways": 287802,
+          "relations": 5741
+        },
+        "tags": [
+          "109019\t\"building\"",
+          "92078\t\"highway\"",
+          "63184\t\"natural\"",
+          "34052\t\"amenity\"",
+          "15669\t\"railway\"",
+          "13977\t\"landuse\"",
+          "10372\t\"leisure\"",
+          "2062\t\"historic\"",
+          "1937\t\"waterway\"",
+          "1248\t\"tourism\"",
+          "1085\t\"area\"",
+          "248\t\"place\""
+        ]
+      },
+      "filter": {
+        "seconds": 3.3306908999802545,
+        "bytes": 4959819,
+        "objects": {
+          "changesets": 0,
+          "nodes": 389893,
+          "ways": 65067,
+          "relations": 964
+        },
+        "tags": [
+          "37210\t\"highway\"",
+          "10138\t\"landuse\"",
+          "6107\t\"leisure\"",
+          "4288\t\"railway\"",
+          "2151\t\"natural\"",
+          "1570\t\"waterway\"",
+          "109\t\"area\"",
+          "95\t\"place\"",
+          "21\t\"historic\"",
+          "15\t\"amenity\"",
+          "14\t\"tourism\"",
+          "4\t\"building\""
+        ]
+      },
+      "export": {
+        "seconds": 6.560137299995404,
+        "bytes": 19985607,
+        "feature_count": 61086,
+        "tag_counts": {
+          "place": 95,
+          "railway": 4288,
+          "tourism": 13,
+          "highway": 37210,
+          "amenity": 15,
+          "waterway": 1570,
+          "historic": 21,
+          "natural": 2151,
+          "landuse": 10138,
+          "leisure": 6106,
+          "area": 109,
+          "building": 3
+        }
+      },
+      "derive_seconds": 58.46944339998299,
+      "seconds_to_map": 181.6532264999696,
+      "municipal_feature_count": 60934,
+      "municipal_bytes": 41358263,
+      "municipal_tag_counts": {
+        "highway": {
+          "bus_stop": 5,
+          "trunk": 166,
+          "motorway_link": 157,
+          "residential": 8883,
+          "secondary": 3752,
+          "primary": 1776,
+          "tertiary": 1874,
+          "unclassified": 787,
+          "trunk_link": 113,
+          "motorway": 195,
+          "primary_link": 55,
+          "service": 18560,
+          "pedestrian": 255,
+          "living_street": 391,
+          "secondary_link": 66,
+          "tertiary_link": 36,
+          "platform": 4
+        },
+        "waterway": {
+          "river": 132,
+          "canal": 97,
+          "stream": 621,
+          "ditch": 712
+        },
+        "railway": {
+          "tram_stop": 4,
+          "tram": 1633,
+          "abandoned": 153,
+          "razed": 14,
+          "narrow_gauge": 72,
+          "rail": 2397,
+          "disused": 7,
+          "platform": 4,
+          "construction": 3
+        },
+        "leisure": {
+          "park": 595,
+          "garden": 5493,
+          "water_park": 1,
+          "pitch": 2,
+          "playground": 4,
+          "track": 1,
+          "dog_park": 1,
+          "sports_centre": 1,
+          "nature_reserve": 6,
+          "slipway": 1
+        },
+        "natural": {
+          "water": 686,
+          "wood": 620,
+          "grassland": 735,
+          "wetland": 75,
+          "floodplain": 21,
+          "beach": 1,
+          "grass": 5,
+          "stone": 1
+        },
+        "landuse": {
+          "forest": 409,
+          "grass": 8620,
+          "allotments": 530,
+          "recreation_ground": 40,
+          "farmland": 1,
+          "village_green": 4,
+          "meadow": 511,
+          "brownfield": 3,
+          "greenery": 1,
+          "residential": 4,
+          "industrial": 1,
+          "cemetery": 1,
+          "garages": 1
+        },
+        "place": {
+          "city": 1,
+          "suburb": 60,
+          "neighbourhood": 29,
+          "quarter": 1,
+          "islet": 2
+        },
+        "area": {
+          "yes": 109
+        },
+        "building": {
+          "public": 1,
+          "concert_hall": 1,
+          "church": 1
+        },
+        "historic": {
+          "heritage": 9,
+          "monument": 1,
+          "yes": 1,
+          "church": 1,
+          "park": 9
+        },
+        "tourism": {
+          "information": 6,
+          "attraction": 3,
+          "street": 4
+        },
+        "amenity": {
+          "shelter": 1,
+          "fountain": 9,
+          "theatre": 1,
+          "vehicle_ramp": 1,
+          "weighbridge": 2,
+          "kindergarten": 1
+        }
+      },
+      "context": {
+        "feature_count": 78807,
+        "viewport_metric": [
+          305182.3566805683,
+          5678846.622810173,
+          329121.99551877915,
+          5703108.735765717
+        ],
+        "stages": {
+          "extract": {
+            "seconds": 25.035796599986497,
+            "bytes": 24081046,
+            "objects": {
+              "changesets": 0,
+              "nodes": 1849809,
+              "ways": 385269,
+              "relations": 7893
+            },
+            "tags": [
+              "155412\t\"building\"",
+              "117237\t\"highway\"",
+              "74786\t\"natural\"",
+              "40650\t\"amenity\"",
+              "18634\t\"landuse\"",
+              "17185\t\"railway\"",
+              "11767\t\"leisure\"",
+              "3297\t\"waterway\"",
+              "2372\t\"historic\"",
+              "2005\t\"tourism\"",
+              "1434\t\"area\"",
+              "343\t\"place\""
+            ]
+          },
+          "filter": {
+            "seconds": 4.707983699976467,
+            "bytes": 6394271,
+            "objects": {
+              "changesets": 0,
+              "nodes": 516655,
+              "ways": 84563,
+              "relations": 1456
+            },
+            "tags": [
+              "49498\t\"highway\"",
+              "13148\t\"landuse\"",
+              "6350\t\"leisure\"",
+              "4641\t\"railway\"",
+              "3053\t\"natural\"",
+              "2607\t\"waterway\"",
+              "177\t\"area\"",
+              "136\t\"place\"",
+              "19\t\"historic\"",
+              "13\t\"amenity\"",
+              "7\t\"tourism\""
+            ]
+          },
+          "export": {
+            "seconds": 7.301472900027875,
+            "bytes": 26166253,
+            "feature_count": 78866,
+            "tag_counts": {
+              "place": 136,
+              "highway": 49498,
+              "railway": 4641,
+              "waterway": 2607,
+              "historic": 19,
+              "tourism": 7,
+              "area": 177,
+              "leisure": 6349,
+              "natural": 3053,
+              "landuse": 13148,
+              "amenity": 13
+            }
+          }
+        }
+      },
+      "total_seconds": 309.2908439000021
+    }
+  },
+  "current": {
+    "build": "output\\preview-release\\output\\pages-build\\terrain",
+    "texture_sha256": "dbd8df2d4e7635c6b262b83461bd31adddaa34893b39c28fbf89bb3494c7156d",
+    "visible_labels": 80,
+    "performance": {
+      "extract": {
+        "seconds": 20.047393399989232,
+        "bytes": 18511178,
+        "objects": {
+          "changesets": 0,
+          "nodes": 1361684,
+          "ways": 287802,
+          "relations": 5741
+        },
+        "tags": [
+          "109019\t\"building\"",
+          "92078\t\"highway\"",
+          "63184\t\"natural\"",
+          "34052\t\"amenity\"",
+          "15669\t\"railway\"",
+          "13977\t\"landuse\"",
+          "10372\t\"leisure\"",
+          "2062\t\"historic\"",
+          "1937\t\"waterway\"",
+          "1248\t\"tourism\"",
+          "1085\t\"area\"",
+          "248\t\"place\""
+        ]
+      },
+      "filter": {
+        "seconds": 2.5750113999820314,
+        "bytes": 6886959,
+        "objects": {
+          "changesets": 0,
+          "nodes": 511689,
+          "ways": 106217,
+          "relations": 994
+        },
+        "tags": [
+          "77341\t\"highway\"",
+          "10140\t\"landuse\"",
+          "7235\t\"leisure\"",
+          "4344\t\"railway\"",
+          "2154\t\"natural\"",
+          "1570\t\"waterway\"",
+          "141\t\"area\"",
+          "95\t\"place\"",
+          "73\t\"building\"",
+          "24\t\"historic\"",
+          "19\t\"amenity\"",
+          "14\t\"tourism\""
+        ]
+      },
+      "export": {
+        "seconds": 5.4809931999770924,
+        "bytes": 29632343,
+        "feature_count": 102354,
+        "tag_counts": {
+          "place": 95,
+          "railway": 4344,
+          "tourism": 13,
+          "highway": 77344,
+          "amenity": 19,
+          "waterway": 1570,
+          "historic": 24,
+          "leisure": 7236,
+          "natural": 2156,
+          "landuse": 10140,
+          "area": 141,
+          "building": 72
+        }
+      },
+      "derive_seconds": 45.12874630000442,
+      "seconds_to_map": 149.83629280002788,
+      "municipal_feature_count": 102149,
+      "municipal_bytes": 63637575,
+      "municipal_tag_counts": {
+        "highway": {
+          "bus_stop": 11,
+          "trunk": 166,
+          "motorway_link": 157,
+          "residential": 8883,
+          "secondary": 3752,
+          "primary": 1776,
+          "tertiary": 1874,
+          "unclassified": 787,
+          "trunk_link": 113,
+          "motorway": 195,
+          "primary_link": 55,
+          "footway": 26517,
+          "service": 18560,
+          "pedestrian": 255,
+          "track": 2366,
+          "living_street": 391,
+          "path": 8145,
+          "secondary_link": 66,
+          "cycleway": 967,
+          "tertiary_link": 36,
+          "steps": 2079,
+          "platform": 5
+        },
+        "waterway": {
+          "river": 132,
+          "canal": 97,
+          "stream": 621,
+          "ditch": 712
+        },
+        "railway": {
+          "tram_stop": 8,
+          "tram": 1633,
+          "abandoned": 197,
+          "razed": 18,
+          "narrow_gauge": 72,
+          "rail": 2397,
+          "disused": 7,
+          "platform": 8,
+          "construction": 3
+        },
+        "leisure": {
+          "track": 4,
+          "park": 595,
+          "sports_centre": 143,
+          "stadium": 15,
+          "pitch": 964,
+          "garden": 5493,
+          "water_park": 1,
+          "playground": 10,
+          "slipway": 2,
+          "dog_park": 1,
+          "nature_reserve": 6,
+          "barefoot": 1
+        },
+        "natural": {
+          "water": 686,
+          "wood": 620,
+          "grassland": 735,
+          "wetland": 75,
+          "floodplain": 21,
+          "sand": 5,
+          "beach": 1,
+          "grass": 5,
+          "stone": 1
+        },
+        "landuse": {
+          "forest": 409,
+          "grass": 8620,
+          "allotments": 530,
+          "recreation_ground": 40,
+          "farmland": 1,
+          "village_green": 4,
+          "meadow": 511,
+          "farmyard": 1,
+          "brownfield": 3,
+          "greenery": 1,
+          "residential": 4,
+          "greenfield": 1,
+          "industrial": 1,
+          "cemetery": 1,
+          "garages": 1
+        },
+        "place": {
+          "city": 1,
+          "suburb": 60,
+          "neighbourhood": 29,
+          "quarter": 1,
+          "islet": 2
+        },
+        "area": {
+          "yes": 141
+        },
+        "building": {
+          "public": 3,
+          "yes": 47,
+          "sports_centre": 5,
+          "swimming_pool": 2,
+          "church": 2,
+          "hall": 1,
+          "commercial": 2,
+          "concert_hall": 1,
+          "industrial": 2,
+          "sports_hall": 3,
+          "tower": 1,
+          "warehouse": 1,
+          "university": 1,
+          "swimming_hall": 1
+        },
+        "historic": {
+          "heritage": 10,
+          "monument": 1,
+          "church": 2,
+          "yes": 2,
+          "park": 9
+        },
+        "tourism": {
+          "information": 6,
+          "attraction": 3,
+          "street": 4
+        },
+        "amenity": {
+          "shelter": 1,
+          "place_of_worship": 1,
+          "fountain": 9,
+          "theatre": 1,
+          "vehicle_ramp": 1,
+          "boat_rental": 2,
+          "weighbridge": 2,
+          "townhall": 1,
+          "kindergarten": 1
+        }
+      },
+      "context": {
+        "feature_count": 130048,
+        "viewport_metric": [
+          305182.3566805683,
+          5678846.622810173,
+          329121.99551877915,
+          5703108.735765717
+        ],
+        "stages": {
+          "extract": {
+            "seconds": 18.992740399960894,
+            "bytes": 24081046,
+            "objects": {
+              "changesets": 0,
+              "nodes": 1849809,
+              "ways": 385269,
+              "relations": 7893
+            },
+            "tags": [
+              "155412\t\"building\"",
+              "117237\t\"highway\"",
+              "74786\t\"natural\"",
+              "40650\t\"amenity\"",
+              "18634\t\"landuse\"",
+              "17185\t\"railway\"",
+              "11767\t\"leisure\"",
+              "3297\t\"waterway\"",
+              "2372\t\"historic\"",
+              "2005\t\"tourism\"",
+              "1434\t\"area\"",
+              "343\t\"place\""
+            ]
+          },
+          "filter": {
+            "seconds": 3.1934300000430085,
+            "bytes": 8838159,
+            "objects": {
+              "changesets": 0,
+              "nodes": 678475,
+              "ways": 135494,
+              "relations": 1497
+            },
+            "tags": [
+              "99426\t\"highway\"",
+              "13150\t\"landuse\"",
+              "7701\t\"leisure\"",
+              "4700\t\"railway\"",
+              "3056\t\"natural\"",
+              "2607\t\"waterway\"",
+              "231\t\"area\"",
+              "136\t\"place\"",
+              "78\t\"building\"",
+              "20\t\"historic\"",
+              "15\t\"amenity\"",
+              "10\t\"tourism\""
+            ]
+          },
+          "export": {
+            "seconds": 7.6112408000044525,
+            "bytes": 38405505,
+            "feature_count": 130139,
+            "tag_counts": {
+              "place": 136,
+              "highway": 99429,
+              "railway": 4700,
+              "waterway": 2607,
+              "historic": 20,
+              "tourism": 10,
+              "area": 231,
+              "leisure": 7702,
+              "natural": 3058,
+              "landuse": 13150,
+              "building": 78,
+              "amenity": 15
+            }
+          }
+        }
+      },
+      "total_seconds": 260.7545556999976
+    }
+  },
+  "landmarks": [
+    {
+      "label": "Gewandhaus",
+      "bbox": [
+        4117.255894812387,
+        4141.066886740578,
+        4127.8871484764995,
+        4162.614528582415
+      ],
+      "anchor_px": [
+        4122.571521644443,
+        4151.840707661497
+      ],
+      "source_id": "a305539",
+      "source_tags": {
+        "amenity": "theatre",
+        "building": "concert_hall"
+      },
+      "anchor_metric": [
+        317551.4346744098,
+        5690651.101802978
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.380626194316104,
+        51.337826862101025
+      ],
+      "label_placement": {
+        "label": "Gewandhaus",
+        "text": "Gewand-\nhaus",
+        "font_mm": 2.0,
+        "leader_px": [
+          [
+            4122.571521644443,
+            4151.840707661497
+          ],
+          [
+            4122.571521644443,
+            4226.0
+          ]
+        ],
+        "bbox": [
+          4080,
+          4226,
+          4189,
+          4342
+        ],
+        "anchor_px": [
+          4122.571521644443,
+          4151.840707661497
+        ],
+        "position_px": [
+          4134.542433778797,
+          4283.520741139388
+        ],
+        "texture_bbox_unwrapped": [
+          4411.4886577265315,
+          2084.7778877071482,
+          4520.474996866776,
+          2142.0032154340834
+        ],
+        "source_id": "a305539",
+        "source_tags": {
+          "amenity": "theatre",
+          "building": "concert_hall"
+        },
+        "anchor_metric": [
+          317551.4346744098,
+          5690651.101802978
+        ],
+        "is_landmark": true
+      }
+    },
+    {
+      "label": "Neues Rathaus",
+      "bbox": [
+        3922.5596533240764,
+        4191.330315381277,
+        3933.190906988188,
+        4212.877957223113
+      ],
+      "anchor_px": [
+        3927.8752801561322,
+        4202.104136302195
+      ],
+      "source_id": "a554723",
+      "source_tags": {
+        "historic": "heritage",
+        "amenity": "townhall",
+        "building": "public"
+      },
+      "anchor_metric": [
+        316967.2815594346,
+        5690500.28595049
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.372326595990534,
+        51.33628441400132
+      ],
+      "label_placement": null
+    },
+    {
+      "label": "Nikolaikirche",
+      "bbox": [
+        4072.4200911197404,
+        4047.63416334213,
+        4083.051344783852,
+        4069.1818051839664
+      ],
+      "anchor_px": [
+        4077.7357179517962,
+        4058.407984263048
+      ],
+      "source_id": "a49213958",
+      "source_tags": {
+        "historic": "church",
+        "amenity": "place_of_worship",
+        "building": "church"
+      },
+      "anchor_metric": [
+        317416.9124351038,
+        5690931.447497862
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.378553324752668,
+        51.34030190191193
+      ],
+      "label_placement": {
+        "label": "Nikolaikirche",
+        "text": "Nikolai-\nkirche",
+        "font_mm": 2.0,
+        "leader_px": [
+          [
+            4077.7357179517962,
+            4058.407984263048
+          ],
+          [
+            4077.7357179517962,
+            4072.0
+          ]
+        ],
+        "bbox": [
+          4008,
+          4072,
+          4099,
+          4188
+        ],
+        "anchor_px": [
+          4077.7357179517962,
+          4058.407984263048
+        ],
+        "position_px": [
+          4053.7938936830888,
+          4130.23345706917
+        ],
+        "texture_bbox_unwrapped": [
+          4339.497681413711,
+          2008.806331931734,
+          4430.486276475749,
+          2066.0316596586695
+        ],
+        "source_id": "a49213958",
+        "source_tags": {
+          "historic": "church",
+          "amenity": "place_of_worship",
+          "building": "church"
+        },
+        "anchor_metric": [
+          317416.9124351038,
+          5690931.447497862
+        ],
+        "is_landmark": true
+      }
+    },
+    {
+      "label": "Red Bull Arena",
+      "bbox": [
+        3376.0639206147735,
+        3819.153790530524,
+        3386.695174278885,
+        3840.7014323723606
+      ],
+      "anchor_px": [
+        3381.3795474468293,
+        3829.9276114514423
+      ],
+      "source_id": "a16030120",
+      "source_tags": {
+        "leisure": "stadium"
+      },
+      "anchor_metric": [
+        315327.61362263997,
+        5691617.004833167
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.348234815262998,
+        51.34578500972064
+      ],
+      "label_placement": {
+        "label": "Red Bull Arena",
+        "text": "Red Bull Arena",
+        "font_mm": 2.5,
+        "leader_px": [
+          [
+            3381.3795474468293,
+            3829.9276114514423
+          ],
+          [
+            3381.3795474468293,
+            3812.0
+          ]
+        ],
+        "bbox": [
+          3307,
+          3753,
+          3528,
+          3812
+        ],
+        "anchor_px": [
+          3381.3795474468293,
+          3829.9276114514423
+        ],
+        "position_px": [
+          3417.2922838498903,
+          3782.0439629140274
+        ],
+        "texture_bbox_unwrapped": [
+          3638.5855370347163,
+          1851.4366806826615,
+          3859.5578393282367,
+          1880.5426663368785
+        ],
+        "source_id": "a16030120",
+        "source_tags": {
+          "leisure": "stadium"
+        },
+        "anchor_metric": [
+          315327.61362263997,
+          5691617.004833167
+        ],
+        "is_landmark": true
+      }
+    },
+    {
+      "label": "Thomaskirche",
+      "bbox": [
+        3933.3956694308185,
+        4078.57904974103,
+        3944.02692309493,
+        4100.126691582866
+      ],
+      "anchor_px": [
+        3938.7112962628744,
+        4089.352870661948
+      ],
+      "source_id": "a83607110",
+      "source_tags": {
+        "historic": "church",
+        "tourism": "attraction",
+        "building": "church"
+      },
+      "anchor_metric": [
+        316999.79319147376,
+        5690838.597098505
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.372618980648964,
+        51.33933376366655
+      ],
+      "label_placement": null
+    },
+    {
+      "label": "Völkerschlachtdenkmal",
+      "bbox": [
+        4847.0807790189165,
+        5108.649691252162,
+        4857.712032683029,
+        5130.197333093998
+      ],
+      "anchor_px": [
+        4852.396405850973,
+        5119.42351217308
+      ],
+      "source_id": "a42714036",
+      "source_tags": {
+        "historic": "monument",
+        "tourism": "attraction",
+        "building": "public"
+      },
+      "anchor_metric": [
+        319741.1506968491,
+        5687747.861227056
+      ],
+      "is_landmark": true,
+      "lon_lat": [
+        12.413497227238715,
+        51.312446000789045
+      ],
+      "label_placement": {
+        "label": "Völkerschlachtdenkmal",
+        "text": "Völkerschlachtdenkmal",
+        "font_mm": 2.5,
+        "leader_px": [
+          [
+            4852.396405850973,
+            5119.42351217308
+          ],
+          [
+            4852.396405850973,
+            5138.0
+          ]
+        ],
+        "bbox": [
+          4510,
+          5138,
+          4860,
+          5197
+        ],
+        "anchor_px": [
+          4852.396405850973,
+          5119.42351217308
+        ],
+        "position_px": [
+          4684.803635970021,
+          5167.307160710495
+        ],
+        "texture_bbox_unwrapped": [
+          4841.434766261436,
+          2534.6873608706405,
+          5191.390901115427,
+          2563.7933465248575
+        ],
+        "source_id": "a42714036",
+        "source_tags": {
+          "historic": "monument",
+          "tourism": "attraction",
+          "building": "public"
+        },
+        "anchor_metric": [
+          319741.1506968491,
+          5687747.861227056
+        ],
+        "is_landmark": true
+      }
+    }
+  ],
+  "omitted_labels": [
+    {
+      "label": "Thomaskirche",
+      "reason": "feature_collision",
+      "rejected_positions": {
+        "symbol_collision": 1344,
+        "feature_collision": 1659,
+        "gore_seam": 1353
+      },
+      "anchor_px": [
+        3938.7112962628744,
+        4089.352870661948
+      ],
+      "source_id": "a83607110",
+      "source_tags": {
+        "historic": "church",
+        "tourism": "attraction",
+        "building": "church"
+      },
+      "anchor_metric": [
+        316999.79319147376,
+        5690838.597098505
+      ],
+      "is_landmark": true
+    },
+    {
+      "label": "Neues Rathaus",
+      "reason": "label_collision",
+      "rejected_positions": {
+        "label_collision": 1501,
+        "symbol_collision": 439,
+        "gore_seam": 1485,
+        "feature_collision": 931
+      },
+      "anchor_px": [
+        3927.8752801561322,
+        4202.104136302195
+      ],
+      "source_id": "a554723",
+      "source_tags": {
+        "historic": "heritage",
+        "amenity": "townhall",
+        "building": "public"
+      },
+      "anchor_metric": [
+        316967.2815594346,
+        5690500.28595049
+      ],
+      "is_landmark": true
+    },
+    {
+      "label": "Bachviertel",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 476,
+        "feature_collision": 102
+      },
+      "anchor_px": [
+        3593.9462082834666,
+        4222.731079253778
+      ],
+      "source_id": "n2375219516",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        315965.3839058175,
+        5690438.394629711
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Eichbergsiedlung",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 578
+      },
+      "anchor_px": [
+        5645.606172382846,
+        2691.905438491138
+      ],
+      "source_id": "n13296885780",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        322121.0423290981,
+        5695031.650208666
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Hartmannsdorf-Knautnaundorf",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 561,
+        "feature_collision": 17
+      },
+      "anchor_px": [
+        1789.6297948259712,
+        7106.4076741315175
+      ],
+      "source_id": "n2373702681",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        310551.8379366449,
+        5681785.898058825
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Kleinzschocher",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 357,
+        "feature_collision": 221
+      },
+      "anchor_px": [
+        2809.7748208736866,
+        4998.434627360444
+      ],
+      "source_id": "n313033285",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        313612.610400134,
+        5688110.889422664
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Knautkleeberg-Knauthain",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 544,
+        "feature_collision": 28,
+        "label_collision": 6
+      },
+      "anchor_px": [
+        2439.5992213258974,
+        6201.162559577512
+      ],
+      "source_id": "n313033374",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        312501.96117593395,
+        5684502.093856718
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Meyer'sche Häuser Eutritzsch",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 1020,
+        "feature_collision": 116,
+        "label_collision": 20
+      },
+      "anchor_px": [
+        4449.357808087895,
+        3201.2775156168054
+      ],
+      "source_id": "n2038041241",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        318531.90160945634,
+        5693503.274884448
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Musikviertel",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 408,
+        "feature_collision": 145,
+        "symbol_collision": 6,
+        "label_collision": 19
+      },
+      "anchor_px": [
+        3773.484279541676,
+        4385.501323535971
+      ],
+      "source_id": "n2375215148",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        316504.05749694805,
+        5689950.001103546
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Neustadt-Neuschönefeld",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 442,
+        "label_collision": 72,
+        "feature_collision": 64
+      },
+      "anchor_px": [
+        4574.812256157559,
+        3895.889975889771
+      ],
+      "source_id": "n332308133",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        318908.30644432723,
+        5691419.084188001
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Pfaffendorf",
+      "reason": "feature_collision",
+      "rejected_positions": {
+        "feature_collision": 391,
+        "gore_seam": 187
+      },
+      "anchor_px": [
+        3921.292004640175,
+        3731.7045533313603
+      ],
+      "source_id": "n2696892245",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        316947.5295556466,
+        5691911.723968828
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Schönefeld-Abtnaundorf",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 578
+      },
+      "anchor_px": [
+        4961.286542994068,
+        3337.896918020986
+      ],
+      "source_id": "n60754072",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        320067.85712074296,
+        5693093.34718558
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Seeburgviertel",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 391,
+        "label_collision": 137,
+        "feature_collision": 49,
+        "symbol_collision": 1
+      },
+      "anchor_px": [
+        4171.097635627405,
+        4265.258005164141
+      ],
+      "source_id": "n2375210385",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        317697.029065057,
+        5690310.792220598
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Thekla",
+      "reason": "label_density",
+      "source_id": "n1489992168",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        321438.4713105364,
+        5695265.334489744
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Thonberg",
+      "reason": "label_density",
+      "source_id": "n6184950610",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        318998.547852471,
+        5688704.270521789
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Volkmarsdorf",
+      "reason": "label_density",
+      "source_id": "n2372128201",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        319512.68845204124,
+        5691224.609199334
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Wahren",
+      "reason": "label_density",
+      "source_id": "n427552883",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        313421.62618846854,
+        5695058.438759805
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Waldstraßenviertel",
+      "reason": "label_density",
+      "source_id": "n1769577897",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        315993.957135624,
+        5691593.970596736
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Wiederitzsch",
+      "reason": "label_density",
+      "source_id": "n2372362176",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        317331.6804244764,
+        5696926.31710056
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Windorf",
+      "reason": "label_density",
+      "source_id": "n2373693280",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        313535.043730927,
+        5686147.645293108
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum",
+      "reason": "label_density",
+      "source_id": "n9580826444",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        317268.0309388314,
+        5690933.699653286
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-Nord",
+      "reason": "label_density",
+      "source_id": "n9580826977",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        317305.8566259432,
+        5692349.374602334
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-Nordwest",
+      "reason": "label_density",
+      "source_id": "n9580761112",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        315868.21003767126,
+        5692135.46629198
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-Ost",
+      "reason": "label_density",
+      "source_id": "n9580812476",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        317990.93855531106,
+        5691533.192716573
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-Süd",
+      "reason": "label_density",
+      "source_id": "n9580833580",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        316640.1595989691,
+        5689838.840822546
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-Südost",
+      "reason": "label_density",
+      "source_id": "n9580812477",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        318158.1795634667,
+        5689306.63937128
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Zentrum-West",
+      "reason": "label_density",
+      "source_id": "n9580760674",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        316151.2197647395,
+        5690659.302119131
+      ],
+      "is_landmark": false
+    }
+  ],
+  "verified": [
+    "unchanged city viewport and sampling",
+    "landmark anchors inside identified OSM geometries",
+    "Völkerschlachtdenkmal and stadium labels visible"
+  ]
+}

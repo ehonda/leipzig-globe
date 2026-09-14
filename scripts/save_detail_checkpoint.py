@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import geopandas as gpd
+import matplotlib
 from PIL import Image, ImageDraw, ImageFont
 from pyproj import Transformer
 from reportlab.lib.utils import ImageReader
@@ -37,6 +38,7 @@ def main():
         feature = frame.loc[frame["id"] == symbol["source_id"]].iloc[0]
         from shapely.geometry import Point
 
+        assert symbol["label"] in {feature.get("name"), feature.get("name:de")}
         assert feature.geometry.buffer(1e-6).covers(Point(symbol["anchor_metric"]))
         landmarks.append(
             {
@@ -49,10 +51,14 @@ def main():
     evidence = {
         "baseline_revision": "69567a2f7d4cbf5936f2608d8b36c286748d1b19",
         "before": {
+            "build": str(args.before),
+            "texture_sha256": reports[0]["artifact_sha256"]["leipzig-texture.png"],
             "visible_labels": len(metadata[0]["rendered_labels"]),
             "performance": reports[0]["performance"],
         },
         "current": {
+            "build": str(args.after),
+            "texture_sha256": reports[1]["artifact_sha256"]["leipzig-texture.png"],
             "visible_labels": len(selected),
             "performance": reports[1]["performance"],
         },
@@ -84,13 +90,11 @@ def main():
     pdf.drawString(120 * mm, 258 * mm, "100 mm calibration")
     sheet = Image.new("RGB", (1400, 1780), "white")
     draw = ImageDraw.Draw(sheet)
-    font = ImageFont.load_default(size=22)
-    draw.text(
-        (20, 10),
-        "Before (69567a2)                         Current",
-        fill="black",
-        font=font,
+    font = ImageFont.truetype(
+        str(Path(matplotlib.get_data_path()) / "fonts/ttf/DejaVuSans.ttf"), 22
     )
+    draw.text((20, 10), "Before (69567a2)", fill="black", font=font)
+    draw.text((720, 10), "Current", fill="black", font=font)
     textures = [Image.open(root / "leipzig-texture.png") for root in roots]
     cfg = reports[1]["config"]
     px_mm = cfg["globe"]["ppi"] / 25.4

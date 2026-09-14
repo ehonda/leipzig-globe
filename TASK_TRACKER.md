@@ -18,9 +18,9 @@
 - [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
 - [x] 15. Compare exterior styles (terrain, Continent Leipzig, fog of war) in the 215 mm high-density Pages preview — full builds, cross-variant invariants, Edge checks and deployed assets verified.
-- [ ] 16. Increase map detail — authorized 2026-09-14; implementation under validation.
-- [ ] 17. Tune labels — authorized 2026-09-14; implementation under validation.
-- [ ] 18. Review/expand landmarks — authorized 2026-09-14; implementation under validation.
+- [ ] 16. Increase map detail — local visual/print-scale/build validation complete; deployment pending.
+- [ ] 17. Tune labels — 25 to 80 visible labels; safety and omission evidence validated; deployment pending.
+- [ ] 18. Review/expand landmarks — six verified symbols, four full labels; comparison validated locally; deployment pending.
 
 ## Notes
 

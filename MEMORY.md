@@ -370,3 +370,37 @@ It is decorative styling, not a reconstruction of geography beyond the city.
 Fog uses broader sage-grey clouds and a wide warm-paper fringe. All three keep
 the municipal raster, label placement and geometry intact. Checkpoint 08 retains
 the new comparison; checkpoint 06 remains the earlier design for reference.
+
+### 2026-09-14 — Detail, label proportions and a bounded preview baseline
+
+Tasks 16–18 were authorized together. Paths/tracks/steps and sports grounds
+increase the municipal extract to 102,149 features / 63.64 MB. Keep the same
+strict municipal clipping and separate bounded context extract (79.36 MB).
+No general building/POI import was added. The 215 mm reference keeps its exact
+viewport, source sampling, seam rotation and gore geometry.
+
+The world layout roughly doubles horizontal glyph width if text is painted
+with the geography's uncorrected aspect. Labels now counter-scale their x axis,
+retain the existing displacement/safety limits, try wrapped names and a 2 mm
+fallback, and prioritize curated names in configuration order. Curated placement
+uses half-millimetre source steps; other names use one-millimetre steps. Record
+the winning source ID, metric anchor, displayed text, font and leader, and count
+all rejection reasons for omissions. The high-density reference reaches 80
+visible labels versus 25 before. Six real landmark symbols are placed; full
+Thomaskirche and Neues Rathaus labels still cannot fit safely and are explained
+in checkpoint 09. Do not remove collisions or move their source anchors to force fit.
+
+Pages retains exactly one Before snapshot at `69567a2` and rebuilds only Current.
+Before came from the actual live deployment, with all 46 assets checked against
+its `build.json`; local and hosted encoders/geometry serialization can yield
+different bytes. Preserve `docs/baseline/**` with `-text` Git attributes and
+check `snapshot.json` hashes plus the 16 MB budget. It occupies 11.86 MB; the
+complete two-version site is 23.87 MB. Version selection preserves viewer state
+and fetches only the selected version. GPU assets from replaced, stale and
+failed loads are disposed.
+
+Checkpoint 09's release builds used an isolated checkout, excluding the
+separate printer-calibration edits. The print-scale comparison PDF is a visual
+review sheet, not evidence of physical fit. An error toast overlays the bottom
+of the browser canvas: failed-load tests compare the remaining artwork region
+and separately assert the error message and retained version identity.

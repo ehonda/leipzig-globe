@@ -7,12 +7,14 @@ Uses the installed Edge browser, an isolated profile, and a loopback-only server
 import argparse
 import functools
 import hashlib
+import io
 import json
 import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import ClassVar
 
+from PIL import Image
 from playwright.sync_api import expect, sync_playwright
 
 
@@ -178,9 +180,21 @@ def main():
                         frame() == current
                     ), "Version switching moved the camera or lost overlays"
                     page.get_by_label("Equator", exact=True).uncheck()
+
             # A failed historical fetch must leave the visible version truthful,
             # retain the old canvas and allow a successful retry.
-            unchanged = frame()
+            def artwork_frame():
+                # The error toast intentionally overlays the bottom of the stage.
+                # Compare artwork above it and assert the toast separately.
+                page.wait_for_timeout(600)
+                with Image.open(io.BytesIO(canvas.screenshot())) as capture:
+                    return hashlib.sha256(
+                        capture.crop(
+                            (0, 0, capture.width, capture.height - 60)
+                        ).tobytes()
+                    ).hexdigest()
+
+            unchanged = artwork_frame()
             page.route(
                 "**/baseline/assets/presets.json*",
                 lambda route: route.fulfill(status=503, body="unavailable"),
@@ -190,7 +204,9 @@ def main():
                 "Preview presets are unavailable."
             )
             expect(canvas).to_have_attribute("data-version", "current")
-            assert frame() == unchanged
+            assert (
+                artwork_frame() == unchanged
+            ), "Failed load changed the previous artwork"
             page.unroute("**/baseline/assets/presets.json*")
             page.get_by_label("Version", exact=True).select_option("current")
             expect(page.locator("#status")).to_be_hidden(timeout=60000)

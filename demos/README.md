@@ -130,3 +130,11 @@ layered ocean shallows with water-aware shore openings, and soft sage-grey fog.
 It includes the four-view comparison, compact textures, full build reports and
 browser evidence. The city raster, labels and geometry remain unchanged from
 checkpoint 06. See its README for the local build's parallel calibration context.
+
+## 09 — Detail, labels and before/current comparison
+
+`09-detail-labels/` pairs the previous and current map at identical coordinates,
+including an A4 comparison at the actual 215 mm globe print scale. It records
+the expanded detail, 25-to-80 label increase, landmark identity and placement
+evidence, and the fixed previous-live baseline used by the Pages Version picker.
+See its README for the two remaining full-label omissions and build provenance.
