@@ -1,0 +1,29 @@
+{
+  "local_runtime_revision": "a31cc779fe599faa2764e53683b491b5434a3a7d",
+  "release_tests": 144,
+  "builds": {
+    "terrain": {
+      "build_seconds": 356.160434099962,
+      "municipal_features": 106062,
+      "municipal_bytes": 69356814,
+      "a4_pages": 12
+    },
+    "ocean": {
+      "build_seconds": 149.26336869999068,
+      "municipal_features": 106062,
+      "municipal_bytes": 69356814,
+      "a4_pages": 12
+    },
+    "fog": {
+      "build_seconds": 140.34184130001813,
+      "municipal_features": 106062,
+      "municipal_bytes": 69356814,
+      "a4_pages": 12
+    }
+  },
+  "site_bytes": 24010750,
+  "current_assets_bytes": 11995372,
+  "baseline_assets_bytes": 11976301,
+  "published_file_count": 97,
+  "context_bytes": 87666779
+}

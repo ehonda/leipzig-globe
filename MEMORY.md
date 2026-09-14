@@ -409,3 +409,36 @@ Runtime `b273fff` passed all 136 hosted tests and deployed successfully. All 97
 published files and live current/before/current switching were verified in
 checkpoint 09. A later documentation-only `[skip ci]` completion commit leaves
 that runtime revision in `build.json` intentionally.
+
+### 2026-09-14 — Composite labels, lake names and omitted land cover
+
+The sparse southwest/east/north was partly an extraction/style gap: the pinned
+map contains 74.48 km² of farmland. Task 19 adds mapped agricultural parcels,
+orchards/vineyards, scrub, industry/commerce/farmyards, brownfield/construction
+and quarries. Keep these subdued and distinct from parks, and apply the same
+palette to bounded terrain context. Do not infer a land-use fill for untagged
+areas. Municipal data grows from 102,149 / 63.64 MB to 106,062 / 69.36 MB.
+
+Composite suppression matches exact nearby place names (within 5 km), and only
+occurs after the composite is actually visible. It removes ten redundant labels
+from five groups, including both user examples. A failed composite leaves its
+components eligible. The high-density cap remains 80.
+
+Retain OSM `water` tags. Named standing-water polygons of at least 5 hectares
+are label candidates, ordered by area. A bounded 33 × 33 search covers the lake
+extent; horizontal/wrapped text precedes a vertical fallback. Counter-scale
+glyphs after rotation. Require the whole footprint inside water, including hole
+exclusion, and keep road/rail/label/seam/pole checks. Cospudener See, Zwenkauer See
+and Auensee fit; Kulkwitzer See and other rejected candidates remain recorded
+with source identities and rejection counts in checkpoint 10.
+
+The single frozen Before baseline advances to the actual `b273fff` deployment,
+with all 46 asset hashes verified (11.98 MB). This avoids accumulating snapshots
+or rebuilding historical commits. The preview includes a compact colour key.
+Release work uses `output/landcover-release`, excluding separate printer edits.
+
+The clean release passes 144 tests and validates all three 12-page A4 PDFs.
+Cross-variant city rasters, labels, masks and gore geometry match; all city pixels
+and wrap/pole continuity are preserved. Context is 87.67 MB; the complete
+Before/Current site is 24.01 MB. Recorded build times are 356.16 / 149.26 / 140.34
+seconds for terrain / ocean / fog; the fixed baseline adds no historical build.

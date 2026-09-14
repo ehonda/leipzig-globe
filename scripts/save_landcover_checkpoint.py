@@ -118,9 +118,25 @@ evidence["landcover_totals"] = {
 evidence["visible_lakes"] = [
     item for item in meta["rendered_labels"] if item.get("is_lake")
 ]
+for label in evidence["visible_lakes"]:
+    source = frame.loc[frame["id"] == label["source_id"]].iloc[0]
+    assert label["label"] in {source.get("name"), source.get("name:de")}
+    assert source.geometry.covers(shapely.Point(label["anchor_metric"]))
+    x0, y0, x1, y1 = label["bbox"]
+    footprint = shapely.box(
+        (x0 - w / 2) * sx / w + cx,
+        cy - (y1 - h / 2) * sy / h,
+        (x1 - w / 2) * sx / w + cx,
+        cy - (y0 - h / 2) * sy / h,
+    )
+    assert source.geometry.covers(footprint), label["label"]
 evidence["composite_omissions"] = [
     item for item in meta["omitted_labels"] if item["reason"] == "covered_by_composite"
 ]
+visible_names = {item["label"] for item in meta["rendered_labels"]}
+for omission in evidence["composite_omissions"]:
+    assert omission["composite"] in visible_names
+    assert omission["label"] not in visible_names
 evidence["lake_omissions"] = [
     item for item in meta["omitted_labels"] if item.get("is_lake")
 ]
@@ -130,21 +146,13 @@ evidence["visible_labels"] = len(meta["rendered_labels"])
 evidence["verified"] = [
     "unchanged viewport and sampling",
     "mapped OSM land-cover classes; no inferred fills",
+    "lake source names and anchors verified; entire label footprints inside water",
+    "every suppressed component has a visible composite",
 ]
 (out / "source-evidence.json").write_text(
     json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8"
 )
-print(
-    json.dumps(
-        {
-            key: value
-            for key, value in evidence.items()
-            if key not in {"visible_lakes", "lake_omissions", "composite_omissions"}
-        },
-        ensure_ascii=False,
-        indent=2,
-    )
-)
+print("Mapped land-cover totals (km²):", evidence["landcover_totals"])
 print("Visible lakes:", [item["label"] for item in evidence["visible_lakes"]])
 print(
     "Lake omissions:",

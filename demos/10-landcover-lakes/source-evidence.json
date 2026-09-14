@@ -1,0 +1,1046 @@
+{
+  "South of Grünau / west of Großzschocher": {
+    "bounds_lon_lat": [
+      12.26,
+      51.285,
+      12.315,
+      51.314
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.006,
+        "municipal_region_percent": 0.0,
+        "features": 1
+      },
+      "farmland": {
+        "area_km2": 6.373,
+        "municipal_region_percent": 53.4,
+        "features": 18
+      },
+      "industrial": {
+        "area_km2": 0.664,
+        "municipal_region_percent": 5.6,
+        "features": 22
+      },
+      "park": {
+        "area_km2": 1.1,
+        "municipal_region_percent": 9.2,
+        "features": 134
+      },
+      "scrub": {
+        "area_km2": 0.182,
+        "municipal_region_percent": 1.5,
+        "features": 26
+      },
+      "water": {
+        "area_km2": 0.015,
+        "municipal_region_percent": 0.1,
+        "features": 23
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a167247454",
+        "area_ha": 30.3
+      },
+      {
+        "source_id": "a167247460",
+        "area_ha": 34.53
+      },
+      {
+        "source_id": "a167247464",
+        "area_ha": 37.93
+      },
+      {
+        "source_id": "a20236317",
+        "area_ha": 66.72
+      },
+      {
+        "source_id": "a204839740",
+        "area_ha": 40.88
+      },
+      {
+        "source_id": "a204839792",
+        "area_ha": 8.11
+      },
+      {
+        "source_id": "a204839796",
+        "area_ha": 12.95
+      },
+      {
+        "source_id": "a204839828",
+        "area_ha": 21.2
+      },
+      {
+        "source_id": "a204839844",
+        "area_ha": 13.88
+      },
+      {
+        "source_id": "a2063852450",
+        "area_ha": 310.86
+      },
+      {
+        "source_id": "a22253103",
+        "area_ha": 41.89
+      },
+      {
+        "source_id": "a230207008",
+        "area_ha": 7.71
+      },
+      {
+        "source_id": "a8262947",
+        "area_ha": 7.11
+      }
+    ]
+  },
+  "East of Engelsdorf": {
+    "bounds_lon_lat": [
+      12.47,
+      51.325,
+      12.525,
+      51.36
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.103,
+        "municipal_region_percent": 0.8,
+        "features": 7
+      },
+      "farmland": {
+        "area_km2": 5.484,
+        "municipal_region_percent": 42.4,
+        "features": 36
+      },
+      "industrial": {
+        "area_km2": 1.109,
+        "municipal_region_percent": 8.6,
+        "features": 57
+      },
+      "park": {
+        "area_km2": 1.364,
+        "municipal_region_percent": 10.6,
+        "features": 160
+      },
+      "scrub": {
+        "area_km2": 0.22,
+        "municipal_region_percent": 1.7,
+        "features": 13
+      },
+      "water": {
+        "area_km2": 0.009,
+        "municipal_region_percent": 0.1,
+        "features": 57
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a146477",
+        "area_ha": 6.36
+      },
+      {
+        "source_id": "a27553789",
+        "area_ha": 30.1
+      },
+      {
+        "source_id": "a27553795",
+        "area_ha": 17.81
+      },
+      {
+        "source_id": "a27553803",
+        "area_ha": 20.9
+      },
+      {
+        "source_id": "a27553963",
+        "area_ha": 62.89
+      },
+      {
+        "source_id": "a27558087",
+        "area_ha": 10.38
+      },
+      {
+        "source_id": "a27558181",
+        "area_ha": 91.8
+      },
+      {
+        "source_id": "a27558651",
+        "area_ha": 9.52
+      },
+      {
+        "source_id": "a27558653",
+        "area_ha": 7.42
+      },
+      {
+        "source_id": "a27559117",
+        "area_ha": 55.67
+      },
+      {
+        "source_id": "a27559123",
+        "area_ha": 31.17
+      },
+      {
+        "source_id": "a27559125",
+        "area_ha": 17.27
+      },
+      {
+        "source_id": "a27559127",
+        "area_ha": 84.56
+      },
+      {
+        "source_id": "a401172852",
+        "area_ha": 8.64
+      },
+      {
+        "source_id": "a401174498",
+        "area_ha": 10.35
+      },
+      {
+        "source_id": "a513884902",
+        "area_ha": 12.31
+      },
+      {
+        "source_id": "a524116016",
+        "area_ha": 9.91
+      },
+      {
+        "source_id": "a524116022",
+        "area_ha": 15.24
+      },
+      {
+        "source_id": "a796064376",
+        "area_ha": 9.62
+      }
+    ]
+  },
+  "Northern outskirts": {
+    "bounds_lon_lat": [
+      12.325,
+      51.402,
+      12.43,
+      51.435
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.087,
+        "municipal_region_percent": 0.5,
+        "features": 7
+      },
+      "farmland": {
+        "area_km2": 8.635,
+        "municipal_region_percent": 53.7,
+        "features": 41
+      },
+      "industrial": {
+        "area_km2": 1.325,
+        "municipal_region_percent": 8.2,
+        "features": 32
+      },
+      "park": {
+        "area_km2": 2.155,
+        "municipal_region_percent": 13.4,
+        "features": 513
+      },
+      "scrub": {
+        "area_km2": 0.525,
+        "municipal_region_percent": 3.3,
+        "features": 98
+      },
+      "water": {
+        "area_km2": 0.067,
+        "municipal_region_percent": 0.4,
+        "features": 52
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a10522451",
+        "area_ha": 95.79
+      },
+      {
+        "source_id": "a10535667",
+        "area_ha": 73.71
+      },
+      {
+        "source_id": "a10535669",
+        "area_ha": 154.57
+      },
+      {
+        "source_id": "a12964547",
+        "area_ha": 8.43
+      },
+      {
+        "source_id": "a15657655",
+        "area_ha": 24.89
+      },
+      {
+        "source_id": "a216719684",
+        "area_ha": 16.45
+      },
+      {
+        "source_id": "a24510227",
+        "area_ha": 90.88
+      },
+      {
+        "source_id": "a24510237",
+        "area_ha": 56.52
+      },
+      {
+        "source_id": "a24510245",
+        "area_ha": 44.23
+      },
+      {
+        "source_id": "a24510253",
+        "area_ha": 18.67
+      },
+      {
+        "source_id": "a24510257",
+        "area_ha": 10.89
+      },
+      {
+        "source_id": "a24510365",
+        "area_ha": 11.28
+      },
+      {
+        "source_id": "a2519480382",
+        "area_ha": 9.89
+      },
+      {
+        "source_id": "a26674049",
+        "area_ha": 15.61
+      },
+      {
+        "source_id": "a26674053",
+        "area_ha": 8.89
+      },
+      {
+        "source_id": "a26674071",
+        "area_ha": 6.8
+      },
+      {
+        "source_id": "a341555962",
+        "area_ha": 37.75
+      },
+      {
+        "source_id": "a436655768",
+        "area_ha": 8.16
+      },
+      {
+        "source_id": "a439503518",
+        "area_ha": 36.6
+      },
+      {
+        "source_id": "a502273882",
+        "area_ha": 6.42
+      },
+      {
+        "source_id": "a502931510",
+        "area_ha": 85.72
+      },
+      {
+        "source_id": "a81546272",
+        "area_ha": 9.73
+      },
+      {
+        "source_id": "a9541575",
+        "area_ha": 15.26
+      }
+    ]
+  },
+  "Böhlitz-Ehrenberg": {
+    "bounds_lon_lat": [
+      12.272,
+      51.352,
+      12.32,
+      51.377
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.167,
+        "municipal_region_percent": 1.8,
+        "features": 24
+      },
+      "farmland": {
+        "area_km2": 0.92,
+        "municipal_region_percent": 9.9,
+        "features": 8
+      },
+      "industrial": {
+        "area_km2": 0.261,
+        "municipal_region_percent": 2.8,
+        "features": 19
+      },
+      "orchard": {
+        "area_km2": 0.016,
+        "municipal_region_percent": 0.2,
+        "features": 3
+      },
+      "park": {
+        "area_km2": 5.198,
+        "municipal_region_percent": 55.9,
+        "features": 1086
+      },
+      "scrub": {
+        "area_km2": 0.103,
+        "municipal_region_percent": 1.1,
+        "features": 65
+      },
+      "water": {
+        "area_km2": 0.336,
+        "municipal_region_percent": 3.6,
+        "features": 235
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a175972188",
+        "area_ha": 8.05
+      },
+      {
+        "source_id": "a2611759",
+        "area_ha": 21.99
+      },
+      {
+        "source_id": "a27566617",
+        "area_ha": 7.22
+      },
+      {
+        "source_id": "a27608597",
+        "area_ha": 14.91
+      },
+      {
+        "source_id": "a27608601",
+        "area_ha": 23.02
+      },
+      {
+        "source_id": "a63912490",
+        "area_ha": 10.07
+      }
+    ]
+  },
+  "Dölitz-Dösen": {
+    "bounds_lon_lat": [
+      12.37,
+      51.274,
+      12.426,
+      51.299
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.027,
+        "municipal_region_percent": 0.4,
+        "features": 2
+      },
+      "farmland": {
+        "area_km2": 0.132,
+        "municipal_region_percent": 2.0,
+        "features": 3
+      },
+      "industrial": {
+        "area_km2": 0.171,
+        "municipal_region_percent": 2.6,
+        "features": 11
+      },
+      "orchard": {
+        "area_km2": 0.008,
+        "municipal_region_percent": 0.1,
+        "features": 1
+      },
+      "park": {
+        "area_km2": 4.39,
+        "municipal_region_percent": 66.8,
+        "features": 122
+      },
+      "scrub": {
+        "area_km2": 0.095,
+        "municipal_region_percent": 1.4,
+        "features": 14
+      },
+      "water": {
+        "area_km2": 0.1,
+        "municipal_region_percent": 1.5,
+        "features": 106
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a12788709",
+        "area_ha": 10.98
+      }
+    ]
+  },
+  "Kulkwitzer See": {
+    "bounds_lon_lat": [
+      12.226,
+      51.285,
+      12.273,
+      51.323
+    ],
+    "mapped_cover": {
+      "disturbed": {
+        "area_km2": 0.002,
+        "municipal_region_percent": 0.0,
+        "features": 2
+      },
+      "farmland": {
+        "area_km2": 1.495,
+        "municipal_region_percent": 23.3,
+        "features": 5
+      },
+      "industrial": {
+        "area_km2": 0.09,
+        "municipal_region_percent": 1.4,
+        "features": 11
+      },
+      "park": {
+        "area_km2": 1.255,
+        "municipal_region_percent": 19.6,
+        "features": 124
+      },
+      "scrub": {
+        "area_km2": 0.468,
+        "municipal_region_percent": 7.3,
+        "features": 21
+      },
+      "water": {
+        "area_km2": 1.022,
+        "municipal_region_percent": 15.9,
+        "features": 17
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a122838466",
+        "area_ha": 8.77
+      },
+      {
+        "source_id": "a2063852450",
+        "area_ha": 104.43
+      },
+      {
+        "source_id": "a485411718",
+        "area_ha": 35.61
+      }
+    ]
+  },
+  "Cospudener See": {
+    "bounds_lon_lat": [
+      12.323,
+      51.249,
+      12.367,
+      51.295
+    ],
+    "mapped_cover": {
+      "farmland": {
+        "area_km2": 0.098,
+        "municipal_region_percent": 1.7,
+        "features": 2
+      },
+      "park": {
+        "area_km2": 2.973,
+        "municipal_region_percent": 52.9,
+        "features": 62
+      },
+      "scrub": {
+        "area_km2": 0.08,
+        "municipal_region_percent": 1.4,
+        "features": 22
+      },
+      "water": {
+        "area_km2": 2.145,
+        "municipal_region_percent": 38.2,
+        "features": 105
+      }
+    },
+    "large_fields": [
+      {
+        "source_id": "a36084507",
+        "area_ha": 8.52
+      }
+    ]
+  },
+  "landcover_totals": {
+    "disturbed": 3.696,
+    "farmland": 74.481,
+    "industrial": 27.253,
+    "orchard": 0.271,
+    "scrub": 7.054
+  },
+  "visible_lakes": [
+    {
+      "label": "Cospudener See",
+      "text": "Cospudener See",
+      "font_mm": 2.0,
+      "rotation_deg": 0,
+      "leader_px": null,
+      "bbox": [
+        3112,
+        6234,
+        3309,
+        6292
+      ],
+      "anchor_px": [
+        3046.828666743661,
+        6380.336870148454
+      ],
+      "position_px": [
+        3210.4622255419777,
+        6263.196186539259
+      ],
+      "texture_bbox_unwrapped": [
+        3443.6099761874925,
+        3075.3680435320307,
+        3640.5852863767386,
+        3103.9807073954985
+      ],
+      "source_id": "a571901",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        314323.85033688496,
+        5683964.479787734
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Zwenkauer See",
+      "text": "Zwenkauer See",
+      "font_mm": 2.5,
+      "rotation_deg": 0,
+      "leader_px": null,
+      "bbox": [
+        1867,
+        7461,
+        2101,
+        7520
+      ],
+      "anchor_px": [
+        1984.370201228954,
+        7490.735543657438
+      ],
+      "position_px": [
+        1984.370201228954,
+        7490.735543657438
+      ],
+      "texture_bbox_unwrapped": [
+        2198.766010778293,
+        3680.6738807815977,
+        2432.7366837949617,
+        3709.779866435815
+      ],
+      "source_id": "a4277227",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        311136.1235609705,
+        5680632.718961323
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Auensee",
+      "text": "Auensee",
+      "font_mm": 2.0,
+      "rotation_deg": 0,
+      "leader_px": null,
+      "bbox": [
+        2712,
+        2925,
+        2819,
+        2973
+      ],
+      "anchor_px": [
+        2773.810194736603,
+        2951.813071126121
+      ],
+      "position_px": [
+        2765.439103305444,
+        2949.022707315735
+      ],
+      "texture_bbox_unwrapped": [
+        3043.6601077829305,
+        1442.9662379421222,
+        3150.6466975811504,
+        1466.6456838980955
+      ],
+      "source_id": "a8624862",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        313504.7046273964,
+        5694251.79510837
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    }
+  ],
+  "composite_omissions": [
+    {
+      "label": "Anger",
+      "reason": "covered_by_composite",
+      "composite": "Anger-Crottendorf",
+      "source_id": "n2452208773",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        319520.1758686459,
+        5690104.779460742
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Böhlitz",
+      "reason": "covered_by_composite",
+      "composite": "Böhlitz-Ehrenberg",
+      "source_id": "n2373212415",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        311294.7356384514,
+        5693388.165014031
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Crottendorf",
+      "reason": "covered_by_composite",
+      "composite": "Anger-Crottendorf",
+      "source_id": "n2452208772",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        319818.4579029498,
+        5690380.70776177
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Dölitz",
+      "reason": "covered_by_composite",
+      "composite": "Dölitz-Dösen",
+      "source_id": "n2371684979",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        318083.33490076964,
+        5685087.371382261
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Dösen",
+      "reason": "covered_by_composite",
+      "composite": "Dölitz-Dösen",
+      "source_id": "n2371684972",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        319336.44288966723,
+        5684805.874903611
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Ehrenberg",
+      "reason": "covered_by_composite",
+      "composite": "Böhlitz-Ehrenberg",
+      "source_id": "n2696834126",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        311623.15723267256,
+        5693320.49691959
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Reudnitz",
+      "reason": "covered_by_composite",
+      "composite": "Reudnitz-Thonberg",
+      "source_id": "n2696877901",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        318859.14789419645,
+        5690392.161931682
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Sellerhausen",
+      "reason": "covered_by_composite",
+      "composite": "Sellerhausen-Stünz",
+      "source_id": "n141958877",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        320848.53742551303,
+        5691141.811455505
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Stünz",
+      "reason": "covered_by_composite",
+      "composite": "Sellerhausen-Stünz",
+      "source_id": "n2371825663",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        321243.64621788665,
+        5690722.173940809
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    },
+    {
+      "label": "Thonberg",
+      "reason": "covered_by_composite",
+      "composite": "Reudnitz-Thonberg",
+      "source_id": "n6184950610",
+      "source_tags": {
+        "place": "neighbourhood"
+      },
+      "anchor_metric": [
+        318998.547852471,
+        5688704.270521789
+      ],
+      "is_landmark": false,
+      "is_lake": false
+    }
+  ],
+  "lake_omissions": [
+    {
+      "label": "Kulkwitzer See",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 3169,
+        "lake_shore": 111
+      },
+      "anchor_px": [
+        1005.5582377970362,
+        4892.51947588056
+      ],
+      "source_id": "a708520810",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        308199.3639551201,
+        5688428.688750998
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Tagebausee Kleinpösna",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 3936
+      },
+      "anchor_px": [
+        7626.7429836852,
+        5245.326415734411
+      ],
+      "source_id": "a9836064",
+      "source_tags": {
+        "natural": "water"
+      },
+      "anchor_metric": [
+        328065.1079703643,
+        5687370.088475679
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Kiesgrube Kleinpösna",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 2639,
+        "lake_shore": 2513
+      },
+      "anchor_px": [
+        7451.688468017078,
+        5162.040184372724
+      ],
+      "source_id": "a9836066",
+      "source_tags": {
+        "natural": "water"
+      },
+      "anchor_metric": [
+        327539.88652881864,
+        5687619.989533425
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Lindenauer Hafen",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 917,
+        "lake_shore": 267
+      },
+      "anchor_px": [
+        2195.2131661845806,
+        4194.392274203819
+      ],
+      "source_id": "a10885525",
+      "source_tags": {
+        "natural": "water"
+      },
+      "anchor_metric": [
+        311768.72218643926,
+        5690523.425459435
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Schönauer Lachen",
+      "reason": "lake_shore",
+      "rejected_positions": {
+        "gore_seam": 2017,
+        "lake_shore": 2711
+      },
+      "anchor_px": [
+        1872.6545595081798,
+        4071.3509367767515
+      ],
+      "source_id": "a2325831",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        310800.9396888845,
+        5690892.61205687
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Naturbad Südwest",
+      "reason": "lake_shore",
+      "rejected_positions": {
+        "gore_seam": 697,
+        "lake_shore": 3071
+      },
+      "anchor_px": [
+        2571.0154284798245,
+        5840.341164277404
+      ],
+      "source_id": "a51176050",
+      "source_tags": {
+        "natural": "water"
+      },
+      "anchor_metric": [
+        312896.25325974805,
+        5685584.741574941
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Kiesgrube Rückmarsdorf",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 3056
+      },
+      "anchor_px": [
+        1677.6948882328563,
+        4205.07916553388
+      ],
+      "source_id": "a147420056",
+      "source_tags": {
+        "natural": "water",
+        "water": "lake"
+      },
+      "anchor_metric": [
+        310215.99619742593,
+        5690491.359349542
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Großer Silbersee",
+      "reason": "lake_shore",
+      "rejected_positions": {
+        "gore_seam": 1080,
+        "lake_shore": 3840
+      },
+      "anchor_px": [
+        4512.105633745876,
+        5631.431535338876
+      ],
+      "source_id": "a15995208",
+      "source_tags": {
+        "natural": "water",
+        "water": "pond"
+      },
+      "anchor_metric": [
+        318720.16583857464,
+        5686211.576723941
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    },
+    {
+      "label": "Lachen an der Waldspitze",
+      "reason": "lake_shore",
+      "rejected_positions": {
+        "gore_seam": 922,
+        "lake_shore": 2966
+      },
+      "anchor_px": [
+        1911.2678406883506,
+        2871.058888746794
+      ],
+      "source_id": "a73679054",
+      "source_tags": {
+        "natural": "water"
+      },
+      "anchor_metric": [
+        310916.7923027222,
+        5694494.098731238
+      ],
+      "is_landmark": false,
+      "is_lake": true
+    }
+  ],
+  "baseline_revision": "b273fff003c11adb719674db666585eff5eebc71",
+  "source_snapshot": "sources-2026-09-01",
+  "visible_labels": 80,
+  "verified": [
+    "unchanged viewport and sampling",
+    "mapped OSM land-cover classes; no inferred fills",
+    "lake source names and anchors verified; entire label footprints inside water",
+    "every suppressed component has a visible composite"
+  ]
+}
