@@ -128,7 +128,8 @@ It is useful for checking:
 The confirmed final reference is **215 mm diameter**, 12 gores, 200 PPI. The texture is
 5320 × 2660 pixels. Each gore spans 337.72 mm pole to pole and 56.29 mm across
 the equator before its 2 mm assembly overlap. That overlap tapers toward the
-poles. The default PDF has 12 portrait A4 pages: two gores per pair of pages,
+poles. The default PDF has 13 portrait A4 pages: a calibration sheet followed by
+12 gore pages, with two gores per pair of pages,
 two vertical tiles, with 10 mm page overlap centred on the equator. The high-density
 preset keeps the same 215 mm diameter at 300 PPI with high label density.
 
@@ -140,7 +141,11 @@ the page-tile overlap on the equator whenever a Gore needs two pages. Gores
 that fit on one page remain whole; generation stops with a size-specific error
 if a half-Gore plus half the overlap cannot fit the printable A4 height.
 
-Print at **100% / actual size** and measure the 100 mm calibration line. Join
+Print at **100% / actual size**, with fitting disabled in both the viewer and
+printer driver. Measure the **100 × 100 mm square on page 1** between line
+centres in both directions. Keep the same printer, paper size and settings for
+the remaining pages; repeat calibration after changing them. Every gore tile
+has its own identifier above the artwork, including the lower half. Join
 page tiles using matching crosses, then cut along the solid gore outline;
 the dashed edge marks the nominal seam beneath the neighboring gore. Do not
 use printer fitting or scaling to adapt to a different globe. A human must

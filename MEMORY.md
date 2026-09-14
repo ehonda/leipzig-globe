@@ -12,6 +12,37 @@ The goal is not to replace ADRs or specification docs. It is to store the practi
 
 ## Current memory entries
 
+### 2026-09-14 — Printer calibration and the designated smaller test ball
+
+The physical test target is **184.62 mm**, from the old ball's 580 mm measured
+circumference, using `config/test-print-184-62mm-high-density.yaml`. The final
+assembly remains **215 mm**. Do not substitute the final-size preset when asked
+to regenerate the designated test print.
+
+The user reported approximately 96 mm for a 100 mm ruler on an unidentified
+Brother laser printer, versus 100 mm from the same PDF on their inkjet. Laser
+print settings and the precise measurement remain unconfirmed. A4 fitted inside
+4.2 mm margins scales to exactly 96%; this is a plausible diagnosis, not proof.
+
+New PDFs start with a separate A4 100 × 100 mm calibration square, measured
+between line centres in both axes. They omit the repeated rulers. Gore tile
+numbers now start at PDF page 2; manifests identify `calibration_page: 1` and
+`calibration_square_mm: [100, 100]`. Historical PDFs retain their legacy validation.
+
+Gore IDs must be outside the artwork's clipping path and repeat on every tile:
+placing them only at the full Gore's north end makes the lower-tile label vanish.
+Text extraction alone misses this defect. Tests check graphics-state clipping,
+physical text bounds and 4.2 mm printer-border clearance. Guides and attribution
+also clear that border. Gore geometry, artwork placement and overlaps are unchanged.
+
+Checkpoint 07 contains the calibrated three-gore sample for the **smaller ball**.
+The refreshed full local test PDF has nine pages at
+`output/print-calibration/test-print-184-62mm/leipzig-globe-print.pdf`.
+The prior build is preserved; image hashes/placement and rendered Gore regions
+were compared with it. Physical calibration, fit and assembly acceptance still
+require human observations. Keep printer, paper and settings unchanged between
+the calibration sheet and gores; repeat calibration when they change.
+
 ### 2026-08-22 — Python 3.15 upgrade attempt
 
 The project currently targets Python 3.14 in the repo configuration and local `.python-version`, even though some formatting commands were temporarily run under 3.15 as a tooling workaround.

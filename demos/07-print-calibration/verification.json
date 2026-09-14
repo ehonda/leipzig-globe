@@ -1,0 +1,12 @@
+[
+  {
+    "variant": "test-print-184-62mm",
+    "source_report": "output\\test-print-184-62mm-high-density\\build-report.json",
+    "source_report_sha256": "889c6b45cfd79f12a996039eb184d930f010b031d86cca28841352e7bab7729f",
+    "pdf": "output\\print-calibration\\test-print-184-62mm\\leipzig-globe-print.pdf",
+    "pdf_sha256": "7b6e74521b9c402bf7eb7c40a46a04ff5112c77eaead31a6f546df1d9cf37c14",
+    "pages": 9,
+    "gore_images_and_positions_unchanged": true,
+    "gore_render_unchanged": true
+  }
+]

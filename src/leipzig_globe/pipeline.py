@@ -199,6 +199,8 @@ def build_artifacts(
         "texture_pixels": list(texture_dimensions(cfg)),
         "map_sampling": rendered.get("layout", {}).get("sampling"),
         "tile_count": len(tiles.get("tiles", [])),
+        "pdf_page_count": len(tiles.get("tiles", []))
+        + (1 if tiles.get("calibration_page") else 0),
     }
     performance["total_seconds"] = time.perf_counter() - started
     report = write_build_report(
@@ -293,17 +295,49 @@ def validate_output_directory(output_dir):
     tile_manifest = json.loads(
         artifact(str(Path(entries["pdf"]).with_suffix(".tiles.json"))).read_text()
     )
-    if len(reader.pages) != len(tile_manifest["tiles"]):
+    calibration_page = tile_manifest.get("calibration_page")
+    calibration_count = 1 if calibration_page is not None else 0
+    if calibration_count and (
+        calibration_page != 1
+        or tile_manifest.get("calibration_square_mm") != [100, 100]
+    ):
+        raise ValueError("Invalid calibration sheet metadata.")
+    if len(reader.pages) != len(tile_manifest["tiles"]) + calibration_count:
         raise ValueError("PDF pages do not match Page Tiles.")
-    for page in reader.pages:
+    if [tile["page"] for tile in tile_manifest["tiles"]] != list(
+        range(1 + calibration_count, len(reader.pages) + 1)
+    ):
+        raise ValueError("Page Tile numbers do not match PDF pages.")
+    for index, page in enumerate(reader.pages):
         if (
             abs(float(page.mediabox.width) - 210 * 72 / 25.4) > 0.01
             or abs(float(page.mediabox.height) - 297 * 72 / 25.4) > 0.01
         ):
             raise ValueError("PDF page dimensions are not A4.")
         text = page.extract_text()
-        if "100 mm" not in text or "OpenStreetMap" not in text:
-            raise ValueError("PDF page lacks calibration or attribution.")
+        if "OpenStreetMap" not in text:
+            raise ValueError("PDF page lacks attribution.")
+        if calibration_count and index == 0:
+            squares = [
+                args
+                for args, op in page.get_contents().operations
+                if op == b"re"
+                and all(abs(float(v) - 100 * 72 / 25.4) < 0.001 for v in args[2:])
+            ]
+            if (
+                "100 mm horizontal" not in text
+                or "100 mm vertical" not in text
+                or not squares
+            ):
+                raise ValueError("PDF lacks a 100 mm calibration square.")
+        elif not calibration_count:
+            # Historical checkpoints used a ruler on every gore page.
+            if "100 mm" not in text:
+                raise ValueError("PDF page lacks calibration.")
+        elif cfg["layout"].get("gore_numbering", True):
+            tile = tile_manifest["tiles"][index - 1]
+            if any(f"Gore {gore+1:02d}" not in text for gore in tile["gores"]):
+                raise ValueError("PDF tile lacks a Gore identifier.")
     if (
         reader.trailer["/Root"].get("/ViewerPreferences", {}).get("/PrintScaling")
         != "/None"

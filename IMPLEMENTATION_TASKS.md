@@ -110,12 +110,17 @@ edges, and the calculated equatorial widths match the configured circumference.
 - Support an optional equator split for Gores that need two pages. Centre the
   configured page overlap on the equator, keep Gores that fit on one page whole,
   and reject sizes whose half-Gores do not fit the printable page height.
-- Include page identifiers, tile registration marks, a 100 mm calibration line,
-  cut lines, Gore identifiers, and OSM attribution in each page's outer margin.
+- Include page identifiers, tile registration marks, cut lines, Gore identifiers
+  on every tile, and OSM attribution. Keep guides and identifiers inside a
+  4.2 mm printer border without changing Gore dimensions or overlap.
+- Start the PDF with a separate A4 calibration sheet containing an exact
+  100 × 100 mm square, safely inset from the edges, for measurement in both axes.
+  User revision 2026-09-14: this replaces the ruler repeated on every page.
 - Prevent automatic fitting or rescaling in the PDF metadata and instructions.
 
-**Done when:** the PDF dimensions are exact, every page has a calibration mark,
-and all Gore coverage is represented by one or more aligned Page Tiles.
+**Done when:** the PDF and calibration-square dimensions are exact, the first
+page checks both axes, every Gore tile has a visible identifier, and all Gore
+coverage is represented by one or more aligned Page Tiles.
 
 ## 9. Generate the Preview Set
 
@@ -164,7 +169,7 @@ coverage, missing output artifacts, and changed physical dimensions.
 ## 13. Perform the physical test-print milestone
 
 - Produce two or three adjacent default-size Gores and their needed Page Tiles.
-- Print at 100% scale, measure the calibration line, and assemble the sample on
+- Print at 100% scale, measure both axes of the calibration square, and assemble the sample on
   a representative sphere.
 - Record observed fit, overlap behavior, seam alignment, label legibility, and
   any correction required for paper stretch or glue shrinkage.

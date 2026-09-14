@@ -10,7 +10,9 @@ import geopandas as gpd
 import numpy as np
 import pytest
 from PIL import Image, ImageChops
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import FloatObject
+from reportlab.pdfbase.pdfmetrics import getAscentDescent, stringWidth
 from shapely.geometry import Point, Polygon, box
 
 from leipzig_globe.config import validate_config
@@ -175,26 +177,32 @@ def test_gore_overlap_samples_neighbor_and_svg_has_physical_size(printed_fixture
 def test_pdf_is_exact_a4_with_real_content_and_100mm_calibration(printed_fixture):
     _, _, gores, pdf = printed_fixture
     reader = PdfReader(pdf)
-    assert len(reader.pages) == 12
+    assert len(reader.pages) == 13
     assert reader.trailer["/Root"]["/ViewerPreferences"]["/PrintScaling"] == "/None"
-    for page in reader.pages:
+    for index, page in enumerate(reader.pages):
         assert float(page.mediabox.width) == pytest.approx(210 * 72 / 25.4, abs=0.001)
         assert float(page.mediabox.height) == pytest.approx(297 * 72 / 25.4, abs=0.001)
-        assert len(page.images) == 2
         text = page.extract_text()
-        assert "100 mm" in text and "OpenStreetMap" in text and "PRINT 100%" in text
-        # Inspect drawing operators instead of trusting the calibration label.
-        ops = page.get_contents().operations
-        lines = [
-            (ops[i - 1][0], args)
-            for i, (args, op) in enumerate(ops)
-            if op == b"l" and i and ops[i - 1][1] == b"m"
-        ]
-        assert any(
-            abs(float(b[0]) - float(a[0]) - 100 * 72 / 25.4) < 0.001 and a[1] == b[1]
-            for a, b in lines
-        )
-    tiles = json.loads(pdf.with_suffix(".tiles.json").read_text())["tiles"]
+        assert "OpenStreetMap" in text
+        if index == 0:
+            assert not page.images
+            assert "100 mm horizontal" in text and "100 mm vertical" in text
+            # Inspect physical drawing operators, not just the printed label.
+            rectangles = [
+                [float(v) * 25.4 / 72 for v in args]
+                for args, op in page.get_contents().operations
+                if op == b"re"
+            ]
+            assert len(rectangles) == 1
+            assert rectangles[0] == pytest.approx([55, 98.5, 100, 100], abs=0.001)
+        else:
+            assert len(page.images) == 2
+            assert "100 mm" not in text and "PRINT 100%" in text
+    manifest = json.loads(pdf.with_suffix(".tiles.json").read_text())
+    assert manifest["calibration_page"] == 1
+    assert manifest["calibration_square_mm"] == [100, 100]
+    tiles = manifest["tiles"]
+    assert [tile["page"] for tile in tiles] == list(range(2, 14))
     for index in range(len(gores)):
         portions = sorted(
             (tile["y_mm"], tile["y_mm"] + tile["height_mm"])
@@ -204,6 +212,78 @@ def test_pdf_is_exact_a4_with_real_content_and_100mm_calibration(printed_fixture
         assert portions[0][0] == 0
         assert portions[-1][1] >= math.pi * 300 / 2 + 6
         assert portions[0][1] - portions[1][0] == 10
+
+
+@pytest.mark.parametrize(
+    "diameter,count,margin,mode",
+    [
+        (150, 12, 8, "automatic"),
+        (215, 12, 10, "equator"),
+        (450, 12, 10, "automatic"),
+        (300, 4, 40, "automatic"),
+    ],
+)
+def test_every_gore_tile_has_unclipped_identifiers_and_safe_guides(
+    tmp_path, diameter, count, margin, mode
+):
+    config = validate_config(
+        {
+            "globe": {"diameter_mm": diameter, "gore_count": count, "ppi": 20},
+            "layout": {"print_margin_mm": margin, "vertical_tile_mode": mode},
+        }
+    )
+    texture = tmp_path / "texture.png"
+    Image.new("RGB", (200, 100), "white").save(texture)
+    gores = build_gore_set(texture, tmp_path / "gores", config)
+    pdf = build_pdf(gores, tmp_path / "print.pdf", config)
+    reader = PdfReader(pdf)
+    tiles = json.loads(pdf.with_suffix(".tiles.json").read_text())["tiles"]
+    for tile in tiles:
+        page = reader.pages[tile["page"] - 1]
+        labels = []
+        boxes = []
+
+        def inspect_text(text, cm, tm, font, size, *, boxes=boxes, labels=labels):
+            text = text.strip()
+            if not text:
+                return
+            assert cm == [1, 0, 0, 1, 0, 0]
+            ascent, descent = getAscentDescent("Helvetica", size)
+            x, y = tm[4], tm[5]
+            bounds = [
+                x,
+                y + descent,
+                x + stringWidth(text, "Helvetica", size),
+                y + ascent,
+            ]
+            left, bottom, right, top = [v * 25.4 / 72 for v in bounds]
+            assert 4.2 < left < right < 210 - 4.2
+            assert 4.2 < bottom < top < 297 - 4.2
+            boxes.append((left, bottom, right, top))
+            if text.startswith("Gore "):
+                labels.append(text)
+                assert bottom > 297 - margin  # above the artwork, including lower tiles
+
+        page.extract_text(visitor_text=inspect_text)
+        assert labels == [f"Gore {index+1:02d}" for index in tile["gores"]]
+        for i, a in enumerate(boxes):
+            for b in boxes[i + 1 :]:
+                assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1]
+        # Text extraction alone ignores clipping: check graphics-state scope too.
+        clipped, stack = False, []
+        for args, op in page.get_contents().operations:
+            if op == b"q":
+                stack.append(clipped)
+            elif op == b"Q":
+                clipped = stack.pop()
+            elif op in (b"W", b"W*"):
+                clipped = True
+            elif op == b"Tj":
+                assert not clipped
+            elif op in (b"m", b"l") and not clipped:
+                x, y = [float(v) * 25.4 / 72 for v in args]
+                assert 4.3 <= x <= 210 - 4.3
+                assert 4.3 <= y <= 297 - 4.3
 
 
 @pytest.mark.parametrize("diameter,count", [(150, 12), (250, 12), (450, 12), (300, 4)])
@@ -403,6 +483,28 @@ def test_real_offline_fixture_build_and_validation(tmp_path, monkeypatch, exteri
     assert "Testdenkmal ÄÖÜ" in set(municipal["name"])
     report = json.loads(artifacts["report"].read_text(encoding="utf-8"))
     assert report["physical"]["tile_count"] == 12
+    assert report["physical"]["pdf_page_count"] == 13
+    if exterior == "blank":
+        # Matching text and checksums must not mask an incorrectly sized square.
+        original_pdf = artifacts["pdf"].read_bytes()
+        writer = PdfWriter(clone_from=artifacts["pdf"])
+        content = writer.pages[0].get_contents()
+        for args, op in content.operations:
+            if op == b"re":
+                args[2] = FloatObject(96 * 72 / 25.4)
+        writer.pages[0].replace_contents(content)
+        writer.write(artifacts["pdf"])
+        report["artifact_sha256"][report["artifacts"]["pdf"]] = compute_sha256(
+            artifacts["pdf"]
+        )
+        artifacts["report"].write_text(json.dumps(report), encoding="utf-8")
+        with pytest.raises(ValueError, match="calibration square"):
+            validate_output_directory(output)
+        artifacts["pdf"].write_bytes(original_pdf)
+        report["artifact_sha256"][report["artifacts"]["pdf"]] = compute_sha256(
+            artifacts["pdf"]
+        )
+        artifacts["report"].write_text(json.dumps(report), encoding="utf-8")
     if exterior != "blank":
         assert artifacts["municipal_mask"].name in report["artifact_sha256"]
     if exterior == "terrain":

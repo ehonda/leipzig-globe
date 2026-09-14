@@ -258,6 +258,38 @@ def build_pdf(gore_files, output_path, config=None):
     c.setAuthor("Leipzig Globe; map data © OpenStreetMap contributors")
     c.setViewerPreference("PrintScaling", "None")
 
+    # The calibration sheet uses the same A4 page box and print job as the gores.
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(25 * mm, 260 * mm, "Print calibration")
+    c.setFont("Helvetica", 10)
+    for y, text in (
+        (
+            249,
+            "Print at 100% / Actual size on A4. Disable Fit in the viewer and driver.",
+        ),
+        (242, "Measure the square horizontally and vertically between line centres."),
+        (235, "Both dimensions must be 100 mm before you assemble the gores."),
+        (70, "Use the same printer, paper size and scaling settings for every page."),
+        (63, "If printing the gores as a separate job, keep these settings unchanged."),
+        (56, "Repeat this check after changing the printer, paper or print settings."),
+    ):
+        c.drawString(25 * mm, y * mm, text)
+    c.setLineWidth(0.2 * mm)
+    c.rect(55 * mm, 98.5 * mm, 100 * mm, 100 * mm, stroke=1, fill=0)
+    c.drawCentredString(105 * mm, 90 * mm, "100 mm horizontal")
+    c.saveState()
+    c.translate(47 * mm, 148.5 * mm)
+    c.rotate(90)
+    c.drawCentredString(0, 0, "100 mm vertical")
+    c.restoreState()
+    c.setFont("Helvetica", 7)
+    c.drawString(25 * mm, 25 * mm, ATTRIBUTION)
+    c.showPage()
+
+    # Manifest page numbers refer to physical PDF pages, including calibration.
+    for tile in tiles:
+        tile["page"] += 1
+
     def polyline(points, close=False):
         drawing = c.beginPath()
         drawing.moveTo(*points[0])
@@ -316,11 +348,6 @@ def build_pdf(gore_files, output_path, config=None):
                     (x + px) * mm,
                     (top - py + 0.6) * mm,
                 )
-            if cfg["layout"].get("gore_numbering", True):
-                c.setFont("Helvetica", 6)
-                c.drawCentredString(
-                    (x + width / 2) * mm, (top - 2.3) * mm, f"Gore {index+1:02d}"
-                )
             if cfg["layout"].get("gore_centerlines", False):
                 center = (
                     x + info[index]["inset_mm"] + info[index]["equator_width_mm"] / 2
@@ -332,29 +359,27 @@ def build_pdf(gore_files, output_path, config=None):
                     (top - height + info[index]["inset_mm"]) * mm,
                 )
         c.restoreState()
-        c.setFont("Helvetica", 7)
-        names = ", ".join(f"{index+1:02d}" for index in tile["gores"])
+        # Identify every visible piece, including lower and horizontal tiles.
+        # Keep labels outside the artwork clip, above their respective gores.
+        if cfg["layout"].get("gore_numbering", True):
+            c.setFont("Helvetica", 6)
+            for position, index in enumerate(tile["gores"]):
+                x = margin + position * (width + 4) - tile["x_mm"]
+                left, right = max(margin, x), min(210 - margin, x + width)
+                c.drawCentredString(
+                    (left + right) / 2 * mm,
+                    (297 - margin + 1) * mm,
+                    f"Gore {index+1:02d}",
+                )
+        c.setFont("Helvetica", 6)
         c.drawString(
             margin * mm,
-            (297 - margin / 2) * mm,
-            f"Page {tile['page']}/{len(tiles)} | Gores {names} | row {tile['row']+1}, column {tile['column']+1} | PRINT 100%",
+            6 * mm,
+            f"Page {tile['page']}/{len(tiles)+1} | row {tile['row']+1}, column {tile['column']+1} | PRINT 100%",
         )
         c.setFont("Helvetica", 5)
-        c.drawString(margin * mm, 2 * mm, ATTRIBUTION)
-        # 100 millimetres in PDF points, with measurable perpendicular ends.
-        ruler_y = margin / 2
+        c.drawRightString((210 - margin) * mm, 6 * mm, ATTRIBUTION)
         c.setLineWidth(0.2 * mm)
-        c.line(margin * mm, ruler_y * mm, (margin + 100) * mm, ruler_y * mm)
-        for tick in range(0, 101, 10):
-            c.line(
-                (margin + tick) * mm,
-                (ruler_y - 0.6) * mm,
-                (margin + tick) * mm,
-                (ruler_y + 0.6) * mm,
-            )
-        c.drawString(
-            (margin + 102) * mm, ruler_y * mm, "100 mm — measure before assembly"
-        )
         # Shared world y coordinates appear in both overlapping page tiles.
         # Place registration crosses in side margins at overlap centres.
         for world_y in (
@@ -362,7 +387,7 @@ def build_pdf(gore_files, output_path, config=None):
             tile["y_mm"] + tile["height_mm"] - overlap / 2,
         ):
             page_y = 297 - margin - (world_y - tile["y_mm"])
-            for page_x in (margin / 2, 210 - margin / 2):
+            for page_x in (6, 204):
                 c.line((page_x - 1) * mm, page_y * mm, (page_x + 1) * mm, page_y * mm)
                 c.line(page_x * mm, (page_y - 1) * mm, page_x * mm, (page_y + 1) * mm)
         if width > tile["width_mm"]:
@@ -371,7 +396,7 @@ def build_pdf(gore_files, output_path, config=None):
                 tile["x_mm"] + tile["width_mm"] - overlap / 2,
             ):
                 page_x = margin + world_x - tile["x_mm"]
-                for page_y in (margin / 2, 297 - margin / 2):
+                for page_y in (6, 291):
                     c.line(
                         (page_x - 1) * mm, page_y * mm, (page_x + 1) * mm, page_y * mm
                     )
@@ -390,6 +415,8 @@ def build_pdf(gore_files, output_path, config=None):
                 "vertical_tile_mode": vertical_tile_mode,
                 "print_scale": 1.0,
                 "calibration_mm": 100,
+                "calibration_page": 1,
+                "calibration_square_mm": [100, 100],
             },
             indent=2,
         ),

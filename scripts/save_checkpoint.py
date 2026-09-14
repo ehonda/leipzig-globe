@@ -55,12 +55,20 @@ def main():
             image.save(root / name)
     shutil.copyfile(args.output / "build-report.json", root / "build-report.json")
     document = pymupdf.open(args.output / "leipzig-globe-print.pdf")
-    page = document[min(6, len(document) - 1)]
+    tiles = json.loads((args.output / "leipzig-globe-print.tiles.json").read_text())
+    calibration = tiles.get("calibration_page")
+    offset = 1 if calibration else 0
+    first = min(6 + offset, len(document) - 2)
+    page = document[first]
     page.get_pixmap(matrix=pymupdf.Matrix(1.5, 1.5)).save(root / "print-page.png")
-    # A small two-page sample contains the adjacent central gores at exact size.
+    # Include calibration before the two adjacent central gore pages.
     sample = pymupdf.open()
-    first = min(6, len(document) - 2)
+    sample_pages = []
+    if calibration:
+        sample.insert_pdf(document, from_page=0, to_page=0)
+        sample_pages.append(1)
     sample.insert_pdf(document, from_page=first, to_page=first + 1)
+    sample_pages.extend([first + 1, first + 2])
     sample.xref_set_key(
         sample.pdf_catalog(), "ViewerPreferences", "<< /PrintScaling /None >>"
     )
@@ -69,7 +77,7 @@ def main():
         "source_output": str(args.output),
         "checkpoint": args.name,
         "images_are_downsampled": True,
-        "sample_pdf_pages": [first + 1, first + 2],
+        "sample_pdf_pages": sample_pages,
         "sample_pdf_print_at": "100% / actual size",
         "full_build_report": "build-report.json",
         "physical_test": "Awaiting human printing, measurement and assembly.",
