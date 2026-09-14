@@ -48,6 +48,21 @@
         145,
         150
       ],
+      "path": [
+        199,
+        193,
+        178
+      ],
+      "sport": [
+        206,
+        218,
+        195
+      ],
+      "landmark": [
+        139,
+        112,
+        143
+      ],
       "label": [
         70,
         71,
@@ -67,14 +82,17 @@
       "label_density": "high",
       "exterior": "ocean",
       "curated_landmarks": [
+        "Völkerschlachtdenkmal",
+        "Red Bull Arena",
+        "Thomaskirche",
+        "Gewandhaus",
+        "Nikolaikirche",
+        "Neues Rathaus",
         "Leipzig",
         "Mitte",
         "Connewitz",
         "Schönefeld",
-        "Plagwitz",
-        "Völkerschlachtdenkmal",
-        "Thomaskirche",
-        "Gewandhaus"
+        "Plagwitz"
       ],
       "source_cache_dir": ".cache/sources-2026-09-01",
       "show_railways": true,
@@ -168,123 +186,67 @@
     ]
   },
   "artifact_sha256": {
-    "gores/geometry-manifest.json": "f5b46e79d2beb90b45f3475385e2700c0bc22e5a11f5bcb34276ee9f0d830706",
+    "gores/geometry-manifest.json": "9bce2777ee8c91e3c0e6d8f9476f0520761de32f8eda5c4c5efe02471d64b8b5",
     "gores/gore-01.json": "3e518127cd0d054c302559aab19eb948f727f352b8685da80066c3aa4ac9a96e",
-    "gores/gore-01.png": "5867e88a5eb8d3baff08be2e46b2d0b8a2bc82c3dc2c05b1153145b1e07d6394",
-    "gores/gore-01.svg": "44b01fc34e1c6414d3d6a85747d8e4a24a261ad711d9620e35639590149b052b",
+    "gores/gore-01.png": "fb96ab754ca1eaad809984ccae58d2aff437787adfa2c216c2155d42e92f4a4d",
+    "gores/gore-01.svg": "b0bedb21182617e178d9d84ecaedc3d38056663e807bdfa5753a69083b06d710",
     "gores/gore-02.json": "d29f1e1960255563d184414439bb44a5394c4be8c2453a61a5cf608da9e06b79",
-    "gores/gore-02.png": "44380bf7a5106cd8116fd48210c0db0a123b29001c39f74eef6cd56ecfb02d98",
-    "gores/gore-02.svg": "8311d2b7ec28b34dfded9fad1b48e4dc1fa71d5ebcfd6c1a7b82203e0eda8527",
+    "gores/gore-02.png": "4acb59ec45c2f7d511023209a5bd761c20b87b8a7587591249c18cb965516954",
+    "gores/gore-02.svg": "fe7b996904e16c61374463b05ff7ec859caa0adf6d94ceada4a11b8f2df5a116",
     "gores/gore-03.json": "8a87cdf0ef88443a0f9d78081613c10a1b0852c872fc6ea891544dc82095ce54",
-    "gores/gore-03.png": "daf2b8665f33b2a621ccf70f69d7752f23b805ea78cb4cd5d17aac82f6481637",
-    "gores/gore-03.svg": "96b7f85223b6dc00b01f18a3c7ee47b8aee2f022aab0b71af2ff65c6265a5172",
+    "gores/gore-03.png": "025b798a9f66c59c133eb3ffff1ef7c3f6d1532b291718bc1717c789d34b238d",
+    "gores/gore-03.svg": "c1082ccc3e2a91bcf0ad9b916d619fdb85121dc3e63a1d6614afeb0feab208fa",
     "gores/gore-04.json": "fb97b141c1088a9e7b5e65f7bde34d532b25845b8e817a725d4339065938fecc",
-    "gores/gore-04.png": "3d2199ff0d00eed817ec6eca57c1a197e53c72e458f3ea6004755b0d6e1d63cb",
-    "gores/gore-04.svg": "5b9e15ee48bc82d6ed4c238aecf978bfa35596d8d8d2da8d23e3048556682e8d",
+    "gores/gore-04.png": "843cb790d49f93357f1d778defe1658244c1eefa67587734ff03dc7a46dad97c",
+    "gores/gore-04.svg": "27e10567f16f4a91e22ca0c4ed766088ddec1b0ce5a48cd7b74c1bd262c7e032",
     "gores/gore-05.json": "55450c20f03d94471b254d6aa430ca8108504f9a14024e5fa36092517eda3c75",
-    "gores/gore-05.png": "bf37767cb8c4315e288e0053ff6ab4f8c7930b24b5c0ab529d7da7d6a5146302",
-    "gores/gore-05.svg": "3e6dd2334eff80d7ccbd59ed4685497630cd82237dacb230d4663060a8a75531",
+    "gores/gore-05.png": "ad9c38c22b7162a35051a1f8f19466d5c9987547ef9468fa6f0b41a914004970",
+    "gores/gore-05.svg": "f01e3ece9bd0fef224344e18bb3cd277706eaaff58d66f5ffda2c618d420e0ee",
     "gores/gore-06.json": "6b6e62821e0051226aabdf356b05faa239ed73a9bdbe6f3be89980039467c985",
-    "gores/gore-06.png": "b0654ec528193841415dbaf5b30568dc4e1e6cc49287a8a760c0b28d367f7025",
-    "gores/gore-06.svg": "8d88ca56e5c84f18bebcb333c6a0c76948229eefb83d48fa8b821338bc4dce7e",
+    "gores/gore-06.png": "7b0f2117cf8ea9cf1a05de598b9a0afce53387457cf245aaa75566a3b5557418",
+    "gores/gore-06.svg": "d6850f6a2f77807d0b7f3b2efbbb9a889a9d229039729f870ea1f5bc466f6ade",
     "gores/gore-07.json": "1f9cbc357a795f0364c137e137674840c9313217de00fe6ae0969d80389be662",
-    "gores/gore-07.png": "c0c8ceb49454bca9f699f26c07a58ff64bc6234c366cca9c204fcc96bfc0e342",
-    "gores/gore-07.svg": "0ef46d6235b06aae00ade136a27a6a2a02dc6299556177ef8790c54bf21c0f46",
+    "gores/gore-07.png": "071c361d72b3b8c6ae34b0625aae70cea5a2ec5d0ef1366ffda76fb8431bc7d6",
+    "gores/gore-07.svg": "dbfc1c2d50dc578c0c1f5ffcfbee3fc0b37b6f19457c37f03f8f9e0fff121133",
     "gores/gore-08.json": "a30bd0690fa7650a6aefe583a0b4764b0ea9a2d3b9c17ed975717d9dc152476d",
-    "gores/gore-08.png": "f51b90d41530a9ea2d3231301c5d1ebb586d373c74ff084c57b684c7106f0c62",
-    "gores/gore-08.svg": "ea763c9a3c54959c25f21090c1a681149d5cbaacbaf66ef83c23b733d9c6ce22",
+    "gores/gore-08.png": "7bd97dce4b28f33c50662c18b6fb2c252a902f58e20d8e4774d871f9ceb85c49",
+    "gores/gore-08.svg": "2d59f9ca990d5a5b9f073bea2a2fa22bd5d9ead043e05dd8610b93e29949a324",
     "gores/gore-09.json": "33309c903bf42ba0c636559f9600e9f6f196040f7794d8f1f7a5bf752a324653",
-    "gores/gore-09.png": "a663db94c4d8f267ec5e5b048145363342b6d77871bec5deb9deabf3eb24c6f1",
-    "gores/gore-09.svg": "92e4193d065a265fa9d0fc63f3df93e0c15727813b6f46fe2a41b5526e2ceafb",
+    "gores/gore-09.png": "15f8c0791fe829873f4227eb1ba689431cbc33bc6360a918fa0685c712b9b5b3",
+    "gores/gore-09.svg": "a15d27e393116f36ed2ce8f723e11f794d29d94f550250bf4d2172f0c13f4ec6",
     "gores/gore-10.json": "1b98b3729923486c006c1ed8e91ec5e668e740a7908be8ba27ea981e021bd5ee",
-    "gores/gore-10.png": "5b30d96d8b99c3931f48ce960b73dbbaa7cd1d7ccdfc0d618bd42af62fa4049f",
-    "gores/gore-10.svg": "86336ed06b69465e6e8daba3499100955153cbb87001e06d863c2b25bedcc4e2",
+    "gores/gore-10.png": "ce2aff4e8985aa4d8a640614fd678af761953031815ffe8501b160d41a5dfa44",
+    "gores/gore-10.svg": "7ba181094d053e9eb219e66cc799a3cf04528d13ba8c2fad841942c25bc7f1c8",
     "gores/gore-11.json": "941eb404bff3cce80f38a44801b87288b6720c3fa1dfb2d3d4bc30e802f1ff67",
-    "gores/gore-11.png": "1996834f240d650739a6db949fb0e4522ac62d4aaef3a24332be04de82ca4d26",
-    "gores/gore-11.svg": "09d1c2807ba357f65523b7f114e0f6e15a3895dfe0730c2cd1b79f20ea647747",
+    "gores/gore-11.png": "01c44dc3f16f64bccc52b46586aa53dfe174eade8a2ad61beda565dda39c1257",
+    "gores/gore-11.svg": "36b2fa538389568c3c31d72e1aeaf75d8ffaaeb2c6481b1751306d047ab015f1",
     "gores/gore-12.json": "e7f1d502f4386d52905d5c6c6963e15af1395f0b9ea639c85b4a63775a99a00b",
-    "gores/gore-12.png": "08183b62f32a6394553950a4a142d631dce18d7f97cd90b859ec6a2cf8cd72a6",
-    "gores/gore-12.svg": "668ca83ed1b11612d22831390afc056ac890bc58dd014cfc899a2dc0b99c0c53",
-    "leipzig-globe-print.pdf": "55eb29364386b4ba60050ddd7af6900d6ee135e4693b597ec88aae90845279eb",
+    "gores/gore-12.png": "b9aebec72625f70249203518699cb7ca2e76fb31d8964c1313c9e77dc9171942",
+    "gores/gore-12.svg": "c160f6c4e65f4fa907caa7aa2ae02c312d3b35e5e02ebb2476ddf51c5ce9d1cd",
+    "leipzig-globe-print.pdf": "43ba0a88835d3ad6b3bb9845efc2ec335b53721e7184bcbdf52300fb7ed634ce",
     "leipzig-globe-print.tiles.json": "51e17125ced4051be655c7d875884ec63787a634a36a8a912b5f7e26bee74254",
     "leipzig-map.boundary.png": "3a3dcdf382dc3f420f1f19268bb22dac843731c8e7d9e99618741092cc6da683",
-    "leipzig-map.json": "aad7e1a58310a4e79e58d481ffa674caf37acb805a9b889d7ff5c6db3e70d72c",
-    "leipzig-map.png": "065be5382dd681d851cbc120bcb0f0415ddd5e8656e11faf4657be1a93f191fd",
-    "leipzig-texture.png": "4676ef521e1c7a62c6fbd679d8ed46b8ec427b9cf87f1e1b35c918ea8ec51de8",
-    "municipal-map.geojson": "dce8bb42327af0e626b30136b8f0b8ccadd6af2a6e09b2fe23c003bf24a3664a",
-    "preview/back.png": "567218d07bf1307a7c27c9525c03119cebdb1b1ab7384b4b1c86e8f326958db0",
-    "preview/front.png": "3d73466c98dd7e1ee6421b80ab7ec7eab4ecb19439f16b58a5d77e8a3feeca15",
-    "preview/left.png": "9f1304cf96f27d7a76454d9fb3036303f142dd51feaa98ed2f9643a4936530e7",
-    "preview/metadata.json": "a442415828b520d4388dba38b17007b8a8a7c16ce5218ec6bf9b2beb4781bab8",
-    "preview/north.png": "1293998bb8472a89fe48a5536d2abe24711ffc3d1696aa2154acd7a26f104e23",
-    "preview/right.png": "aee932c8960bd7b678b9a30f8329fd7710e2a89078b87824628612bd1cb6aaae",
-    "preview/south.png": "d2ea746a607d2bf763b47db589303419db611f29315f18f9e73c77e61186963d"
+    "leipzig-map.json": "0e755790d44b7fdaf7ddfa88ee1dc0e86932870ae750f5dc7dbdef476b0e9c5c",
+    "leipzig-map.png": "97a533a1f44bf61748308e712bc66f3d899b15863a720dbb27fa7d78a41c4ced",
+    "leipzig-texture.png": "4454e2551344668a7fb13a62078c15c054d508a91d02d04f1698ca889c3dc065",
+    "municipal-map.geojson": "a532a81f7d90b56d21eec07d674ebc6fffc6d88ca02c1679ee29f04869fea7f2",
+    "preview/back.png": "e66f78ce4ac514847f6bded52e922b34b7bf1c03cca5aca0c698af96882a549a",
+    "preview/front.png": "67387d9c8a44fc23e687a868f80f440488110ba99b086e3f9919ca2ecb542081",
+    "preview/left.png": "51e31f1fa745c6e25891afd7a59da588326b35fbec3f33de54c8703520f6e4fa",
+    "preview/metadata.json": "bce9b45b4ec3a1f9b1a5a7814a203ffc26e2c50f7c7b503d1bec67ce37491a90",
+    "preview/north.png": "026ab4510a1ad6180eb342675c24aa0e56968f37e0b87e069a8d328a357ed52b",
+    "preview/right.png": "b8dae7b2567d692694af0054c747d6e9e82a8ff3518a4995aa93108616393597",
+    "preview/south.png": "7c2a94fcc8400d37dad43226ceda0ad1208befe680eb2ddcc715b7eeae945b7c"
   },
   "omitted_labels": [
     {
-      "label": "Connewitz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3877.2857369578487,
-        5425.95139649531
-      ],
-      "source_id": "n310239960",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Leipzig",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3989.5,
-        4043.0
-      ],
-      "source_id": "n21687149",
-      "source_tags": {
-        "place": "city"
-      }
-    },
-    {
-      "label": "Plagwitz",
-      "reason": "feature_collision",
-      "anchor_px": [
-        3127.15627376831,
-        4473.208428110007
-      ],
-      "source_id": "n26983842",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Schönefeld",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4789.805125701156,
-        3365.6275900219443
-      ],
-      "source_id": "n2371709101",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Gewandhaus",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4122.571521644445,
-        4151.840707661497
-      ],
-      "source_id": "a305539",
-      "source_tags": {
-        "amenity": "theatre",
-        "building": "concert_hall"
-      }
-    },
-    {
       "label": "Thomaskirche",
-      "reason": "gore_seam",
+      "reason": "feature_collision",
+      "rejected_positions": {
+        "symbol_collision": 1341,
+        "feature_collision": 1662,
+        "gore_seam": 1353
+      },
       "anchor_px": [
         3938.711296262874,
         4089.352870661948
@@ -294,121 +256,45 @@
         "historic": "church",
         "tourism": "attraction",
         "building": "church"
-      }
+      },
+      "anchor_metric": [
+        316999.79319147376,
+        5690838.597098505
+      ],
+      "is_landmark": true
     },
     {
-      "label": "Völkerschlachtdenkmal",
-      "reason": "gore_seam",
+      "label": "Neues Rathaus",
+      "reason": "label_collision",
+      "rejected_positions": {
+        "label_collision": 1501,
+        "symbol_collision": 439,
+        "gore_seam": 1485,
+        "feature_collision": 931
+      },
       "anchor_px": [
-        4852.39640585098,
-        5119.42351217308
+        3927.875280156132,
+        4202.104136302195
       ],
-      "source_id": "a42714036",
+      "source_id": "a554723",
       "source_tags": {
-        "historic": "monument",
-        "tourism": "attraction",
+        "historic": "heritage",
+        "amenity": "townhall",
         "building": "public"
-      }
-    },
-    {
-      "label": "Mitte",
-      "reason": "feature_collision",
-      "anchor_px": [
-        3897.3984852529875,
-        4182.736012470597
+      },
+      "anchor_metric": [
+        316967.2815594346,
+        5690500.28595049
       ],
-      "source_id": null,
-      "source_tags": {
-        "kind": "district"
-      }
-    },
-    {
-      "label": "Südost",
-      "reason": "feature_collision",
-      "anchor_px": [
-        5872.869329303043,
-        5662.856407349436
-      ],
-      "source_id": null,
-      "source_tags": {
-        "kind": "district"
-      }
-    },
-    {
-      "label": "Südwest",
-      "reason": "feature_collision",
-      "anchor_px": [
-        2497.780513670159,
-        6021.8511896158
-      ],
-      "source_id": null,
-      "source_tags": {
-        "kind": "district"
-      }
-    },
-    {
-      "label": "West",
-      "reason": "gore_seam",
-      "anchor_px": [
-        1665.1140549087806,
-        4782.28102599472
-      ],
-      "source_id": null,
-      "source_tags": {
-        "kind": "district"
-      }
-    },
-    {
-      "label": "Abtnaundorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5060.9345031947405,
-        2998.4174246244697
-      ],
-      "source_id": "n2371709806",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Althen-Kleinpösna",
-      "reason": "gore_seam",
-      "anchor_px": [
-        7286.8447635553675,
-        4668.769058030663
-      ],
-      "source_id": "n2372324806",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Altlindenau",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3059.5467068520875,
-        4032.44445010975
-      ],
-      "source_id": "n26983840",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Anger-Crottendorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5046.836355945478,
-        4313.9497957609765
-      ],
-      "source_id": "n2452208774",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": true
     },
     {
       "label": "Bachviertel",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 476,
+        "feature_collision": 102
+      },
       "anchor_px": [
         3593.9462082834625,
         4222.731079253778
@@ -416,71 +302,19 @@
       "source_id": "n2375219516",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Barneck",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2292.0807244978632,
-        3483.449569625772
+      },
+      "anchor_metric": [
+        315965.3839058175,
+        5690438.394629711
       ],
-      "source_id": "n2373238039",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Böhlitz-Ehrenberg",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2065.0934398971176,
-        3304.84474012992
-      ],
-      "source_id": "n26754048",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Cleuden",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5610.627136730489,
-        2536.2037628577923
-      ],
-      "source_id": "n3092462733",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Crottendorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4878.162634057106,
-        4241.956775508139
-      ],
-      "source_id": "n2452208772",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Dölitz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4299.8520535191,
-        6006.103123484438
-      ],
-      "source_id": "n2371684979",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
+      "is_landmark": false
     },
     {
       "label": "Eichbergsiedlung",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 578
+      },
       "anchor_px": [
         5645.606172382863,
         2691.905438491138
@@ -488,23 +322,20 @@
       "source_id": "n13296885780",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Erla-Siedlung",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5732.36085082886,
-        2611.451779514714
+      },
+      "anchor_metric": [
+        322121.0423290981,
+        5695031.650208666
       ],
-      "source_id": "n13296885781",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
+      "is_landmark": false
     },
     {
       "label": "Eutritzsch",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 527,
+        "feature_collision": 51
+      },
       "anchor_px": [
         4321.6488579537445,
         2936.8832988832464
@@ -512,59 +343,20 @@
       "source_id": "n1509756385",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Großzschocher",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2863.882082519098,
-        5500.790787944974
+      },
+      "anchor_metric": [
+        318148.73252277647,
+        5694296.592019148
       ],
-      "source_id": "n313033315",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Grünau-Nord",
-      "reason": "gore_seam",
-      "anchor_px": [
-        1520.855749839708,
-        4608.771645228471
-      ],
-      "source_id": "n2190953960",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Grünau-Ost",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2228.033147579013,
-        4687.0973606448315
-      ],
-      "source_id": "n2190953959",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Grünau-Siedlung",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2025.134549688263,
-        5050.259180580407
-      ],
-      "source_id": "n2190953958",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Hartmannsdorf-Knautnaundorf",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 561,
+        "feature_collision": 17
+      },
       "anchor_px": [
         1789.6297948259494,
         7106.4076741315175
@@ -572,35 +364,20 @@
       "source_id": "n2373702681",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Heiterblick",
-      "reason": "gore_seam",
-      "anchor_px": [
-        6310.281661567982,
-        3482.8353126153916
+      },
+      "anchor_metric": [
+        310551.8379366449,
+        5681785.898058825
       ],
-      "source_id": "n310240863",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Holzhausen",
-      "reason": "gore_seam",
-      "anchor_px": [
-        6039.931939357285,
-        5289.491233619112
-      ],
-      "source_id": "n2373706486",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Kleinzschocher",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 357,
+        "feature_collision": 221
+      },
       "anchor_px": [
         2809.774820873675,
         4998.434627360444
@@ -608,23 +385,21 @@
       "source_id": "n313033285",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Kleisthof",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4121.580314612269,
-        3110.846431473285
+      },
+      "anchor_metric": [
+        313612.610400134,
+        5688110.889422664
       ],
-      "source_id": "n11578592408",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
+      "is_landmark": false
     },
     {
       "label": "Knautkleeberg-Knauthain",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 544,
+        "feature_collision": 28,
+        "label_collision": 6
+      },
       "anchor_px": [
         2439.5992213258814,
         6201.162559577512
@@ -632,83 +407,21 @@
       "source_id": "n313033374",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Lausen-Grünau",
-      "reason": "gore_seam",
-      "anchor_px": [
-        1411.501067937405,
-        5070.476778143643
+      },
+      "anchor_metric": [
+        312501.96117593395,
+        5684502.093856718
       ],
-      "source_id": "n313033011",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Leutzsch",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2629.657842709309,
-        3697.7315513883245
-      ],
-      "source_id": "n29553304",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Liebertwolkwitz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5985.995304128176,
-        6264.9163493654505
-      ],
-      "source_id": "n195971159",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Lindenau",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3008.1924072472,
-        4291.288452060676
-      ],
-      "source_id": "n26983841",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Lindenthal",
-      "reason": "feature_collision",
-      "anchor_px": [
-        3130.8718310441486,
-        2101.5924805381087
-      ],
-      "source_id": "n276828436",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Lützschena-Stahmeln",
-      "reason": "gore_seam",
-      "anchor_px": [
-        1942.234241929111,
-        2034.0400585339046
-      ],
-      "source_id": "n26981326",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Meyer'sche Häuser Eutritzsch",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 1020,
+        "feature_collision": 116,
+        "label_collision": 20
+      },
       "anchor_px": [
         4449.3578080879,
         3201.2775156168054
@@ -716,47 +429,22 @@
       "source_id": "n2038041241",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Miltitz",
-      "reason": "feature_collision",
-      "anchor_px": [
-        1207.0808673332613,
-        4507.80862133368
+      },
+      "anchor_metric": [
+        318531.90160945634,
+        5693503.274884448
       ],
-      "source_id": "n2373660092",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Mockau-Nord",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4853.250124320697,
-        2556.37601335374
-      ],
-      "source_id": "n2372342736",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Mockau-Süd",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4749.9705957861415,
-        2912.4570580772815
-      ],
-      "source_id": "n2372342746",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Musikviertel",
-      "reason": "feature_collision",
+      "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 408,
+        "feature_collision": 145,
+        "symbol_collision": 6,
+        "label_collision": 19
+      },
       "anchor_px": [
         3773.484279541674,
         4385.501323535971
@@ -764,71 +452,21 @@
       "source_id": "n2375215148",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Möckern",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3530.872567652602,
-        2897.577263463967
+      },
+      "anchor_metric": [
+        316504.05749694805,
+        5689950.001103546
       ],
-      "source_id": "n427551927",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Neu-Paunsdorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5970.63540350513,
-        3619.7071998378133
-      ],
-      "source_id": "n13172113381",
-      "source_tags": {
-        "place": "quarter"
-      }
-    },
-    {
-      "label": "Neulindenau",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2551.23173859187,
-        4282.251026972297
-      ],
-      "source_id": "n28383961",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Neuschönefeld",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4646.990622965273,
-        3907.467645451372
-      ],
-      "source_id": "n2371718140",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Neustadt",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4671.119424160179,
-        3803.4237357497136
-      ],
-      "source_id": "n2371715084",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
+      "is_landmark": false
     },
     {
       "label": "Neustadt-Neuschönefeld",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 442,
+        "label_collision": 72,
+        "feature_collision": 64
+      },
       "anchor_px": [
         4574.812256157565,
         3895.889975889771
@@ -836,35 +474,20 @@
       "source_id": "n332308133",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Neutzsch",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5339.59829064087,
-        2599.6383260845805
+      },
+      "anchor_metric": [
+        318908.30644432723,
+        5691419.084188001
       ],
-      "source_id": "n3092462734",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Paunsdorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        6181.281344648189,
-        3684.6955324102537
-      ],
-      "source_id": "n310240910",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Pfaffendorf",
-      "reason": "gore_seam",
+      "reason": "feature_collision",
+      "rejected_positions": {
+        "feature_collision": 391,
+        "gore_seam": 187
+      },
       "anchor_px": [
         3921.2920046401746,
         3731.7045533313603
@@ -872,71 +495,19 @@
       "source_id": "n2696892245",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Plaußig-Portitz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        6093.427253498312,
-        2537.039554293778
+      },
+      "anchor_metric": [
+        316947.5295556466,
+        5691911.723968828
       ],
-      "source_id": "n250737665",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Reudnitz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4558.427879010343,
-        4238.139366114313
-      ],
-      "source_id": "n2696877901",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Reudnitz-Thonberg",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4721.614939680088,
-        4388.860324035702
-      ],
-      "source_id": "n309851743",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Schleußig",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3198.417209341467,
-        4642.641136696819
-      ],
-      "source_id": "n72932528",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Schönau",
-      "reason": "feature_collision",
-      "anchor_px": [
-        1787.5123560951806,
-        4594.660334251042
-      ],
-      "source_id": "n277948460",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Schönefeld-Abtnaundorf",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 578
+      },
       "anchor_px": [
         4961.286542994059,
         3337.896918020986
@@ -944,23 +515,22 @@
       "source_id": "n60754072",
       "source_tags": {
         "place": "suburb"
-      }
-    },
-    {
-      "label": "Schönefeld-Ost",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5234.555607023633,
-        3493.495640002474
+      },
+      "anchor_metric": [
+        320067.8571207429,
+        5693093.34718558
       ],
-      "source_id": "n1470084831",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Seeburgviertel",
       "reason": "gore_seam",
+      "rejected_positions": {
+        "gore_seam": 391,
+        "label_collision": 137,
+        "feature_collision": 49,
+        "symbol_collision": 1
+      },
       "anchor_px": [
         4171.097635627407,
         4265.258005164141
@@ -968,216 +538,186 @@
       "source_id": "n2375210385",
       "source_tags": {
         "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Seehausen",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5005.217088886463,
-        1678.458754926662
+      },
+      "anchor_metric": [
+        317697.029065057,
+        5690310.792220598
       ],
-      "source_id": "n291784465",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Sellerhausen",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5221.484626760407,
-        3988.298552136728
-      ],
-      "source_id": "n141958877",
-      "source_tags": {
-        "place": "neighbourhood"
-      }
-    },
-    {
-      "label": "Sellerhausen-Stünz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        5338.812046234138,
-        3937.9831078806715
-      ],
-      "source_id": "n2371825654",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Stötteritz",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4976.403919372119,
-        4853.2595460656685
-      ],
-      "source_id": "n1693790631",
-      "source_tags": {
-        "place": "suburb"
-      }
-    },
-    {
-      "label": "Südvorstadt",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3962.696351053224,
-        4713.997005595599
-      ],
-      "source_id": "n313033750",
-      "source_tags": {
-        "place": "suburb"
-      }
+      "is_landmark": false
     },
     {
       "label": "Thonberg",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4604.88940980409,
-        4800.67445798395
-      ],
+      "reason": "label_density",
       "source_id": "n6184950610",
       "source_tags": {
         "place": "neighbourhood"
-      }
+      },
+      "anchor_metric": [
+        318998.547852471,
+        5688704.270521789
+      ],
+      "is_landmark": false
     },
     {
       "label": "Volkmarsdorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4776.250718623131,
-        3960.703982866206
-      ],
+      "reason": "label_density",
       "source_id": "n2372128201",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        319512.68845204124,
+        5691224.609199334
+      ],
+      "is_landmark": false
+    },
+    {
+      "label": "Wahren",
+      "reason": "label_density",
+      "source_id": "n427552883",
+      "source_tags": {
+        "place": "suburb"
+      },
+      "anchor_metric": [
+        313421.62618846854,
+        5695058.438759805
+      ],
+      "is_landmark": false
     },
     {
       "label": "Waldstraßenviertel",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3603.4695683544655,
-        3837.60438866071
-      ],
+      "reason": "label_density",
       "source_id": "n1769577897",
       "source_tags": {
         "place": "neighbourhood"
-      }
+      },
+      "anchor_metric": [
+        315993.957135624,
+        5691593.970596736
+      ],
+      "is_landmark": false
     },
     {
       "label": "Wiederitzsch",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4049.3281794174095,
-        2060.456870267571
-      ],
+      "reason": "label_density",
       "source_id": "n2372362176",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        317331.6804244764,
+        5696926.31710056
+      ],
+      "is_landmark": false
     },
     {
       "label": "Windorf",
-      "reason": "gore_seam",
-      "anchor_px": [
-        2783.922114498887,
-        5652.738399693824
-      ],
+      "reason": "label_density",
       "source_id": "n2373693280",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        313535.043730927,
+        5686147.645293108
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4028.1140228717036,
-        4057.65739305176
-      ],
+      "reason": "label_density",
       "source_id": "n9580826444",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        317268.0309388314,
+        5690933.699653286
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-Nord",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4040.7211954153217,
-        3585.845739261457
-      ],
+      "reason": "label_density",
       "source_id": "n9580826977",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        317305.8566259432,
+        5692349.374602334
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-Nordwest",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3561.5584893550586,
-        3657.136422009582
-      ],
+      "reason": "label_density",
       "source_id": "n9580761112",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        315868.2100376712,
+        5692135.466291981
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-Ost",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4269.056666613043,
-        3857.8602476577375
-      ],
+      "reason": "label_density",
       "source_id": "n9580812476",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        317990.93855531106,
+        5691533.192716573
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-Süd",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3818.8466460905406,
-        4422.548469174553
-      ],
+      "reason": "label_density",
       "source_id": "n9580833580",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        316640.15959896916,
+        5689838.840822546
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-Südost",
-      "reason": "gore_seam",
-      "anchor_px": [
-        4324.797524405095,
-        4599.918879691699
-      ],
+      "reason": "label_density",
       "source_id": "n9580812477",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        318158.1795634667,
+        5689306.63937128
+      ],
+      "is_landmark": false
     },
     {
       "label": "Zentrum-West",
-      "reason": "gore_seam",
-      "anchor_px": [
-        3655.8846664347952,
-        4149.107732320955
-      ],
+      "reason": "label_density",
       "source_id": "n9580760674",
       "source_tags": {
         "place": "suburb"
-      }
+      },
+      "anchor_metric": [
+        316151.2197647395,
+        5690659.302119131
+      ],
+      "is_landmark": false
     }
   ],
   "performance": {
     "extract": {
-      "seconds": 7.329861459999989,
+      "seconds": 7.8650472509999645,
       "bytes": 18511178,
       "objects": {
         "changesets": 0,
@@ -1201,55 +741,55 @@
       ]
     },
     "filter": {
-      "seconds": 1.9417341369999974,
-      "bytes": 4959819,
+      "seconds": 1.6725787590000323,
+      "bytes": 6886959,
       "objects": {
         "changesets": 0,
-        "nodes": 389893,
-        "ways": 65067,
-        "relations": 964
+        "nodes": 511689,
+        "ways": 106217,
+        "relations": 994
       },
       "tags": [
-        "37210\t\"highway\"",
-        "10138\t\"landuse\"",
-        "6107\t\"leisure\"",
-        "4288\t\"railway\"",
-        "2151\t\"natural\"",
+        "77341\t\"highway\"",
+        "10140\t\"landuse\"",
+        "7235\t\"leisure\"",
+        "4344\t\"railway\"",
+        "2154\t\"natural\"",
         "1570\t\"waterway\"",
-        "109\t\"area\"",
+        "141\t\"area\"",
         "95\t\"place\"",
-        "21\t\"historic\"",
-        "15\t\"amenity\"",
-        "14\t\"tourism\"",
-        "4\t\"building\""
+        "73\t\"building\"",
+        "24\t\"historic\"",
+        "19\t\"amenity\"",
+        "14\t\"tourism\""
       ]
     },
     "export": {
-      "seconds": 0.9846973330000139,
-      "bytes": 19985607,
-      "feature_count": 61086,
+      "seconds": 1.833473190999996,
+      "bytes": 29632343,
+      "feature_count": 102354,
       "tag_counts": {
         "place": 95,
-        "railway": 4288,
+        "railway": 4344,
         "tourism": 13,
-        "highway": 37210,
-        "amenity": 15,
+        "highway": 77344,
+        "amenity": 19,
         "waterway": 1570,
-        "historic": 21,
-        "natural": 2151,
-        "landuse": 10138,
-        "leisure": 6106,
-        "area": 109,
-        "building": 3
+        "historic": 24,
+        "leisure": 7236,
+        "natural": 2156,
+        "landuse": 10140,
+        "area": 141,
+        "building": 72
       }
     },
-    "derive_seconds": 13.521080557999994,
-    "seconds_to_map": 18.54729412399999,
-    "municipal_feature_count": 60934,
-    "municipal_bytes": 41358672,
+    "derive_seconds": 17.102000876000034,
+    "seconds_to_map": 29.535446183000033,
+    "municipal_feature_count": 102149,
+    "municipal_bytes": 63637948,
     "municipal_tag_counts": {
       "highway": {
-        "bus_stop": 5,
+        "bus_stop": 11,
         "trunk": 166,
         "motorway_link": 157,
         "residential": 8883,
@@ -1260,12 +800,17 @@
         "trunk_link": 113,
         "motorway": 195,
         "primary_link": 55,
+        "footway": 26517,
         "service": 18560,
         "pedestrian": 255,
+        "track": 2366,
         "living_street": 391,
+        "path": 8145,
         "secondary_link": 66,
+        "cycleway": 967,
         "tertiary_link": 36,
-        "platform": 4
+        "steps": 2079,
+        "platform": 5
       },
       "waterway": {
         "river": 132,
@@ -1274,27 +819,29 @@
         "ditch": 712
       },
       "railway": {
-        "tram_stop": 4,
+        "tram_stop": 8,
         "tram": 1633,
-        "abandoned": 153,
-        "razed": 14,
+        "abandoned": 197,
+        "razed": 18,
         "narrow_gauge": 72,
         "rail": 2397,
         "disused": 7,
-        "platform": 4,
+        "platform": 8,
         "construction": 3
       },
       "leisure": {
+        "track": 4,
         "park": 595,
+        "sports_centre": 143,
+        "stadium": 15,
+        "pitch": 964,
         "garden": 5493,
         "water_park": 1,
-        "pitch": 2,
-        "playground": 4,
-        "track": 1,
+        "playground": 10,
+        "slipway": 2,
         "dog_park": 1,
-        "sports_centre": 1,
         "nature_reserve": 6,
-        "slipway": 1
+        "barefoot": 1
       },
       "natural": {
         "water": 686,
@@ -1302,6 +849,7 @@
         "grassland": 735,
         "wetland": 75,
         "floodplain": 21,
+        "sand": 5,
         "beach": 1,
         "grass": 5,
         "stone": 1
@@ -1314,9 +862,11 @@
         "farmland": 1,
         "village_green": 4,
         "meadow": 511,
+        "farmyard": 1,
         "brownfield": 3,
         "greenery": 1,
         "residential": 4,
+        "greenfield": 1,
         "industrial": 1,
         "cemetery": 1,
         "garages": 1
@@ -1329,18 +879,29 @@
         "islet": 2
       },
       "area": {
-        "yes": 109
+        "yes": 141
       },
       "building": {
-        "public": 1,
+        "public": 3,
+        "yes": 47,
+        "sports_centre": 5,
+        "swimming_pool": 2,
+        "church": 2,
+        "hall": 1,
+        "commercial": 2,
         "concert_hall": 1,
-        "church": 1
+        "industrial": 2,
+        "sports_hall": 3,
+        "tower": 1,
+        "warehouse": 1,
+        "university": 1,
+        "swimming_hall": 1
       },
       "historic": {
-        "heritage": 9,
+        "heritage": 10,
         "monument": 1,
-        "yes": 1,
-        "church": 1,
+        "church": 2,
+        "yes": 2,
         "park": 9
       },
       "tourism": {
@@ -1350,14 +911,17 @@
       },
       "amenity": {
         "shelter": 1,
+        "place_of_worship": 1,
         "fountain": 9,
         "theatre": 1,
         "vehicle_ramp": 1,
+        "boat_rental": 2,
         "weighbridge": 2,
+        "townhall": 1,
         "kindergarten": 1
       }
     },
-    "total_seconds": 40.382295621000026
+    "total_seconds": 62.69984075000002
   },
   "physical": {
     "diameter_mm": 215.0,
@@ -1396,5 +960,5 @@
     "© OpenStreetMap contributors, https://www.openstreetmap.org/copyright",
     "Stadt Leipzig, Amt für Statistik und Wahlen — Stadtbezirke_Leipzig_UTM33N (official open geodata)"
   ],
-  "generated_at_utc": "2026-09-13T23:31:50.981534+00:00"
+  "generated_at_utc": "2026-09-14T19:06:28.841554+00:00"
 }

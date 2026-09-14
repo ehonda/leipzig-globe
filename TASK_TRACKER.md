@@ -21,6 +21,7 @@
 - [x] 16. Increase map detail — paths and sports grounds; visual/print-scale/build validation and live deployment verified.
 - [x] 17. Tune labels — 25 to 80 visible labels; natural proportions, preserved safety and documented omissions; deployed.
 - [x] 18. Review/expand landmarks — six verified symbols, four full labels; two full-label omissions documented; before/current comparison deployed and verified.
+- [ ] 19. Clarify composite names, lakes and outer land cover — implemented; release and deployment validation in progress.
 
 ## Notes
 

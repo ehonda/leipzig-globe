@@ -172,6 +172,12 @@ select { max-width: 100%; }
 .version-group { grid-column: 1 / -1; }
 .version-group select { min-width: 0; }
 
+.map-key { margin: 0.75rem 0; color: #2d3f40; font-size: 0.9rem; }
+.map-key summary { cursor: pointer; }
+.map-key ul { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; padding: 0; list-style: none; }
+.map-key li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.map-key li span { width: 1.1rem; height: 1.1rem; border: 1px solid #89918b; }
+
 .toggles {
   grid-column: 1 / -1;
   gap: 0.4rem 0.9rem;

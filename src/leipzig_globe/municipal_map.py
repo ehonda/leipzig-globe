@@ -23,8 +23,9 @@ OSM_FEATURE_FILTERS = (
     "wr/leisure=pitch,stadium,sports_centre",
     "wr/leisure=park,garden,nature_reserve",
     "wr/natural=water",
-    "wr/natural=wood,grassland,wetland",
+    "wr/natural=wood,grassland,wetland,scrub",
     "wr/landuse=forest,grass,meadow,recreation_ground,allotments",
+    "wr/landuse=farmland,farmyard,orchard,vineyard,industrial,commercial,retail,brownfield,construction,quarry",
     "n/place=city,suburb,quarter,neighbourhood",
 )
 RETAINED_TAGS = (
@@ -42,6 +43,7 @@ RETAINED_TAGS = (
     "historic",
     "tourism",
     "amenity",
+    "water",
 )
 MAX_GEOJSON_BYTES = 100_000_000
 

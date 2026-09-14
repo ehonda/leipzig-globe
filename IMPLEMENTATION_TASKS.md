@@ -243,3 +243,17 @@ locations. Authorized 2026-09-14: add Red Bull Arena, Nikolaikirche and Neues
 Rathaus alongside the existing landmarks, with source-anchored symbols and
 auditable placement/omission evidence. Compare before/current in Pages using
 one frozen recent baseline with bounded assets and no historical rebuilds.
+
+## 19. Clarify composite names, lakes and outer land cover
+
+- Authorized 2026-09-14: retain composite place labels instead of nearby
+  component names, including Böhlitz-Ehrenberg and Dölitz-Dösen.
+- Add source-identified lake names where the full label fits inside visible
+  water, keeping label, road, seam and pole safety.
+- Investigate sparse southwestern, eastern and northern areas in the pinned
+  source data. Render agricultural, scrub and developed land distinctly.
+- Compare against the previous live version with one bounded Before snapshot.
+
+**Done when:** source evidence and regional comparisons are recorded, all three
+styles and print artifacts validate, and the committed changes pass hosted
+tests and appear in the deployed Pages preview.

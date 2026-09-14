@@ -14,12 +14,14 @@ import numpy as np
 import shapely
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 from pyproj import Transformer
+from shapely.ops import polylabel
 
 from .config import validate_config
 from .municipal_map import WORKING_CRS
 
 MAX_SOURCE_PIXELS = 100_000_000
 PLACE_LABELS = {"city", "suburb", "quarter", "neighbourhood"}
+LAND_COVER_LAYERS = ("farmland", "industrial", "disturbed", "orchard", "scrub")
 
 
 def scaled_texture_dimensions(config):
@@ -61,6 +63,8 @@ def _label_identity(row):
             "highway",
             "railway",
             "leisure",
+            "natural",
+            "water",
         )
         if isinstance(row.get(key), str) and row[key]
     }
@@ -131,6 +135,16 @@ def feature_kind(row: dict) -> str:
         return "major_road"
     if isinstance(row.get("highway"), str):
         return "secondary_road"
+    if row.get("landuse") == "farmland":
+        return "farmland"
+    if row.get("landuse") in {"orchard", "vineyard"}:
+        return "orchard"
+    if row.get("natural") == "scrub":
+        return "scrub"
+    if row.get("landuse") in {"industrial", "commercial", "retail", "farmyard"}:
+        return "industrial"
+    if row.get("landuse") in {"brownfield", "construction", "quarry"}:
+        return "disturbed"
     return "label"
 
 
@@ -169,6 +183,37 @@ def _paint(image: Image.Image, geometry, color, width=1):
         ImageDraw.Draw(image).line(
             list(geometry.coords), fill=color, width=width, joint="curve"
         )
+
+
+def paint_land_cover(image, geometry, color, kind, px_mm):
+    """Retain mapped field parcels with a quiet, print-scaled boundary."""
+    _paint(image, geometry, color)
+    if kind in {"farmland", "orchard"}:
+        _paint(
+            image,
+            geometry.boundary,
+            tuple(max(0, channel - 12) for channel in color),
+            max(1, round(0.06 * px_mm)),
+        )
+
+
+def composite_components(candidates):
+    """Match complete nearby place names, never substrings or distant namesakes."""
+    result = {}
+    for name, (_, _, _, identity) in candidates.items():
+        parts = name.replace("–", "-").split("-")
+        if len(parts) < 2 or identity["source_tags"].get("place") not in PLACE_LABELS:
+            continue
+        anchor = shapely.Point(identity["anchor_metric"])
+        if all(
+            part in candidates
+            and candidates[part][3]["source_tags"].get("place") in PLACE_LABELS
+            and anchor.distance(shapely.Point(candidates[part][3]["anchor_metric"]))
+            <= 5000
+            for part in parts
+        ):
+            result[name] = parts
+    return result
 
 
 def render_clean_map(config, output_path, municipal_map=None):
@@ -227,6 +272,7 @@ def render_clean_map(config, output_path, municipal_map=None):
     layers = {
         "land": [],
         "district": [],
+        **{kind: [] for kind in LAND_COVER_LAYERS},
         "park": [],
         "sport": [],
         "water": [],
@@ -246,6 +292,7 @@ def render_clean_map(config, output_path, municipal_map=None):
         "major_road": 0.32,
     }
     collision_features = []
+    hard_collision_features = []
     for kind, features in layers.items():
         if (
             kind == "label"
@@ -256,15 +303,22 @@ def render_clean_map(config, output_path, municipal_map=None):
         color = palette["land" if kind == "district" else kind]
         stroke = max(1, round(strokes.get(kind, 0.1) * px_mm))
         for _, geom in features:
-            _paint(image, geom, color, stroke)
+            if kind in LAND_COVER_LAYERS:
+                paint_land_cover(image, geom, color, kind, px_mm)
+            else:
+                _paint(image, geom, color, stroke)
             if kind in {"water", "major_road", "rail"}:
                 collision_features.append(
                     geom.buffer(stroke / 2)
                     if geom.geom_type.endswith("LineString")
                     else geom
                 )
+                if kind != "water":
+                    hard_collision_features.append(collision_features[-1])
     tree = shapely.STRtree(collision_features)
+    hard_tree = shapely.STRtree(hard_collision_features)
     candidates = {}
+    lake_geometries = {}
     curated = cfg["layout"]["curated_landmarks"]
     for row, geom in zip(records, projected, strict=True):
         name = row.get("name:de")
@@ -274,16 +328,40 @@ def render_clean_map(config, output_path, municipal_map=None):
             continue
         is_curated = name in curated
         district = row.get("kind") == "district" or row.get("place") in PLACE_LABELS
-        if is_curated or district:
+        is_lake = (
+            row.get("natural") == "water"
+            and (
+                not isinstance(row.get("water"), str)
+                or row.get("water") in {"lake", "pond", "reservoir"}
+            )
+            and geom.geom_type in {"Polygon", "MultiPolygon"}
+            and row["geometry"].area >= 50_000
+        )
+        if is_curated or district or is_lake:
             entity_rank, identity, tie_break = _label_identity(row)
             priority = (
-                0 if is_curated else 1 if row.get("kind") == "district" else 2,
-                curated.index(name) if is_curated else 0,
+                (
+                    0
+                    if is_curated
+                    else 1 if is_lake else 2 if row.get("kind") == "district" else 3
+                ),
+                (
+                    curated.index(name)
+                    if is_curated
+                    else -row["geometry"].area if is_lake else 0
+                ),
                 entity_rank,
                 name,
                 tie_break,
             )
             point = geom.representative_point()
+            if is_lake:
+                polygon = (
+                    max(geom.geoms, key=lambda part: part.area)
+                    if geom.geom_type == "MultiPolygon"
+                    else geom
+                )
+                point = polylabel(polygon, tolerance=4)
             identity["anchor_metric"] = [
                 (point.x - width / 2) * span_x / width + center[0],
                 center[1] - (point.y - height / 2) * span_y / height,
@@ -291,9 +369,14 @@ def render_clean_map(config, output_path, municipal_map=None):
             identity["is_landmark"] = (
                 is_curated and entity_rank in {1, 3} and not district
             )
+            identity["is_lake"] = is_lake
             candidate = (priority, point.x, point.y, identity)
             if name not in candidates or priority < candidates[name][0]:
                 candidates[name] = candidate
+                if is_lake:
+                    lake_geometries[name] = geom
+    composites = composite_components(candidates)
+    covered_components = {}
     omitted = [
         {"label": name, "reason": "not_found_in_municipal_map"}
         for name in curated
@@ -326,8 +409,23 @@ def render_clean_map(config, output_path, municipal_map=None):
     seam_margin = cfg["layout"]["gore_seam_margin_mm"] * texture_px_mm
     pole_margin = cfg["layout"]["pole_safety_zone_mm"] * texture_px_mm
     for name, (_, x, y, identity) in sorted(
-        candidates.items(), key=lambda item: item[1][0]
+        candidates.items(),
+        key=lambda item: (
+            item[1][0][0],
+            0 if item[0] in composites else 1,
+            item[1][0][1:],
+        ),
     ):
+        if name in covered_components:
+            omitted.append(
+                {
+                    "label": name,
+                    "reason": "covered_by_composite",
+                    "composite": covered_components[name],
+                    **identity,
+                }
+            )
+            continue
         if len(visible) >= density:
             omitted.append({"label": name, "reason": "label_density", **identity})
             continue
@@ -352,6 +450,7 @@ def render_clean_map(config, output_path, municipal_map=None):
         # Cancel the world's unequal axis scaling for text only. Geography keeps
         # its established placement; printed glyphs retain their natural aspect.
         sprites = []
+        vertical_sprites = []
         for font_mm, text in ((size, text) for size in (2.5, 2.0) for text in texts):
             font = ImageFont.truetype(
                 str(font_path), round(max(8, font_mm * texture_px_mm) * sampling_scale)
@@ -375,19 +474,27 @@ def render_clean_map(config, output_path, municipal_map=None):
                 (1 - ink_box[0], 1 - ink_box[1]),
                 text,
                 font=font,
-                fill=palette["label"],
+                fill=palette["lake_label" if identity["is_lake"] else "label"],
                 stroke_width=max(1, round(0.25 * px_mm)),
-                stroke_fill=palette["background"],
+                stroke_fill=palette["water" if identity["is_lake"] else "background"],
                 spacing=round(0.4 * px_mm),
                 align="center",
             )
             aspect = (width / scaled_width) / (height / scaled_height)
             sprite = sprite.crop(sprite.getbbox())
+            if identity["is_lake"]:
+                vertical = sprite.transpose(Image.Transpose.ROTATE_90)
+                vertical = vertical.resize(
+                    (max(1, round(vertical.width * aspect)), vertical.height),
+                    Image.Resampling.LANCZOS,
+                )
+                vertical_sprites.append((text, vertical, font_mm, 90))
             sprite = sprite.resize(
                 (max(1, round(sprite.width * aspect)), sprite.height),
                 Image.Resampling.LANCZOS,
             )
-            sprites.append((text, sprite, font_mm))
+            sprites.append((text, sprite, font_mm, 0))
+        sprites.extend(vertical_sprites)
         increments = (
             [step / 2 for step in range(-16, 17)] if name in curated else range(-8, 9)
         )
@@ -395,9 +502,24 @@ def render_clean_map(config, output_path, municipal_map=None):
             ((dx, dy) for dx in increments for dy in increments),
             key=lambda p: (p[0] ** 2 + p[1] ** 2, p),
         )
-        for text, sprite, font_mm, dx, dy in (
-            (text, sprite, font_mm, dx, dy)
-            for text, sprite, font_mm in sprites
+        if identity["is_lake"]:
+            # Search the visible area, rather than the displacement radius for
+            # point landmarks. Keep work bounded and all ink inside the lake.
+            lake = lake_geometries[name]
+            x0, y0, x1, y1 = lake.bounds
+            offsets = sorted(
+                {(0.0, 0.0)}
+                | {
+                    ((lx - x) / px_mm, (ly - y) / px_mm)
+                    for lx in np.linspace(x0, x1, 33)
+                    for ly in np.linspace(y0, y1, 33)
+                    if lake.contains(shapely.Point(lx, ly))
+                },
+                key=lambda p: (p[0] ** 2 + p[1] ** 2, p),
+            )
+        for text, sprite, font_mm, rotation, dx, dy in (
+            (text, sprite, font_mm, rotation, dx, dy)
+            for text, sprite, font_mm, rotation in sprites
             for dx, dy in offsets
         ):
             pos = (x + dx * px_mm, y + dy * px_mm)
@@ -440,7 +562,12 @@ def render_clean_map(config, output_path, municipal_map=None):
                 reason = "symbol_collision"
                 rejections[reason] += 1
                 continue
-            if len(tree.query(box, predicate="intersects")):
+            if identity["is_lake"] and not lake_geometries[name].covers(box):
+                reason = "lake_shore"
+                rejections[reason] += 1
+                continue
+            collision_tree = hard_tree if identity["is_lake"] else tree
+            if len(collision_tree.query(box, predicate="intersects")):
                 reason = "feature_collision"
                 rejections[reason] += 1
                 continue
@@ -461,11 +588,14 @@ def render_clean_map(config, output_path, municipal_map=None):
                 )
                 leaders.append(leader)
             image.paste(sprite, (left, top), sprite)
+            for component in composites.get(name, []):
+                covered_components[component] = name
             visible.append(
                 {
                     "label": name,
                     "text": text,
                     "font_mm": font_mm,
+                    "rotation_deg": rotation,
                     "leader_px": list(leader.coords) if leader is not None else None,
                     "bbox": list(bbox),
                     "anchor_px": [x, y],

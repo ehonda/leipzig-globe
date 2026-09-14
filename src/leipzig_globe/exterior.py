@@ -16,7 +16,13 @@ import shapely
 from PIL import Image, ImageChops, ImageFilter
 
 from .municipal_map import WORKING_CRS, derive_municipal_map, extract_osm_features
-from .rendering import _paint, feature_kind, scaled_texture_dimensions
+from .rendering import (
+    LAND_COVER_LAYERS,
+    _paint,
+    feature_kind,
+    paint_land_cover,
+    scaled_texture_dimensions,
+)
 
 EXTERIORS = {
     "blank": ("Original blank", "The municipal map on its original paper background."),
@@ -85,6 +91,7 @@ def render_context_map(context, source_map, config):
     layers = {
         kind: []
         for kind in (
+            *LAND_COVER_LAYERS,
             "park",
             "sport",
             "water",
@@ -117,6 +124,9 @@ def render_context_map(context, source_map, config):
         if kind == "rail" and not config["layout"]["show_railways"]:
             continue
         for geometry in items:
+            if kind in LAND_COVER_LAYERS:
+                paint_land_cover(image, geometry, tuple(palette[kind]), kind, px_mm)
+                continue
             _paint(
                 image,
                 geometry,
