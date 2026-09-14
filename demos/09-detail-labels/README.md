@@ -51,3 +51,12 @@ retention/retry, desktop interaction, mobile layout, touch drag and pinch.
 The complete site is 23.87 MB (11.86 MB of frozen baseline). Fog's full local
 build took 128.52 seconds. `browser-check.json` and representative screenshots
 record the final interaction checks.
+
+Deployment is verified at runtime commit `b273fff003c11adb719674db666585eff5eebc71`:
+[136 hosted tests passed](https://github.com/ehonda/leipzig-globe/actions/runs/34884342222)
+and [Pages deployed successfully](https://github.com/ehonda/leipzig-globe/actions/runs/34884342213).
+All 97 published files match the live `build.json`; live Edge loaded Current,
+switched to Before and back, and checked the exact commit link without page
+errors. `deployment-check.json` retains every verified hash, and
+`live-current.png` shows the hosted Back view. The completion record is a
+documentation-only `[skip ci]` commit; it does not change the deployed runtime.

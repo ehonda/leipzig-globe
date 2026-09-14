@@ -13,16 +13,21 @@
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
-- [x] 12. Add automated validation (128 hosted tests pass; local rendering and browser checks pass)
+- [x] 12. Add automated validation (136 hosted tests pass; local rendering and browser checks pass)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
 - [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
 - [x] 15. Compare exterior styles (terrain, Continent Leipzig, fog of war) in the 215 mm high-density Pages preview — full builds, cross-variant invariants, Edge checks and deployed assets verified.
-- [ ] 16. Increase map detail — local visual/print-scale/build validation complete; deployment pending.
-- [ ] 17. Tune labels — 25 to 80 visible labels; safety and omission evidence validated; deployment pending.
-- [ ] 18. Review/expand landmarks — six verified symbols, four full labels; comparison validated locally; deployment pending.
+- [x] 16. Increase map detail — paths and sports grounds; visual/print-scale/build validation and live deployment verified.
+- [x] 17. Tune labels — 25 to 80 visible labels; natural proportions, preserved safety and documented omissions; deployed.
+- [x] 18. Review/expand landmarks — six verified symbols, four full labels; two full-label omissions documented; before/current comparison deployed and verified.
 
 ## Notes
+
+- Checkpoint 09 is deployed at `b273fff`. Hosted CI passes all 136 tests; all
+  97 published files match `build.json`, and live Edge verifies current/before/
+  current switching and the deployed commit link. See
+  `demos/09-detail-labels/deployment-check.json` and its README for run links.
 
 - Checkpoint 08 refines the exterior styles with a violet border and halo,
   water-aware ocean shore and pale sage-grey fog. All 134 tests in the local

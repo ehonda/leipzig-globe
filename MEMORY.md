@@ -404,3 +404,8 @@ separate printer-calibration edits. The print-scale comparison PDF is a visual
 review sheet, not evidence of physical fit. An error toast overlays the bottom
 of the browser canvas: failed-load tests compare the remaining artwork region
 and separately assert the error message and retained version identity.
+
+Runtime `b273fff` passed all 136 hosted tests and deployed successfully. All 97
+published files and live current/before/current switching were verified in
+checkpoint 09. A later documentation-only `[skip ci]` completion commit leaves
+that runtime revision in `build.json` intentionally.
