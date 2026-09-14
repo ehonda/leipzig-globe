@@ -442,3 +442,9 @@ Cross-variant city rasters, labels, masks and gore geometry match; all city pixe
 and wrap/pole continuity are preserved. Context is 87.67 MB; the complete
 Before/Current site is 24.01 MB. Recorded build times are 356.16 / 149.26 / 140.34
 seconds for terrain / ocean / fog; the fixed baseline adds no historical build.
+
+Runtime `7103696` passed all 144 hosted tests (32.10 seconds) and deployed via
+Pages run `34892862605`. Checkpoint 10 verifies all 97 published file hashes and
+live Edge current/before/current switching, the correct commit link and the
+expandable colour key. The completion record is documentation-only `[skip ci]`;
+the deployed runtime remains `7103696`.

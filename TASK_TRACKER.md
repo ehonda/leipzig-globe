@@ -13,7 +13,7 @@
 - [x] 9. Generate the Preview Set (six different spherical views; optional safety overlays)
 - [x] 10. Emit the Build Report (input and artifact checksums, relative paths, dimensions and timings)
 - [x] 11. Expose the end-to-end CLI (real offline build and validation completed)
-- [x] 12. Add automated validation (136 hosted tests pass; local rendering and browser checks pass)
+- [x] 12. Add automated validation (144 hosted tests pass; local rendering and browser checks pass)
 - [ ] 13. Perform the physical test-print milestone (blocked by human action)
 - [x] 14. Add the basic interactive 3D preview (curved meshes, both presets, desktop/touch browser checks; BG-008/009 repaired)
 
@@ -21,7 +21,7 @@
 - [x] 16. Increase map detail — paths and sports grounds; visual/print-scale/build validation and live deployment verified.
 - [x] 17. Tune labels — 25 to 80 visible labels; natural proportions, preserved safety and documented omissions; deployed.
 - [x] 18. Review/expand landmarks — six verified symbols, four full labels; two full-label omissions documented; before/current comparison deployed and verified.
-- [ ] 19. Clarify composite names, lakes and outer land cover — implemented; release and deployment validation in progress.
+- [x] 19. Clarify composite names, lakes and outer land cover — source/visual evidence, 144 hosted tests, all three print builds, browser checks and all 97 deployed files verified; live as `7103696`.
 
 ## Notes
 

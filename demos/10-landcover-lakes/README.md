@@ -57,5 +57,12 @@ modes, Before/Current switching with camera/overlay preservation, failed-load
 recovery, mouse controls, mobile layout, touch drag and pinch zoom
 (`browser-check.json`, `browser-current.png`). In-app browser setup was unavailable.
 
-Deployed-byte validation is recorded alongside this document when complete.
+Runtime `7103696` passed [144 hosted tests in 32.10 seconds](https://github.com/ehonda/leipzig-globe/actions/runs/34892862523)
+and [deployed successfully](https://github.com/ehonda/leipzig-globe/actions/runs/34892862605).
+`deployment-check.json` verifies all 97 published file hashes, the correct
+runtime and Before revisions, and live Edge version switching and the colour
+key. Hosted builds took 137.73 / 64.46 / 61.26 seconds for terrain / ocean / fog;
+the deployed site totals 24,011,694 bytes. `live-current.png` shows the deployed
+preview. The subsequent completion
+record is documentation-only and leaves this tested runtime deployed.
 Physical printing and fit remain a human milestone.
