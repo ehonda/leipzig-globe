@@ -1,6 +1,6 @@
+# Production but with 150mm
 globe:
-  # Measured from the old ball's 580 mm equatorial circumference.
-  diameter_mm: 184.62
+  diameter_mm: 150
   ppi: 300
 
 layout:

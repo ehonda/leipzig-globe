@@ -1,6 +1,6 @@
+# Matches the GitHub Pages high-density ocean variant.
 globe:
-  # Measured from the old ball's 580 mm equatorial circumference.
-  diameter_mm: 184.62
+  diameter_mm: 215
   ppi: 300
 
 layout:

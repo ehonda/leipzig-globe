@@ -39,7 +39,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "label": [70, 71, 73],
     },
     "layout": {
-        "tile_overlap_mm": 10,
+        "tile_overlap_mm": 0,
         "vertical_tile_mode": "equator",
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,

@@ -40,7 +40,7 @@ def test_default_config_sets_expected_mvp_values():
     assert config["globe"]["gore_count"] == 12
     assert config["globe"]["assembly_overlap_mm"] == 2
     assert config["layout"]["seam_offset_deg"] == 15
-    assert config["layout"]["tile_overlap_mm"] == 10
+    assert config["layout"]["tile_overlap_mm"] == 0
     assert config["layout"]["vertical_tile_mode"] == "equator"
     assert config["paths"]["texture_file"] == "leipzig-texture.png"
     assert default_config_path().exists()
@@ -65,6 +65,18 @@ def test_184_62mm_test_print_preset_uses_equator_split():
     assert config["globe"]["ppi"] == 300
     assert config["layout"]["label_density"] == "high"
     assert config["layout"]["vertical_tile_mode"] == "equator"
+    assert config["layout"]["tile_overlap_mm"] == 0
+    assert config["layout"]["exterior"] == "ocean"
+
+
+def test_production_print_matches_pages_ocean_settings():
+    pages = load_config("config/globe-215mm-high-density.yaml")
+    pages["layout"]["exterior"] = "ocean"
+    production = load_config("config/production-215mm-ocean.yaml")
+    assert production == pages
+    test_print = load_config("config/test-print-184-62mm-high-density.yaml")
+    test_print["globe"]["diameter_mm"] = 215
+    assert test_print == production
 
 
 def test_vertical_tile_mode_rejects_unknown_values():

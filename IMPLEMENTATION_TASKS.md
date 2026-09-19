@@ -106,7 +106,8 @@ edges, and the calculated equatorial widths match the configured circumference.
   300 mm globe needs 471.24 mm Gores and two portrait A4 Page Tiles vertically.
   Recalculate the layout for other diameters, margins, and overlaps.
   The confirmed 215 mm reference uses 337.72 mm Gores, also two per pair of A4
-  pages, with the page overlap centred on the equator.
+  pages. User revision 2026-09-15: the default page overlap is now zero,
+  so both halves end exactly at the equator (see Task 20).
 - Support an optional equator split for Gores that need two pages. Centre the
   configured page overlap on the equator, keep Gores that fit on one page whole,
   and reject sizes whose half-Gores do not fit the printable page height.
@@ -262,3 +263,16 @@ one frozen recent baseline with bounded assets and no historical rebuilds.
 **Done when:** source evidence and regional comparisons are recorded, all three
 styles and print artifacts validate, and the committed changes pass hosted
 tests and appear in the deployed Pages preview.
+
+## 20. End printed halves at the equator
+
+- Authorized 2026-09-15: remove vertical overlap so upper and lower halves
+  meet exactly at the equator; preserve the neighbouring gores' side overlap.
+- Persist a 215 mm ocean production preset matching current GitHub Pages settings.
+- Regenerate both that production PDF and the designated 184.62 mm test PDF
+  with ocean, 300 PPI, high label density and the current map renderer.
+- Validate actual PDF clipping/placement, exact-size calibration and both builds;
+  document the current files and assembly instructions.
+
+**Done when:** both validated PDFs have zero overlap at the equator, their
+presets reproduce the requested settings, and regression checks pass.

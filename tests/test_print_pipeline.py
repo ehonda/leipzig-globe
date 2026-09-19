@@ -15,7 +15,7 @@ from pypdf.generic import FloatObject
 from reportlab.pdfbase.pdfmetrics import getAscentDescent, stringWidth
 from shapely.geometry import Point, Polygon, box
 
-from leipzig_globe.config import validate_config
+from leipzig_globe.config import load_config, validate_config
 from leipzig_globe.fetcher import (
     SourceManifest,
     compute_sha256,
@@ -135,8 +135,13 @@ def test_labels_come_from_source_points_and_zentrum_is_at_equator(tmp_path):
 
 @pytest.fixture
 def printed_fixture(tmp_path):
-    # Keep the original 300 mm print regression independent of reference size.
-    config = validate_config({"globe": {"diameter_mm": 300, "ppi": 20}})
+    # Preserve the original 300 mm / 10 mm overlap regression explicitly.
+    config = validate_config(
+        {
+            "globe": {"diameter_mm": 300, "ppi": 20},
+            "layout": {"tile_overlap_mm": 10},
+        }
+    )
     width, height = texture_dimensions(config)
     yy, xx = np.indices((height, width))
     texture = np.stack(
@@ -319,6 +324,43 @@ def test_equator_tile_mode_keeps_fitting_gore_on_one_page():
     tiles = page_tiles(1, 60, 200, 10, 10, "equator")
 
     assert [(tile["y_mm"], tile["height_mm"]) for tile in tiles] == [(0, 200)]
+
+
+@pytest.mark.parametrize(
+    "preset,page_count",
+    [("test-print-184-62mm-high-density", 9), ("production-215mm-ocean", 13)],
+)
+def test_print_halves_meet_at_equator_in_pdf(preset, page_count, tmp_path):
+    config = load_config(f"config/{preset}.yaml")
+    # Low raster density keeps this physical PDF geometry check inexpensive.
+    config["globe"]["ppi"] = 10
+    texture = tmp_path / "texture.png"
+    Image.new("RGB", texture_dimensions(config), "skyblue").save(texture)
+    gores = build_gore_set(texture, tmp_path / "gores", config)
+    pdf = build_pdf(gores, tmp_path / "print.pdf", config)
+    manifest = json.loads(pdf.with_suffix(".tiles.json").read_text())
+    reader = PdfReader(pdf)
+    assert len(reader.pages) == page_count
+    height = manifest["gore_height_mm"]
+    for gore in range(12):
+        halves = [t for t in manifest["tiles"] if gore in t["gores"]]
+        north, south = halves
+        assert north["y_mm"] == 0
+        assert north["height_mm"] == pytest.approx(height / 2)
+        assert south["y_mm"] == pytest.approx(height / 2)
+        assert south["height_mm"] == pytest.approx(height / 2)
+        # Inspect actual artwork clipping and placement, beyond the manifest.
+        for tile in halves:
+            operations = reader.pages[tile["page"] - 1].get_contents().operations
+            clip = next(args for args, op in operations if op == b"re")
+            assert float(clip[3]) * 25.4 / 72 == pytest.approx(height / 2, abs=1e-4)
+            images = [
+                args for args, op in operations if op == b"cm" and float(args[3]) > 100
+            ]
+            assert len(images) == len(tile["gores"])
+            for matrix in images:
+                top = (float(matrix[5]) + float(matrix[3])) * 25.4 / 72
+                assert top == pytest.approx(287 + tile["y_mm"], abs=1e-4)
 
 
 def test_equator_tile_mode_rejects_gore_halves_too_tall_for_a4():

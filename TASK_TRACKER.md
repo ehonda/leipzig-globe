@@ -22,8 +22,19 @@
 - [x] 17. Tune labels — 25 to 80 visible labels; natural proportions, preserved safety and documented omissions; deployed.
 - [x] 18. Review/expand landmarks — six verified symbols, four full labels; two full-label omissions documented; before/current comparison deployed and verified.
 - [x] 19. Clarify composite names, lakes and outer land cover — source/visual evidence, 144 hosted tests, all three print builds, browser checks and all 97 deployed files verified; live as `7103696`.
+- [x] 20. End printed halves at the equator — zero-overlap defaults; persisted ocean production/test presets; both full builds validated and visually checked.
 
 ## Notes
+
+- 2026-09-15: current prints are `output/equator-join/test-print-184-62mm-ocean/`
+  (184.62 mm, 9 pages) and `output/equator-join/production-215mm-ocean/`
+  (215 mm, 13 pages). Both use ocean / 300 PPI / high labels matching Pages
+  revision `b8eec30`. Each validates 51 artifacts; all 12 joins per PDF were
+  checked from actual clipping and image placement. PDFium renders confirm
+  central upper/lower pages, identifiers and trim crosses. Production map,
+  labels, texture and source data match the previous production build's hashes.
+  The 30 print and 22 configuration/contract tests pass; Ruff and Black pass.
+  Prior overlapping PDFs remain historical; physical acceptance is still pending.
 
 - Checkpoint 09 is deployed at `b273fff`. Hosted CI passes all 136 tests; all
   97 published files match `build.json`, and live Edge verifies current/before/

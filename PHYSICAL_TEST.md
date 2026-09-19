@@ -7,13 +7,16 @@ has been inferred from the renderer, PDF validation or 3D preview.
 
 The designated test target is the **184.62 mm old ball**, measured at 580 mm
 equatorial circumference. Use `config/test-print-184-62mm-high-density.yaml`.
-The regenerated [full test PDF](output/print-calibration/test-print-184-62mm/leipzig-globe-print.pdf)
-has one calibration sheet and eight gore pages at 300 PPI / high label density.
-The tracked [compact test sample](demos/07-print-calibration/test-print-three-gores.pdf)
-contains that calibration sheet and three adjacent gores on two further A4 pages.
-The 10 mm page overlap is centred on the equator.
+The regenerated [full test PDF](output/equator-join/test-print-184-62mm-ocean/leipzig-globe-print.pdf)
+has one calibration sheet and eight gore pages at 300 PPI / high label density,
+using ocean and the current GitHub Pages map settings. Both halves end exactly
+at the equator, with no vertical overlap.
+The tracked checkpoint 07 sample is historical and still has 10 mm page overlap;
+use the regenerated PDF for the current assembly workflow.
 
-The final sphere remains **215 mm diameter**; use its own build for final printing.
+The final sphere remains **215 mm diameter**; use the
+[production PDF](output/equator-join/production-215mm-ocean/leipzig-globe-print.pdf),
+built with `config/production-215mm-ocean.yaml`, for final printing.
 The historical checkpoint 05 sample is 215 mm and has per-page rulers; checkpoint
 04 samples are 300 mm. Do not use those PDFs to judge the smaller test ball's fit.
 
@@ -32,8 +35,10 @@ scaling. Keep its Build Report and configuration with these observations.
    all gore pages, including if sent as a separate job. Repeat calibration after
    changing them. A passing square checks scaling; it does not establish paper
    stability, page registration or physical fit.
-3. Join matching page-tile registration crosses. The default page overlap is
-   10 mm; this is separate from the gore's 2 mm equatorial assembly overlap.
+3. Trim the straight equator edges along the line between the side registration
+   crosses: the bottom edge of the upper tile and top edge of the lower tile.
+   Place these edges together at the sphere's equator, with no vertical overlap.
+   Adjacent gores retain their separate 2 mm side overlap at the equator.
 4. Cut the solid gore outlines. The dashed edge is the nominal seam under
    the next gore. Check alignment across both page joins and adjacent gores.
 5. Trial-fit the sample on the measured sphere. Record dry fit first, then

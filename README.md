@@ -130,14 +130,14 @@ The confirmed final reference is **215 mm diameter**, 12 gores, 200 PPI. The tex
 the equator before its 2 mm assembly overlap. That overlap tapers toward the
 poles. The default PDF has 13 portrait A4 pages: a calibration sheet followed by
 12 gore pages, with two gores per pair of pages,
-two vertical tiles, with 10 mm page overlap centred on the equator. The high-density
+two vertical tiles that meet exactly at the equator, without page overlap. The high-density
 preset keeps the same 215 mm diameter at 300 PPI with high label density.
 
 Change `globe.diameter_mm` in `config/default.yaml` or supply a partial YAML
 override with `--config-path`. All physical dimensions and page tiles are
 recalculated. If you measure the globe's equatorial circumference, divide it
-by π to obtain the diameter. Set `layout.vertical_tile_mode: equator` to centre
-the page-tile overlap on the equator whenever a Gore needs two pages. Gores
+by π to obtain the diameter. Set `layout.vertical_tile_mode: equator` and
+`layout.tile_overlap_mm: 0` to end both halves at the equator. Gores
 that fit on one page remain whole; generation stops with a size-specific error
 if a half-Gore plus half the overlap cannot fit the printable A4 height.
 
@@ -145,12 +145,22 @@ Print at **100% / actual size**, with fitting disabled in both the viewer and
 printer driver. Measure the **100 × 100 mm square on page 1** between line
 centres in both directions. Keep the same printer, paper size and settings for
 the remaining pages; repeat calibration after changing them. Every gore tile
-has its own identifier above the artwork, including the lower half. Join
-page tiles using matching crosses, then cut along the solid gore outline;
+has its own identifier above the artwork, including the lower half. Trim the
+straight equator edge using the matching side crosses, then cut the solid gore
+outline. Upper and lower halves meet edge to edge at the sphere's equator;
 the dashed edge marks the nominal seam beneath the neighboring gore. Do not
 use printer fitting or scaling to adapt to a different globe. A human must
 test paper fit, glue behavior and label legibility before the full assembly.
 Use [PHYSICAL_TEST.md](PHYSICAL_TEST.md) to record that required milestone.
+
+The production preset `config/production-215mm-ocean.yaml` matches the current
+GitHub Pages ocean variant: 215 mm, 300 PPI and high label density. The designated
+184.62 mm test preset uses the same settings at the smaller diameter. Rebuild with:
+
+```powershell
+uv run leipzig-globe build --config-path config/test-print-184-62mm-high-density.yaml --output-dir output/equator-join/test-print-184-62mm-ocean
+uv run leipzig-globe build --config-path config/production-215mm-ocean.yaml --output-dir output/equator-join/production-215mm-ocean
+```
 
 ## Reproducibility and performance
 

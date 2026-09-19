@@ -12,6 +12,25 @@ The goal is not to replace ADRs or specification docs. It is to store the practi
 
 ## Current memory entries
 
+### 2026-09-15 — Printed halves meet at the equator
+
+The user found vertical overlap harder to assemble. The default
+`layout.tile_overlap_mm` is now **0**, with `vertical_tile_mode: equator`:
+upper and lower halves end at the equator and meet edge to edge. The side
+registration crosses at the join mark the straight trim edge. The separate
+2 mm side overlap between adjacent gores is unchanged. Explicit nonzero page
+overlap remains supported for historical configurations.
+
+`config/production-215mm-ocean.yaml` persists the 215 mm / 300 PPI / high-density
+ocean settings used by Pages. The designated 184.62 mm test preset uses the same
+settings except diameter. Current PDFs are under `output/equator-join/`, in
+`test-print-184-62mm-ocean/` and `production-215mm-ocean/`. Older print-calibration
+PDFs and checkpoint 07 remain historical and retain their overlap.
+
+The latest Pages deployment at the time of this change was `b8eec30`, run
+`34902293769`; its source matches the renderer used for these builds. Physical
+fit and calibration still require the user's observations in `PHYSICAL_TEST.md`.
+
 ### 2026-09-14 — Printer calibration and the designated smaller test ball
 
 The physical test target is **184.62 mm**, from the old ball's 580 mm measured
