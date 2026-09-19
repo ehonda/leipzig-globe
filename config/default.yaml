@@ -19,6 +19,7 @@ style:
 layout:
   tile_overlap_mm: 0
   vertical_tile_mode: equator
+  split_fitting_gores_at_equator: true
   print_margin_mm: 10
   pole_safety_zone_mm: 20
   seam_offset_deg: 15

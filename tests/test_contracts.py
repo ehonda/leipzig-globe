@@ -42,6 +42,7 @@ def test_default_config_sets_expected_mvp_values():
     assert config["layout"]["seam_offset_deg"] == 15
     assert config["layout"]["tile_overlap_mm"] == 0
     assert config["layout"]["vertical_tile_mode"] == "equator"
+    assert config["layout"]["split_fitting_gores_at_equator"] is True
     assert config["paths"]["texture_file"] == "leipzig-texture.png"
     assert default_config_path().exists()
 
@@ -82,6 +83,11 @@ def test_production_print_matches_pages_ocean_settings():
 def test_vertical_tile_mode_rejects_unknown_values():
     with pytest.raises(ValueError, match="vertical_tile_mode"):
         validate_config({"layout": {"vertical_tile_mode": "thirds"}})
+
+
+def test_split_fitting_gores_switch_requires_boolean():
+    with pytest.raises(TypeError, match="split_fitting_gores_at_equator"):
+        validate_config({"layout": {"split_fitting_gores_at_equator": "false"}})
 
 
 def test_invalid_configuration_raises_actionable_error():

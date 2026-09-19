@@ -41,6 +41,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "layout": {
         "tile_overlap_mm": 0,
         "vertical_tile_mode": "equator",
+        "split_fitting_gores_at_equator": True,
         "print_margin_mm": 10,
         "pole_safety_zone_mm": 20,
         "seam_offset_deg": 15,
@@ -325,6 +326,7 @@ def validate_config(config: Mapping[str, Any] | None) -> dict[str, Any]:
         "gore_centerlines",
         "gore_numbering",
         "preview_overlays",
+        "split_fitting_gores_at_equator",
     ):
         if not isinstance(layout[key], bool):
             raise TypeError(f"layout.{key} must be true or false.")

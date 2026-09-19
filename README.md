@@ -137,9 +137,12 @@ Change `globe.diameter_mm` in `config/default.yaml` or supply a partial YAML
 override with `--config-path`. All physical dimensions and page tiles are
 recalculated. If you measure the globe's equatorial circumference, divide it
 by π to obtain the diameter. Set `layout.vertical_tile_mode: equator` and
-`layout.tile_overlap_mm: 0` to end both halves at the equator. Gores
-that fit on one page remain whole; generation stops with a size-specific error
-if a half-Gore plus half the overlap cannot fit the printable A4 height.
+`layout.tile_overlap_mm: 0` to end both halves at the equator. This also splits
+Gores that would fit on one page, including the 150 mm test print. Set
+`layout.split_fitting_gores_at_equator: false` to keep only those fitting Gores
+whole while retaining the equator split for larger Gores. Generation stops with
+a size-specific error if a half-Gore plus half the overlap cannot fit the
+printable A4 height.
 
 Print at **100% / actual size**, with fitting disabled in both the viewer and
 printer driver. Measure the **100 × 100 mm square on page 1** between line
@@ -158,6 +161,7 @@ GitHub Pages ocean variant: 215 mm, 300 PPI and high label density. The designat
 184.62 mm test preset uses the same settings at the smaller diameter. Rebuild with:
 
 ```powershell
+uv run leipzig-globe build --config-path config/test-150mm-ocean.yaml --output-dir output/equator-join/test-150mm-ocean
 uv run leipzig-globe build --config-path config/test-print-184-62mm-high-density.yaml --output-dir output/equator-join/test-print-184-62mm-ocean
 uv run leipzig-globe build --config-path config/production-215mm-ocean.yaml --output-dir output/equator-join/production-215mm-ocean
 ```

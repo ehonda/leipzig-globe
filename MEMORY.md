@@ -24,7 +24,8 @@ overlap remains supported for historical configurations.
 `config/production-215mm-ocean.yaml` persists the 215 mm / 300 PPI / high-density
 ocean settings used by Pages. The designated 184.62 mm test preset uses the same
 settings except diameter. Current PDFs are under `output/equator-join/`, in
-`test-print-184-62mm-ocean/` and `production-215mm-ocean/`. Older print-calibration
+`test-150mm-ocean/`, `test-print-184-62mm-ocean/`, and
+`production-215mm-ocean/`. Older print-calibration
 PDFs and checkpoint 07 remain historical and retain their overlap.
 
 The latest Pages deployment at the time of this change was `b8eec30`, run
@@ -189,9 +190,11 @@ assembly overlap is measured at the equator and tapers with latitude.
 SVG dimensions and the PDF use millimetres; ReportLab lengths are converted
 to points explicitly. Calibration is checked from PDF drawing operators,
 not just from its text label. Page and gore registration marks are separate.
-For physical assembly, `layout.vertical_tile_mode: equator` keeps a Gore whole
-when it fits one page and otherwise makes two tiles whose overlap is centred on
-the equator. The 184.62 mm old-ball and 215 mm target presets use this mode. It
+For physical assembly, `layout.vertical_tile_mode: equator` makes north and
+south tiles whose overlap is centred on the equator, including Gores that fit
+on one page by default since 2026-09-20. Set
+`layout.split_fitting_gores_at_equator: false` to keep fitting Gores whole.
+The 150 mm test, 184.62 mm old-ball, and 215 mm target presets use this mode. It
 must fail when a half-Gore plus half the tile overlap exceeds printable A4 height;
 do not silently fall back to an uneven or multi-row split.
 

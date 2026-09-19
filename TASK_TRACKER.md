@@ -24,6 +24,10 @@
 - [x] 19. Clarify composite names, lakes and outer land cover — source/visual evidence, 144 hosted tests, all three print builds, browser checks and all 97 deployed files verified; live as `7103696`.
 - [x] 20. End printed halves at the equator — zero-overlap defaults; persisted ocean production/test presets; both full builds validated and visually checked.
 
+- 2026-09-20: equator mode now splits fitting Gores at the equator by default,
+  including the 150 mm test print. `layout.split_fitting_gores_at_equator: false`
+  restores whole fitting Gores without changing larger equator splits.
+
 ## Notes
 
 - 2026-09-15: current prints are `output/equator-join/test-print-184-62mm-ocean/`

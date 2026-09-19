@@ -178,6 +178,7 @@ def page_tiles(
     margin,
     overlap,
     vertical_tile_mode="automatic",
+    split_fitting_gores_at_equator=True,
 ):
     usable_width, usable_height = 210 - 2 * margin, 297 - 2 * margin
     gap = 4
@@ -192,9 +193,15 @@ def page_tiles(
         ]
     else:
         groups = [(index, 0) for index in range(0, gore_count, across)]
-    if gore_height <= usable_height:
+    if gore_height <= usable_height and not (
+        vertical_tile_mode == "equator" and split_fitting_gores_at_equator
+    ):
         vertical_tiles = [(0.0, gore_height)]
     elif vertical_tile_mode == "equator":
+        if overlap >= gore_height:
+            raise ValueError(
+                "Equator page overlap must be smaller than the gore height."
+            )
         half_height = gore_height / 2
         tile_height = half_height + overlap / 2
         if tile_height > usable_height:
@@ -250,7 +257,16 @@ def build_pdf(gore_files, output_path, config=None):
     width, height = info[0]["width_mm"], info[0]["height_mm"]
     margin, overlap = cfg["layout"]["print_margin_mm"], cfg["layout"]["tile_overlap_mm"]
     vertical_tile_mode = cfg["layout"]["vertical_tile_mode"]
-    tiles = page_tiles(len(files), width, height, margin, overlap, vertical_tile_mode)
+    split_fitting_gores = cfg["layout"]["split_fitting_gores_at_equator"]
+    tiles = page_tiles(
+        len(files),
+        width,
+        height,
+        margin,
+        overlap,
+        vertical_tile_mode,
+        split_fitting_gores,
+    )
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(path), pagesize=A4, pageCompression=1, invariant=1)
@@ -413,6 +429,7 @@ def build_pdf(gore_files, output_path, config=None):
                 "gore_width_mm": width,
                 "gore_height_mm": height,
                 "vertical_tile_mode": vertical_tile_mode,
+                "split_fitting_gores_at_equator": split_fitting_gores,
                 "print_scale": 1.0,
                 "calibration_mm": 100,
                 "calibration_page": 1,

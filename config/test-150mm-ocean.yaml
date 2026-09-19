@@ -8,3 +8,4 @@ layout:
   exterior: ocean
   tile_overlap_mm: 0
   vertical_tile_mode: equator
+  split_fitting_gores_at_equator: true

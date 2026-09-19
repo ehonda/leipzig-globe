@@ -320,15 +320,33 @@ def test_equator_tile_mode_splits_symmetrically_with_configured_overlap():
     ] == pytest.approx(10)
 
 
-def test_equator_tile_mode_keeps_fitting_gore_on_one_page():
+def test_equator_tile_mode_splits_fitting_gore_by_default():
     tiles = page_tiles(1, 60, 200, 10, 10, "equator")
 
+    assert [(tile["y_mm"], tile["height_mm"]) for tile in tiles] == [
+        (0, 105),
+        (95, 105),
+    ]
+
+
+def test_equator_tile_mode_can_keep_fitting_gore_on_one_page():
+    tiles = page_tiles(1, 60, 200, 10, 10, "equator", False)
+
     assert [(tile["y_mm"], tile["height_mm"]) for tile in tiles] == [(0, 200)]
+    larger = page_tiles(1, 60, 300, 10, 10, "equator", False)
+    assert [(tile["y_mm"], tile["height_mm"]) for tile in larger] == [
+        (0, 155),
+        (145, 155),
+    ]
 
 
 @pytest.mark.parametrize(
     "preset,page_count",
-    [("test-print-184-62mm-high-density", 9), ("production-215mm-ocean", 13)],
+    [
+        ("test-150mm-ocean", 9),
+        ("test-print-184-62mm-high-density", 9),
+        ("production-215mm-ocean", 13),
+    ],
 )
 def test_print_halves_meet_at_equator_in_pdf(preset, page_count, tmp_path):
     config = load_config(f"config/{preset}.yaml")
@@ -368,6 +386,11 @@ def test_equator_tile_mode_rejects_gore_halves_too_tall_for_a4():
         page_tiles(1, 60, 550, 10, 10, "equator")
 
 
+def test_equator_tile_mode_rejects_overlap_larger_than_fitting_gore():
+    with pytest.raises(ValueError, match="overlap must be smaller"):
+        page_tiles(1, 60, 50, 10, 50, "equator")
+
+
 def test_pdf_uses_configured_equator_tile_mode(printed_fixture, tmp_path):
     config, _, gores, _ = printed_fixture
     config["layout"]["vertical_tile_mode"] = "equator"
@@ -381,6 +404,24 @@ def test_pdf_uses_configured_equator_tile_mode(printed_fixture, tmp_path):
     assert pieces[0]["y_mm"] == 0
     assert pieces[1]["y_mm"] == pytest.approx(
         manifest["gore_height_mm"] / 2 - config["layout"]["tile_overlap_mm"] / 2
+    )
+
+
+def test_pdf_can_keep_fitting_gores_whole(tmp_path):
+    config = load_config("config/test-150mm-ocean.yaml")
+    config["globe"]["ppi"] = 10
+    config["layout"]["split_fitting_gores_at_equator"] = False
+    texture = tmp_path / "texture.png"
+    Image.new("RGB", texture_dimensions(config), "skyblue").save(texture)
+    gores = build_gore_set(texture, tmp_path / "gores", config)
+    pdf = build_pdf(gores, tmp_path / "print.pdf", config)
+    manifest = json.loads(pdf.with_suffix(".tiles.json").read_text())
+
+    assert manifest["split_fitting_gores_at_equator"] is False
+    assert len(PdfReader(pdf).pages) == 5
+    assert len(manifest["tiles"]) == 4
+    assert all(
+        tile["height_mm"] == manifest["gore_height_mm"] for tile in manifest["tiles"]
     )
 
 

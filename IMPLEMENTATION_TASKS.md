@@ -109,8 +109,10 @@ edges, and the calculated equatorial widths match the configured circumference.
   pages. User revision 2026-09-15: the default page overlap is now zero,
   so both halves end exactly at the equator (see Task 20).
 - Support an optional equator split for Gores that need two pages. Centre the
-  configured page overlap on the equator, keep Gores that fit on one page whole,
-  and reject sizes whose half-Gores do not fit the printable page height.
+  configured page overlap on the equator and reject sizes whose half-Gores do
+  not fit the printable page height. User revision 2026-09-20: in equator mode,
+  split Gores that fit on one page into north and south halves by default too;
+  provide a boolean switch to keep those fitting Gores whole if desired.
 - Include page identifiers, tile registration marks, cut lines, Gore identifiers
   on every tile, and OSM attribution. Keep guides and identifiers inside a
   4.2 mm printer border without changing Gore dimensions or overlap.
